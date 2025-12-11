@@ -1,0 +1,1060 @@
+/* ===========================
+   Sidebar
+=========================== */
+.admin-sidebar {
+    width: 16rem; /* 64 Tailwind units */
+    background-color: #000; /* i zi */
+    border-radius: 0%;
+    color: #fff;
+    padding-left: 1.5rem;
+    padding-right: 1.3rem; /* p-6 */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; shpërndan link-et vertikalisht */
+  }
+  
+  .admin-sidebar-logo {
+    height: 62px; /* lartësia që dëshiron */
+    width: 62px;
+    margin-bottom: 2rem; 
+    margin-left: auto;
+  }
+  
+  .admin-sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* hapësirë midis link-eve */
+  }
+  
+  .admin-sidebar nav a {
+    display: block;
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 0.5rem; /* rounded-lg */
+    background-color: rgba(255, 255, 255, 0.1); /* semi-transparent */
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .admin-sidebar nav a:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* ===========================
+     Topbar
+  =========================== */
+  .admin-topbar {
+    background: linear-gradient(
+      90deg,
+      #000000 0%,       /* Zeza absolute */
+      #552200 50%,      /* Portokalli i errët si mesazh tranzicioni */
+      #FFAE42 100%      /* Portokalli i ndritshëm në fund */
+    );
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    height: 62px; /* lartësia që dëshiron */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem; /* padding horizontal */
+  }
+  
+
+/* GRID */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* SKELETON LOADING */
+.stats-skeleton {
+  height: 120px;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* CHART */
+.chart-container {
+  margin: 2rem 1rem;
+  background: #1f1f1f;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.chart-title {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+/* CARD ANIMATION */
+.stats-card {
+  animation: fadeInScale 0.4s ease;
+}
+
+@keyframes fadeInScale {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+
+/* CSS PER PROPERTIES */
+.properties-table-container {
+    background-color: #1f1f1f; /* gri e errët */
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    overflow-x: auto;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  .properties-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .properties-table th,
+  .properties-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    color: #fff;
+  }
+  
+  .properties-table th {
+    background-color: #2a2a2a;
+    font-weight: 600;
+  }
+  
+  .properties-table tr:hover {
+    background-color: rgba(255,255,255,0.1);
+    transition: background-color 0.2s ease;
+  }
+  
+  .status-badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    color: #fff;
+  }
+  
+  .status-sale {
+    background-color: #22c55e; /* gjelbër */
+  }
+  
+  .status-rent {
+    background-color: #facc15; /* portokalli */
+  }
+  
+  .action-button {
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.35rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .action-edit {
+    background-color: #3b82f6; /* blue */
+    color: #fff;
+  }
+  
+  .action-edit:hover {
+    background-color: #2563eb;
+  }
+  
+  .action-delete {
+    background-color: #ef4444; /* red */
+    color: #fff;
+  }
+  
+  .action-delete:hover {
+    background-color: #b91c1c;
+  }
+
+/* PROPERTIES PER CARDS */
+
+
+.properties-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr); /* mobile */
+    gap: 1.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    
+  }
+  
+  @media (min-width: 640px) {
+    .properties-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .properties-cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .properties-cards-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  .property-card-admin {
+    background-color: #1f1f1f; /* i errët */
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    transform: translateY(0);
+    color: #fff; /* Të gjitha shkronjat bardhë */
+    min-height: 280px;
+  }
+  
+  .property-card-admin h3 {
+    color: #fff; /* Emri i pronës bardhë */
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .property-card-admin p {
+    color: #ccc; /* Info sekondare gri */
+    font-size: 0.875rem;
+    margin: 0.2rem 0;
+  }
+  
+  .property-card-admin .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    color: #fff;
+  }
+  
+  .property-card-admin .status-sale {
+    background-color: #22c55e; /* gjelbër */
+  }
+  
+  .property-card-admin .status-rent {
+    background-color: #facc15; /* portokalli */
+  }
+  
+  .property-card-admin .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .property-card-admin .action-button {
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.35rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .property-card-admin .action-edit {
+    background-color: #3b82f6;
+    color: #fff;
+  }
+  
+  .property-card-admin .action-edit:hover {
+    background-color: #2563eb;
+  }
+  
+  .property-card-admin .action-delete {
+    background-color: #ef4444;
+    color: #fff;
+  }
+  
+  .property-card-admin .action-delete:hover {
+    background-color: #b91c1c;
+  }
+  
+  .property-card-admin:hover {
+    box-shadow: 0 8px 20px rgba(255,255,255,0.1);
+    transition: background-color 0.2s ease;
+    background-color: #121312;
+    transform: translateY(-4px);
+  }
+
+  /* SHTO PRONA */
+  
+  .property-images-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .property-image-wrapper {
+    position: relative;
+    width: 6rem;  /* madhësi fikse */
+    height: 6rem;
+    border: 1px solid #4B5563; /* gray-600 */
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .property-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .property-image-remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #DC2626; /* red-600 */
+    color: #fff;
+    border-radius: 0 0 0.25rem 0;
+    padding: 0.1rem 0.25rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .property-image-add {
+    width: 6rem;
+    height: 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #9CA3AF; /* gray-400 */
+    border-radius: 0.5rem;
+    color: #9CA3AF;
+    cursor: pointer;
+    font-size: 1.5rem;
+  }
+  
+  .property-image-add:hover {
+    color: #fff;
+    border-color: #fff;
+  }
+  
+  /* Container i formularit */
+
+.addproperty-form { 
+    background: #1f1f1f; 
+    padding: 1.5rem; 
+    border-radius: 0.75rem; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem; 
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+.addproperty-field { 
+    display: flex; 
+    flex-direction: column;
+     gap: 0.5rem; 
+    }
+
+    .addproperty-type-id {
+        display: flex;
+        gap: 1rem; /* hapësira mes dropdown dhe input */
+      
+      }
+      
+      .addproperty-type,
+      .addproperty-id {
+        flex: 1;           /* secili merr 50% hapësirë të barabartë */
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        background-color: #e0e0e0;
+
+      }
+      
+.addproperty-textarea { 
+    min-height: 80px; 
+  }
+  .addproperty-error { 
+    color: #f87171; 
+    font-size: 0.75rem;   /* më e vogël se input */
+    margin: 0.25rem 0 0 0; /* vetëm pak lart */
+    line-height: 1rem;     /* rreshti i vogël */
+    
+  }
+.addproperty-typefields { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 0.5rem; 
+}
+.addproperty-images { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 0.5rem; 
+  margin-top: 0.5rem; 
+}
+.addproperty-image { 
+  position: relative;
+  width: 100px; 
+  height: 100px; 
+  border: 1px solid #4b5563; 
+  border-radius: 0.25rem; 
+  overflow: hidden; 
+}
+.addproperty-img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+}
+.addproperty-remove { 
+  position: absolute; 
+  top: 0; 
+  right: 0; 
+  background: #dc2626; 
+  color: white; 
+  border-radius: 0 0 0.25rem 0; 
+  padding: 0 0.25rem; 
+  cursor: pointer; 
+}
+.addproperty-addphoto { 
+  width: 100px; 
+  height: 100px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  border: 2px dashed #6b7280; 
+  border-radius: 0.25rem; 
+  cursor: pointer; 
+  color: #9ca3af; 
+  font-size: 2rem; 
+}
+.addproperty-submit { 
+  background: #2563eb; 
+  color: white; 
+  padding: 0.5rem 1rem; 
+  border-radius: 0.25rem; 
+  cursor: pointer; }
+
+
+  .addproperty-city-neighborhood {
+    display: flex;
+    gap: 1rem; /* hapësira mes tyre */
+  }
+  
+  .addproperty-city,
+  .addproperty-neighborhood {
+    flex: 1;            /* 50% + 50% */
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+  }
+  
+ .addproperty-title{
+  padding-left: 1rem;
+ } 
+  /* Rresht me dy elementë – të ndarë 50/50 */
+.addproperty-row {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Fusha e plotë – e zë të gjithë gjerësinë */
+.addproperty-fullrow {
+  width: 100%;
+}
+
+/* Input standard (madhësi si ID + Lloji) */
+.addproperty-input {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: #e0e0e0;
+}
+
+/* Qyteti + Lagjja + Çmimi + Sipërfaqja → secili merr 50% */
+.flex-1 {
+  flex: 1;
+}
+
+/* USERS CSS */
+
+/* ------------------ MAIN CONTAINER ------------------ */
+.users-container {
+  padding: 1rem;
+}
+
+/* ------------------ TABLE WRAPPER ------------------ */
+.users-table-container {
+  background-color: #1b1b1b;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  overflow-x: auto;
+}
+
+/* ------------------ TABLE ------------------ */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.users-table th {
+  background-color: #262626;
+  padding: 0.9rem 0.7rem;
+  font-weight: 600;
+  text-align: left;
+  color: #e5e5e5;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #333;
+}
+
+.users-table td {
+  padding: 0.85rem 0.7rem;
+  color: #e4e4e4;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* Hover row */
+.users-table tbody tr {
+  transition: background-color 0.25s ease;
+}
+
+.users-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ------------------ BADGES ------------------ */
+.status-badge {
+  padding: 0.35rem 0.85rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
+}
+
+.status-active {
+  background-color: #16a34a;
+  color: white;
+}
+
+.status-blocked {
+  background-color: #dc2626;
+  color: white;
+}
+
+/* ------------------ ROLE DROPDOWN ------------------ */
+.role-select {
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.45rem;
+  border: none;
+  outline: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  appearance: none;
+}
+
+/* Colors by role */
+.role-select.user {
+  background-color: #2563eb;
+}
+.role-select.moderator {
+  background-color: #7c3aed;
+}
+.role-select.admin {
+  background-color: #dc2626;
+}
+
+/* ------------------ ACTION BUTTONS ------------------ */
+.actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.35rem;
+}
+
+.action-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.45rem;
+  border: none;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Button colors */
+.action-view { background-color: #8b5cf6; }
+.action-view:hover { background-color: #7c3aed; }
+
+.action-edit { background-color: #3b82f6; }
+.action-edit:hover { background-color: #2563eb; }
+
+.action-block { background-color: #f59e0b; }
+.action-block:hover { background-color: #d97706; }
+
+.action-unblock { background-color: #10b981; }
+.action-unblock:hover { background-color: #059669; }
+
+.action-delete { background-color: #ef4444; }
+.action-delete:hover { background-color: #b91c1c; }
+
+/* ------------------ AVATAR ------------------ */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  color: white;
+  font-size: 1rem;
+}
+
+
+/* BACKDROP */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+  z-index: 9999;
+}
+
+/* MODAL BOX */
+.modal-content {
+  width: 430px;
+  background: #1e1e1e;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  animation: slideUp 0.25s ease;
+}
+
+/* HEADER */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: transparent;
+  color: #e4e4e4;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  color: #ff4c4c;
+}
+
+/* BODY LAYOUT */
+.modal-body {
+  display: flex;
+  gap: 1.4rem;
+}
+
+.modal-user-left {
+  width: 35%;
+  text-align: center;
+}
+
+.modal-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 100px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.user-name {
+  margin-top: 0.6rem;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.user-email {
+  color: #c7c7c7;
+  font-size: 0.85rem;
+}
+
+/* RIGHT SIDE INFO */
+.modal-user-right {
+  width: 65%;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #c0c0c0;
+}
+
+.value {
+  font-size: 0.9rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.status.active {
+  color: #22c55e;
+}
+
+.status.blocked {
+  color: #ef4444;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; } 
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* MODAL>CSS */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: #1f1f1f;
+  border-radius: 1rem;
+  padding: 1rem 1.2rem;
+  color: white;
+  width: 100%;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 0.6rem;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.modal-close {
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.modal-content {
+  padding-top: 1rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* EDITPROPERTY */
+.edit-property-container {
+  background: #1f2937;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 520px;
+}
+
+.edit-property-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.edit-property-form label {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.edit-property-form input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: white;
+}
+
+.save-btn {
+  background: #2563eb;
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.save-btn:hover {
+  background: #1d4ed8;
+}
+
+
+/* APPOINTMENT.CSS */
+/* ============================= */
+/*   CONTAINER – Identik me Properties   */
+/* ============================= */
+
+.appointments-table-container {
+  background-color: #1f1f1f;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  overflow-x: auto;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.appointments-table th,
+.appointments-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  color: #fff;
+}
+
+.appointments-table th {
+  background-color: #2a2a2a;
+  font-weight: 600;
+}
+
+.appointments-table tr:hover {
+  background-color: rgba(255,255,255,0.1);
+  transition: background-color 0.2s ease;
+}
+
+/* ============================= */
+/*   STATUS BADGES – Unique classes   */
+/* ============================= */
+
+.app-status-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+  color: #fff;
+}
+
+.app-status-pending {
+  background-color: #facc15; /* yellow */
+}
+
+.app-status-approved {
+  background-color: #22c55e; /* green */
+}
+
+.app-status-rejected {
+  background-color: #ef4444; /* red */
+}
+
+/* ============================= */
+/*   BUTTONS – Same style as Properties */
+/* ============================= */
+
+.app-action-button {
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.35rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  margin-right: 0.3rem;
+}
+
+/* Blue - view */
+.app-action-view {
+  background-color: #3b82f6;
+  color: #fff;
+}
+.app-action-view:hover {
+  background-color: #2563eb;
+}
+
+/* Green - approve */
+.app-action-approve {
+  background-color: #22c55e;
+  color: #fff;
+}
+.app-action-approve:hover {
+  background-color: #15803d;
+}
+
+/* Red - reject */
+.app-action-reject {
+  background-color: #ef4444;
+  color: #fff;
+}
+.app-action-reject:hover {
+  background-color: #b91c1c;
+}
+
+/* ============================= */
+/*   FILTER BAR   */
+/* ============================= */
+
+.appointments-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+  align-items: center;
+  padding-left: 0.5rem;
+}
+
+.appointments-actions select,
+.appointments-actions input {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  color: #fff;
+  outline: none;
+}
+
+.appointments-actions input::placeholder {
+  color: #aaa;
+}
+
+/* ============================= */
+/*   PAGINATION – Identik me Properties   */
+/* ============================= */
+
+.app-pagination {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.app-pagination button {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  border-radius: 0.4rem;
+  color: #fff;
+}
+
+.app-pagination button:hover {
+  background-color: #3f3f3f;
+}
+
+.app-pagination .active {
+  background-color: #3b82f6;
+  border-color: #2563eb;
+}
+
+/* ============================= */
+/*   MODAL (View Details / Confirm)   */
+/* ============================= */
+
+.app-modal-overlay {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+}
+
+.app-modal {
+  background-color: #1f1f1f;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  width: 380px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  color: #fff;
+  animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.app-modal-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

@@ -1,0 +1,1562 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+/* Custom styles */
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #eaeced 0%, #f1f5f9 100%);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .shadow-prestige {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  .premium-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .luxury-gradient {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+}
+
+/* Animation keyframes */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.filters-wrapper { 
+   margin-top: 1.2rem; 
+ } 
+
+/* Rregullo që filtrat të mos ngjiten me navbar-in */
+.filters-section {
+  margin-top: 3rem; /* distanca nga navbar-i */
+}
+
+.filters-section button {
+  border: 1px solid #2b2b2b;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #f3f4f5 0%, #f1f5f9 100%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+/* .filters-wrapper .bg-white { */
+  /* margin-top: 1rem; */
+/* } */
+
+/* Për të rregulluar spacing horizontal mes filtrave */
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #eaeced 0%, #f1f5f9 100%);
+}
+
+/* Secili filter */
+.filter-item {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1; /* border i lehtë gri */
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: all 0.2s ease-in-out;
+  font-size: 0.875rem;
+  background: linear-gradient(135deg, #eaeced 0%, #f1f5f9 100%);
+}
+
+.filter-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-color: #FFAE42; /* blue on hover */
+}
+
+
+.filters-section button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-color: #FFAE42;
+}
+
+/* Slick Carousel Arrows */
+
+.slick-next {
+  width: 35px;
+  height: 35px;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.slick-prev{
+  width: 35px;
+  height: 35px;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex !important;
+  justify-content: left;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.slick-prev:hover,
+.slick-next:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Pozicionimi mbi foto */
+.slick-prev {
+  left: 2px;
+}
+.slick-next {
+  right: 2px;
+}
+
+/* Ikona brenda */
+.slick-prev::before,
+.slick-next::before {
+  font-size: 20px;
+  color: #fff;
+  opacity: 1;
+  line-height: 1;
+}
+
+
+.property-card-info {
+  flex: 1;                      /* e shtyn details poshtë */
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.property-card-meta {
+  margin-top: 10px;
+  display: flex;
+  align-items: left;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  color: #4b5563;
+  justify-content: space-between;
+}
+.property-card-meta1 {
+  gap: 0.2rem;
+}
+.property-card-meta2 {
+  gap: 0.2rem;
+}
+/* Titulli më qendror vizualisht */
+.property-card-title {
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.7;
+}
+.property-card-title:hover {
+  color: #FFAE42;
+}
+
+property-card-infos{
+  
+  gap: 1rem;
+}
+
+.property-card-info-group {
+  margin-top: 4px;      /* e ndan nga titulli */
+  gap: 1rem !important; /* hapësirë e dukshme mes dhomave dhe katit */
+  color: #4b5563;
+}
+
+/* Statusi pak më poshtë */
+/* .property-card-status {
+  margin-top: 35px;
+  color: #6b7280;
+} */
+
+/* Çmimi & Sipërfaqja në fund të kartës */
+.property-card-details {
+  margin-top: auto !important;  /* Ky e shtyn gjithmonë poshtë */
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+  
+}
+
+/* Grupi për çmimin */
+.property-card-price {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Grupi për sipërfaqen */
+.property-card-area {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Ikonat */
+.property-card-icon {
+  display: flex;
+  width: 1rem;
+  height: 1rem;
+  color: #FFAE42;
+}
+
+.property-card-iconn {
+  display: flex;
+  width: 1rem;
+  height: 1rem;
+  color: #FFAE42;
+  
+}
+
+/* Çmimi dhe sipërfaqja me hierarki vizuale */
+.property-card-price-value {
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.property-card-area-value {
+  color: #4b5563;
+}
+
+/* REGISTER.CSS */
+/* ==============================
+   REGISTER PAGE (isolated styles)
+   ============================== */
+
+   .register-wrapper-uni {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #eaeced 0%, #f1f5f9 100%);
+    padding: 2rem;
+    
+  }
+  
+  .register-card-uni {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    padding: 2.3rem;
+    border-radius: 1rem;
+    box-shadow:
+      0 10px 25px rgba(0,0,0,0.08),
+      0 4px 10px rgba(0,0,0,0.05);
+     
+  }
+  
+  .register-title-uni {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    text-align: center;
+    color: #1f2937;
+  }
+  .register-input-uni,
+.register-btn-uni,
+.register-social-btn-uni {
+  width: 100%;
+  box-sizing: border-box; /* padding + border nuk tejkalojnë width-in */
+}
+  
+  .register-subtitle-uni {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+  }
+  
+  .register-input-group-uni {
+    margin-bottom: 1.2rem;
+    
+  }
+  
+  /* Input normal */
+.register-input-uni {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 0.7rem;
+  border: 1px solid #d1d5db; /* gri standard */
+  background: #f8fafc;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Kur input është hover */
+.register-input-uni:hover {
+  border-color: #FFAE42;
+}
+
+/* Kur input ka fokus (po shkruajmë) */
+.register-input-uni:focus {
+  outline: none;
+  border-color: #FFAE42;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 174, 66, 0.15); /* glow i lehtë portokalli */
+}
+
+  .register-btn-uni {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: white;
+    text-align: center;
+    border-radius: 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease-in-out;
+  }
+  
+  .register-btn-uni:hover {
+    transform: translateY(-2px);
+  }
+  
+  .register-divider-uni {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.6rem 0;
+    color: #94a3b8;
+  }
+  
+  .register-divider-uni::before,
+  .register-divider-uni::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #cbd5e1;
+  }
+  
+  .register-divider-uni::before {
+    margin-right: 0.75rem;
+  }
+  .register-divider-uni::after {
+    margin-left: 0.75rem;
+  }
+  
+  .register-socials-uni {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .register-social-btn-uni {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    transition: all 0.15s ease-in-out;
+  }
+  
+  .register-social-btn-uni:hover {
+     background:#e2e8f0; 
+  }
+  
+  .register-login-link-uni {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #475569;
+  }
+  
+  .register-login-link-uni a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .register-login-link-uni a:hover {
+    text-decoration: underline;
+  }
+  .register-back-home {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .register-back-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.875rem; /* pak më e vogël se teksti normal */
+    color: #6b7280; /* gri e qetë */
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .register-back-home-link:hover {
+    color: #2563eb; /* blu e qetë kur hover */
+  }
+  
+  .register-back-home-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* LOGIN.CSS */
+/* ==============================
+   LOGIN PAGE (isolated styles)
+   ============================== */
+
+.login-wrapper-uni {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #eaeced 0%, #f1f5f9 100%);
+  padding: 2rem;
+}
+
+.login-card-uni {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  padding: 2.3rem;
+  border-radius: 1rem;
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.08),
+    0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Header */
+.login-card-uni h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.login-card-uni p {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Input wrapper */
+.login-input-wrapper-uni {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+
+.login-input-icon-left {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  width: 20px;
+  height: 20px;
+}
+
+.login-input-icon-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inputs */
+.login-input-uni {
+  width: 100%;
+  padding: 0.8rem 3rem 0.8rem 2.5rem; /* left padding for icon */
+  border-radius: 0.7rem;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.login-input-uni:hover {
+  border-color: #FFAE42;
+}
+
+.login-input-uni:focus {
+  outline: none;
+  border-color: #FFAE42;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 174, 66, 0.15);
+}
+
+/* Submit Button */
+.login-btn-uni {
+  width: 100%;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: white;
+  text-align: center;
+  border-radius: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out;
+}
+
+.login-btn-uni:hover {
+  transform: translateY(-2px);
+}
+
+.login-btn-uni:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.login-divider-uni {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #94a3b8;
+}
+
+.login-divider-uni::before,
+.login-divider-uni::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.login-divider-uni::before {
+  margin-right: 0.75rem;
+}
+
+.login-divider-uni::after {
+  margin-left: 0.75rem;
+}
+
+/* Social buttons */
+.login-socials-uni {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.login-social-btn-uni {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease-in-out;
+}
+
+.login-social-btn-uni:hover {
+  background: #e2e8f0;
+}
+
+/* Register link */
+.login-register-link-uni {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.login-register-link-uni a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-register-link-uni a:hover {
+  text-decoration: underline;
+}
+/* Forgot Password Link */
+.login-forgot-password-uni {
+  font-size: 0.9rem;
+}
+
+/* Forgot Password Link */
+.login-forgot-password-uni a {
+  color: #2563eb;
+  font-size: 0.875rem; /* pak më i vogël se input */
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.login-forgot-password-uni a:hover {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
+
+.login-back-home {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.login-back-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.875rem; /* pak më e vogël se teksti normal */
+  color: #6b7280; /* gri e qetë */
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.login-back-home-link:hover {
+  color: #2563eb; /* blu e qetë kur hover */
+}
+
+.login-back-home-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ------------------------------
+   ABOUT PAGE WRAPPER
+--------------------------------*/
+.ari-about-wrapper {
+  font-family: "Inter", sans-serif;
+  color: #1e1e1e;
+  animation: fadeIn 0.8s ease;
+}
+
+/* ------------------------------
+   HERO SECTION
+--------------------------------*/
+.ari-about-hero {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  background: url("https://images.unsplash.com/photo-1560185127-1f94a8f1ea9b")
+    center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ari-about-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 15, 15, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.ari-about-hero-content {
+  position: relative;
+  text-align: center;
+  color: #fff;
+  padding: 0 2rem;
+  max-width: 800px;
+  animation: slideUp 1s ease;
+}
+
+.ari-about-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.ari-about-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* ------------------------------
+   SECTIONS
+--------------------------------*/
+.ari-about-section {
+  padding: 4rem 2rem;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+}
+
+.ari-section-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.ari-section-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #555;
+}
+
+/* ------------------------------
+   FEATURES GRID
+--------------------------------*/
+.ari-features-grid {
+  padding: 4rem 2rem;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  max-width: 1200px;
+  margin: auto;
+}
+
+.ari-feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.ari-feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.ari-feature-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+
+.ari-feature-text {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* ------------------------------
+   ANIMATIONS
+--------------------------------*/
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.contact-section {
+  padding: 80px 0;
+  background: #f7f7f7;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(135deg, #eaeced 0%, #f1f5f9 100%);
+
+}
+
+.contact-container {
+  width: 90%;
+  max-width: 700px;
+  text-align: center;
+}
+
+.contact-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.contact-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  
+}
+
+.contact-item {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid transparent;   /* ← KJO I DUHET */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+
+.contact-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border-color: #FFAE42;
+
+}
+
+.contact-item h3 {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.contact-item a {
+  color: #555;
+  font-size: 15px;
+}
+
+.contact-item a:hover {
+color: #FFAE42;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 50%;
+  font-size: 22px;
+  color: #333;
+  border: 2px solid transparent;
+  transition: 0.25s ease;
+}
+
+.social-icon:hover {
+  transform: translateY(-4px);
+  border-color: #FFAE42;
+  color: #FFAE42;
+  background: white;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* ------------------------------
+   PROPERTY DETAIL PAGE
+--------------------------------*/
+/* PROPERTYDETAIL.CSS */
+/* WRAPPER -------------------------------------------------- */
+.propertySoftApple-wrapper {
+  max-width: 1200px;
+  margin: 5rem auto;
+  font-family: "Inter", sans-serif;
+  color: #1f2937;
+}
+
+.propertySoftApple-container {
+  display: grid;
+  grid-template-columns: 700px 1fr; /* FOTO + FEATURE PANEL */
+  gap: 2rem;
+}
+
+/* LEFT SECTION --------------------------------------------- */
+.propertySoftApple-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* MAIN IMAGE SLIDER */
+.propertySoftApple-slider {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #f8f8f9;
+}
+
+.propertySoftApple-mainImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+   cursor: pointer; 
+  transition: 0.3s ease;
+}
+
+.propertySoftApple-mainImg:hover {
+  transform: scale(1.02);
+}
+
+/* Slider arrows */
+.softApple-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.8);
+  border: none;
+  font-size: 2rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.2s ease;
+  backdrop-filter: blur(3px);
+}
+
+.softApple-arrow:hover {
+  background: rgba(255,255,255,1);
+}
+
+.softApple-arrow.left { left: 10px; z-index: 10; }
+.softApple-arrow.right { right: 10px; z-index: 10; }
+
+/* THUMBNAILS */
+.propertySoftApple-thumbs {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+}
+
+.propertySoftApple-thumb {
+  width: 90px;
+  height: 65px;
+  object-fit: cover;
+  border-radius: 12px;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.propertySoftApple-thumb:hover { opacity: 1; }
+.propertySoftApple-thumb.active {
+  opacity: 1;
+  outline: 3px solid #2563eb;
+}
+
+/* RIGHT SECTION ---------------------------------------------- */
+.propertySoftApple-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  height: 380px; /* FIXED height equal to slider for perfect alignment */
+}
+
+.softApple-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.softApple-price {
+  font-size: 1.6rem;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* FEATURES GRID */
+.propertySoftApple-featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 per row */
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Feature Card */
+.propertySoftApple-featureCard {
+  background: #f3f4f6;
+  border-radius: 14px;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+}
+
+.propertySoftApple-featureCard .feature-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.propertySoftApple-featureCard .feature-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* BOTTOM SECTION --------------------------------------------- */
+.propertySoftApple-bottom {
+  margin-top: 2rem;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.softApple-section {
+  margin-bottom: 1.5rem;
+}
+
+.softApple-section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+/* FULLSCREEN MODAL ------------------------------------------- */
+.propertySoftApple-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.propertySoftApple-modalImg {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.modal-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 3rem;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 50%;
+  backdrop-filter: blur(5px);
+}
+
+.modal-arrow.left { left: 40px; }
+.modal-arrow.right { right: 40px; }
+
+.modal-arrow:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* RESPONSIVE -------------------------------------------------- */
+@media (max-width: 1024px) {
+  .propertySoftApple-container {
+    grid-template-columns: 1fr;
+  }
+
+  .propertySoftApple-right {
+    height: auto;
+  }
+}
+
+
+
+/* Properties Page */
+/* ---- container ---- */
+.properties-page {
+  color: #0f172a;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin-bottom: 90px;
+}
+
+/* ---- filter bar ---- */
+.properties-filter-bar {
+  max-width: 1100px;
+  margin: 0 auto 12px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+}
+
+.filter-left, .filter-middle, .filter-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* small labels */
+.filter-label {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+/* select */
+.filter-select {
+  padding: 6px 10px;
+  border: 1px solid #e6eef8;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* radius toggle */
+.radius-toggle-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+.radius-toggle-btn.on {
+  background: #2563eb;
+  color: #fff;
+}
+.radius-toggle-btn.off {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* slider + number */
+.radius-range {
+  width: 160px;
+}
+.radius-number {
+  width: 64px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #e6eef8;
+}
+
+/* ---- map + side layout ---- */
+.properties-map-and-side {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* map col */
+.properties-map-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 440px;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.06);
+}
+
+/* leaflet map class */
+.properties-map {
+  height: 100%;
+  width: 100%;
+}
+
+/* side column card */
+.side-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.side-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* list */
+.side-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 320px;
+  padding-right: 4px;
+}
+
+/* side item (button) */
+.side-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-radius: 8px;
+  padding: 6px;
+  border: 1px solid transparent;
+  background: #fbfdff;
+  cursor: pointer;
+  text-align: left;
+}
+.side-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+}
+
+/* thumbnail small */
+.side-thumb {
+  width: 72px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* meta */
+.side-meta { flex: 1; }
+.side-title-row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.side-name { font-weight: 600; font-size: 14px; }
+.side-price { font-weight:700; color:#0369a1; font-size: 13px; }
+.side-sub { font-size: 12px; color:#64748b; margin-top: 4px; }
+
+/* empty msg */
+.side-empty { color: #94a3b8; padding: 10px; }
+
+/* hint */
+.side-hint { margin-top: 10px; font-size: 12px; color: #64748b; }
+
+/* ---- tooltip preview ---- */
+/* ---- tooltip preview ---- */
+.properties-tooltip {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 260px;
+  background: #fff;
+  padding: 6px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  flex-wrap: wrap; /* lejon teksti të mbështillet */
+  overflow: hidden;
+}
+
+.tooltip-thumb {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.tooltip-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  word-break: break-word; /* lejon ndarjen e fjalëve të gjata */
+}
+
+.tooltip-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.tooltip-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.tooltip-price {
+  font-weight: 700;
+  color: #065f46;
+  font-size: 13px;
+}
+
+/* responsive tweaks */
+@media (max-width: 1024px) {
+  .properties-map-and-side { grid-template-columns: 1fr; }
+  .properties-map-wrapper { height: 420px; }
+  .properties-filter-bar { padding: 0.5rem; gap: 0.6rem; flex-wrap:wrap; }
+}
+/* ruajme stilin ekzistues të side-list */
+.side-list-scroll {
+  max-height: 320px; /* gjatësia e fiksuar e kolonës */
+  overflow-y: auto;  /* scroll vertikal kur ka shumë prona */
+  padding-right: 4px; /* për scroll bar të bukur */
+}
+
+/* optional: scrollbar i minimal dhe profesional */
+.side-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.side-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.side-list-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+
+/* Appointment Button */
+/* BUTTON: Kërko një takim */
+.request-appointment-btn {
+  margin-top: 20px;
+  padding: 14px 22px;
+  font-size: 16px;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 16px rgba(26, 115, 232, 0.25);
+}
+
+.appointment-btn:hover {
+  background: #1664c4;
+  box-shadow: 0 8px 18px rgba(26, 115, 232, 0.35);
+}
+
+/* ------------------- */
+/*   MODAL OVERLAY     */
+/* ------------------- */
+.appointment-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+
+/* ------------------- */
+/*   MODAL BOX         */
+/* ------------------- */
+.appointment-modal-content {
+  background: white;
+  padding: 28px;
+  width: 380px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.25s ease;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* INPUT */
+.appointment-input {
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.appointment-input:focus {
+  border-color: #1a73e8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+}
+
+/* BUTTON CONTAINER */
+.appointment-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* CANCEL */
+.cancel-btn {
+  flex: 1;
+  padding: 12px;
+  background: #d4d4d4;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #bfbfbf;
+}
+
+/* SUBMIT */
+.submit-btn {
+  flex: 1;
+  padding: 12px;
+  background: #1a73e8;
+  border: none;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+}
+
+.submit-btn:hover {
+  background: #1664c4;
+  box-shadow: 0 6px 16px rgba(26,115,232,0.3);
+}
+
+/* Map */
+.softApple-section {
+  margin-top: 2rem;
+}
+
+.softApple-section h3 {
+  margin-bottom: 1rem;
+}
+
+/* Container i Leaflet */
+.softApple-section .leaflet-container {
+  height: 400px; /* mund ta ndryshosh sipas dëshirës */
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Rekomandimi */
+/* Recommended properties section */
+.recommended-section {
+  margin-top: 30px;
+}
+
+.recommended-section h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.recommended-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.recommended-card {
+  display: block;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recommended-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+}
+
+.recommended-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.recommended-info {
+  padding: 10px 12px;
+}
+
+.recommended-info h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.recommended-price {
+  color: #0369a1;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.recommended-meta {
+  font-size: 13px;
+  color: #64748b;
+}
