@@ -226,9 +226,23 @@ html {
   color: #FFAE42;
 }
 
-property-card-infos{
-  
-  gap: 1rem;
+.property-card-infos {
+  display: flex;           /* bëhet flex container */
+  flex-wrap: wrap;         /* lejon që chip-at të shkojnë në rresht tjetër */
+  gap: 0.2rem;             /* hapësirë mes chip-ave */
+}
+
+.chip {
+  display: flex;           /* ikonë + tekst në linjë */
+  align-items: center;
+  gap: 1px;                /* distanca ikonë – tekst */
+  padding: 6px 5px;
+  border-radius: 999px;
+  /* font-size: 13px; */
+  /* color: #e6eef8; */
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;     /* mos thyhet chip-i brenda */
 }
 
 .property-card-info-group {
@@ -1559,4 +1573,42 @@ color: #FFAE42;
 .recommended-meta {
   font-size: 13px;
   color: #64748b;
+}
+
+
+/* Pagination - home */
+.home-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 5rem; /* kjo e mban gjithmonë 1rem mbi footer */
+}
+
+
+
+.home-pagination-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #374151;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.home-pagination-btn:hover:not(.active):not(.disabled) {
+  background-color: #e5e7eb;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.home-pagination-btn.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.home-pagination-btn.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
