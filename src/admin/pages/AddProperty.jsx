@@ -18,7 +18,6 @@ function AddProperty() {
     floor: "",
     hasElevator: false,
     hasBalcony: false,
-    floors: "",
     hasGarden: false,
     hasGarage: false,
     hasParking: false,
@@ -73,7 +72,7 @@ function AddProperty() {
     if (!type) newErrors.type = "Ju lutem zgjidhni llojin e pronës";
 
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave duhet të jetë më i madh se 0";
-    if (type === "SHTEPI" && (!form.floors || form.floors <= 0)) newErrors.floors = "Numri i kateve duhet të jetë më i madh se 0";
+    if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) newErrors.floor = "Numri i kateve duhet të jetë më i madh se 0";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -87,29 +86,64 @@ function AddProperty() {
       reader.onerror = (error) => reject(error);
     });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    try {
-      const imagesBase64 = form.images.length > 0 ? await Promise.all(form.images.map(fileToBase64)) : [];
-      const formData = { ...form, type, images: imagesBase64 };
-      await axios.post("/api/admin/properties/add", formData);
-
-      alert("Pronë u shtua me sukses!");
-      setForm({
-        id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: "",
-        price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
-        floors: "", hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
-        bathrooms: "", latitude: "", longitude: "", images: [], status: ""
-      });
-      setPreviewImages([]);
-      setErrors({});
-    } catch (err) {
-      console.error(err);
-      alert("Shtimi i pronës dështoi");
-    }
-  };
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!validate()) return;
+    
+      try {
+        // Convert-image ne base64
+        const imagesBase64 =
+          form.images.length > 0
+            ? await Promise.all(form.images.map(fileToBase64))
+            : [];
+    
+        // 🔹 Kombino city + neighborhood në një string për backend
+        const fullLocation = form.location 
+          ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}` 
+          : form.neighborhood || '';
+    
+        // krijo payload
+        const payload = { 
+          ...form, 
+          type, 
+          images: imagesBase64,
+          location: fullLocation  // ✅ kjo zëvendëson fushën location
+        };
+    
+        // cakto endpoint sipas llojit të pronës
+        let url = "";
+        switch (type) {
+          case "BANESA": url = "http://localhost:8080/api/banesa"; break;
+          case "SHTEPI": url = "http://localhost:8080/api/shtepi"; break;
+          case "LOKALE": url = "http://localhost:8080/api/lokale"; break;
+          case "TOKA": url = "http://localhost:8080/api/toka"; break;
+          default:
+            alert("Lloji i pronës nuk është valid!");
+            return;
+        }
+    
+        // dergo kerkesen
+        await axios.post(url, payload, {
+          headers: { "Content-Type": "application/json" }
+        });
+    
+        alert("Pronë u shtua me sukses!");
+        setForm({
+          id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: "",
+          price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
+           hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
+          bathrooms: "", latitude: "", longitude: "", images: [], status: ""
+        });
+        setPreviewImages([]);
+        setErrors({});
+    
+      } catch (err) {
+        console.error(err);
+        alert("Shtimi i pronës dështoi");
+      }
+    };
+    
+    
 
   return (
     <div className="admin-page">
@@ -177,8 +211,8 @@ function AddProperty() {
 
         {type === "SHTEPI" && (
           <div className="addproperty-typefields">
-            <input type="number" name="floors" placeholder="Numri i kateve" value={form.floors} onChange={handleChange} className="addproperty-input" />
-            {errors.floors && <p className="addproperty-error">{errors.floors}</p>}
+            <input type="number" name="floor" placeholder="Numri i kateve" value={form.floor} onChange={handleChange} className="addproperty-input" />
+            {errors.floor && <p className="addproperty-error">{errors.floor}</p>}
             <input type="number" name="bathrooms" placeholder="Numri i banjove" value={form.bathrooms} onChange={handleChange} className="addproperty-input" />
             <label><input type="checkbox" name="hasGarden" checked={form.hasGarden} onChange={handleChange} /> Oborr</label>
             <label><input type="checkbox" name="hasGarage" checked={form.hasGarage} onChange={handleChange} /> Garazh</label>

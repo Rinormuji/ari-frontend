@@ -80,27 +80,38 @@ const PropertyCard = ({ property }) => {
               {property.title}
             </h3>
 
-            {/* Infot e prones*/}
-            <div className="flex items-center text-gray-600 text-sm gap-2 property-card-infos property-card-info-group">
-              {(property.type === "BANESA" || property.type === "SHTEPI") && (
-                <div className="flex items-center text-gray-600 text-sm gap-2 property-card-propertyInfo">
-                  <div className="flex items-center gap-1 property-card-propertyInfo1">
-                    <Bed className="w-4 h-4 text-[#FFAE42]" />
-                    <span>{property.rooms}</span>
-                  </div>
-                </div>
-              )}
-              {/* {property.type === "BANESA" && (
-                <div className="flex items-center gap-2 property-card-floor">
-                  <Layers className="w-4 h-4 text-[#FFAE42]" />
-                  <span>Kati: {property.floor}</span>
-                </div>
-              )} */}
-              <div className="flex items-center gap-2 property-card-floor">
-                <Layers className="w-4 h-4 text-[#FFAE42]" />
-                <span>{property.type === "BANESA" ? `Kati: ${property.floor}` : `Kate: ${property.floor || 0}`}</span>
-              </div>
-            </div>
+           {/* Infot e pronës */}
+<div className="property-card-infos">
+  {/* Rooms */}
+  {(property.type === "BANESA" || property.type === "SHTEPI") && property.rooms && (
+  <div className="chip">
+    <Bed className="w-4 h-4 text-[#FFAE42]" />
+    <span>{property.rooms}</span>
+  </div>
+)}
+
+{(property.type === "BANESA" || property.type === "LOKALE") && property.floor && (
+  <div className="chip">
+    <Layers className="w-4 h-4 text-[#FFAE42]" />
+    <span> Kati: {property.floor}</span>
+  </div>
+)}
+
+{property.type === "SHTEPI" && property.floor && (
+  <div className="chip">
+    <Layers className="w-4 h-4 text-[#FFAE42]" />
+    <span> {property.floor} Kate</span>
+  </div>
+)}
+
+{property.hasElevator && <div className="chip">🔼 Ashensor</div>}
+{property.hasBalcony && <div className="chip">🌇 Ballkon</div>}
+{property.hasGarage && <div className="chip">🚗 Garazh</div>}
+{property.hasGarden && <div className="chip">🌳 Oborr</div>}
+{property.hasParking && <div className="chip">🅿️ Parking</div>}
+
+</div>
+
 
             {/* Çmimi & Sipërfaqja */}
             <div className="flex items-center justify-between mt-3 property-card-details">

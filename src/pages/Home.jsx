@@ -6,12 +6,12 @@ import PropertyFilters from '../components/PropertyFilters'
 import PropertyCard from '../components/PropertyCard'
 
 const Home = () => {
-  const [properties, setProperties] = useState([])
-  const [filtered, setFiltered] = useState([])
+  const [properties, setProperties] = useState([]) // të gjitha pronat
+  const [filtered, setFiltered] = useState([]) // pronat e filtruar
   const [showFilters, setShowFilters] = useState(false)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 12
 
   // 🔹 Ndihmëse për ndarjen e location në city + neighborhood
   const mapLocation = (location) => {
@@ -20,59 +20,50 @@ const Home = () => {
     return { city: parts[0].trim(), neighborhood: parts[1]?.trim() || '' }
   }
 
-  // 🔹 Merr pronat nga API
+  // 🔹 Merr të gjitha pronat nga backend
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const res = await propertyAPI.getProperties({ page: page - 1, size: 12 })
+        const res = await propertyAPI.getProperties({ page: 0, size: 1000 }) // merr të gjitha pronat
         const content = res.data.content || []
 
-        // 🔹 Map pronat për t’i pasur të gjitha fushat që duam
         const mappedProperties = content.map((p) => {
           const { city, neighborhood } = mapLocation(p.location)
           return {
             id: p.id,
-            title: p.title,
+            title: p.title ?? "-",
             city,
             neighborhood,
-            type: p.type,
-            status: p.status,
-            area: p.area,
-            price: p.price,
-            rooms: p.rooms ?? 0,
-            floor: p.floor ?? 0,
-            images: p.images ?? [],
+            type: p.type ?? "-",
+            status: p.status ?? "FOR_SALE",
+            area: p.area != null ? Number(p.area) : null,
+            price: p.price != null ? Number(p.price) : null,
+            rooms: p.rooms != null ? Number(p.rooms) : null,
+            floor: p.floor != null ? Number(p.floor) : null,
+            hasElevator: p.hasElevator ?? false,
+            hasBalcony: p.hasBalcony ?? false,
+            hasGarage: p.hasGarage ?? false,
+            hasGarden: p.hasGarden ?? false,
+            hasParking: p.hasParking ?? false,
+            images: Array.isArray(p.images) ? p.images : [],
           }
         })
 
         setProperties(mappedProperties)
         setFiltered(mappedProperties)
-        setTotalPages(res.data.totalPages || 1)
       } catch (err) {
         console.error('Error fetching properties:', err)
       } finally {
         setLoading(false)
       }
     }
+
     fetchData()
-  }, [page])
+  }, [])
 
-  // 🔹 Filtër lokal (deri sa backend të ofrojë filtrimin)
+  // 🔹 Filtër lokal
   const handleFilterChange = (filters) => {
-    if (
-      !filters.city &&
-      !filters.neighborhood &&
-      !filters.type &&
-      !filters.status &&
-      !filters.minArea &&
-      !filters.floor &&
-      !filters.rooms
-    ) {
-      setFiltered(properties)
-      return
-    }
-
     const filteredData = properties.filter((p) => {
       if (filters.city && p.city !== filters.city) return false
       if (filters.neighborhood && !p.neighborhood.toLowerCase().includes(filters.neighborhood.toLowerCase())) return false
@@ -83,9 +74,15 @@ const Home = () => {
       if (filters.rooms && p.rooms < Number(filters.rooms)) return false
       return true
     })
-    
+
     setFiltered(filteredData)
+    setPage(1)
   }
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const startIndex = (page - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentProperties = filtered.slice(startIndex, endIndex)
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -135,10 +132,10 @@ const Home = () => {
                 ></div>
               ))}
             </div>
-          ) : filtered.length > 0 ? (
+          ) : currentProperties.length > 0 ? (
             <>
               <div className="property-grid">
-                {filtered.map((property, index) => (
+                {currentProperties.map((property, index) => (
                   <motion.div
                     key={property.id || index}
                     initial={{ opacity: 0, y: 30 }}
@@ -152,20 +149,36 @@ const Home = () => {
 
               {/* 🔹 Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-12">
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setPage(i + 1)}
-                      className={`px-4 py-2 rounded-lg font-medium ${
-                        page === i + 1
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
+                <div className="home-pagination flex justify-center items-center gap-2">
+                  <button
+                    onClick={() => setPage((s) => Math.max(1, s - 1))}
+                    disabled={page <= 1}
+                    className={`home-pagination-btn home-pagination-prev ${page <= 1 ? 'disabled' : ''}`}
+                  >
+                    ⬅ Prev
+                  </button>
+
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const pageNumber = i + 1
+                    const isActive = page === pageNumber
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setPage(pageNumber)}
+                        className={`home-pagination-btn ${isActive ? 'active' : ''}`}
+                      >
+                        {pageNumber}
+                      </button>
+                    )
+                  })}
+
+                  <button
+                    onClick={() => setPage((s) => Math.min(totalPages, s + 1))}
+                    disabled={page >= totalPages}
+                    className={`home-pagination-btn home-pagination-next ${page >= totalPages ? 'disabled' : ''}`}
+                  >
+                    Next ➡
+                  </button>
                 </div>
               )}
             </>
