@@ -63,52 +63,108 @@
   }
   
 
-/* GRID */
+/* CONTAINER I FAQES */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #ffffff; /* faqja mbetet e bardhë */
+  min-height: 100vh;
+}
+
+/* GRID I KARTAVE */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
-  padding: 1rem;
 }
 
-/* SKELETON LOADING */
-.stats-skeleton {
-  height: 120px;
+/* KARTA INDIVIDUALE */
+.stats-card {
+  padding: 1.5rem;
   border-radius: 1rem;
-  background: linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  color: #f1f5f9;
+  font-weight: 600;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #1f2933, #374151); /* i errët */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
-/* CHART */
-.chart-container {
-  margin: 2rem 1rem;
-  background: #1f1f1f;
-  padding: 1rem;
+.stats-card-title {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+.stats-card-value {
+  font-size: 1.75rem;
+  color: #ffffff;
+}
+
+/* CHART WRAPPER */
+.chart-wrapper {
+  background-color: #1f2933; /* vetëm chart-i është i errët */
+  padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  margin-top: 2rem;
 }
 
 .chart-title {
-  color: #fff;
-  font-size: 1.3rem;
+  color: #f1f5f9;
+  font-size: 1.25rem;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
-/* CARD ANIMATION */
-.stats-card {
-  animation: fadeInScale 0.4s ease;
+.recharts-tooltip-wrapper {
+  background-color: #111827 !important;
+  color: #f1f5f9 !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.875rem;
 }
 
-@keyframes fadeInScale {
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
+.recharts-tooltip-item {
+  color: #0077ee !important;
 }
+
+.recharts-tooltip-label {
+  font-weight: 600;
+  color: #38bdf8 !important;
+}
+
+.recharts-tooltip-separator {
+  background-color: #2d3748 !important;
+}
+
+.recharts-line {
+  transition: stroke 0.2s ease;
+}
+
+.recharts-line:hover {
+  stroke-width: 3px !important;
+}
+
+.recharts-cartesian-axis-tick {
+  fill: #cbd5e1;
+  font-size: 0.875rem;
+}
+
+.recharts-cartesian-axis-line {
+  stroke: #2d3748 !important;
+}
+
 
 
 /* CSS PER PROPERTIES */
@@ -456,6 +512,7 @@
     transform: scale(1);
   }
 }
+
 
 
   /* SHTO PRONA */
@@ -1214,4 +1271,154 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+/* ================= MODAL OVERLAY ================= */
+.users-admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* ================= MODAL BOX ================= */
+.users-admin-modal {
+  background: #1f2933;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 460px;
+  max-width: 95%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  animation: usersAdminModalFadeIn 0.2s ease-out;
+}
+
+.users-admin-modal h3 {
+  color: #fff;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.users-admin-modal p,
+.users-admin-modal li {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  margin-bottom: 0.45rem;
+}
+
+.users-admin-modal b {
+  color: #fff;
+}
+
+/* ================= INPUTS ================= */
+.users-admin-modal-input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 0.95rem;
+  background: #374151;
+  color: #fff;
+}
+
+.users-admin-modal-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= BUTTONS ================= */
+.users-admin-modal-btn {
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-right: 0.5rem;
+}
+
+.users-admin-modal-btn.cancel {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.users-admin-modal-btn.cancel:hover {
+  background: #4b5563;
+}
+
+.users-admin-modal-btn.success {
+  background: #10b981;
+  color: #fff;
+}
+
+.users-admin-modal-btn.success:hover {
+  background: #059669;
+}
+
+.users-admin-modal-btn.primary {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.users-admin-modal-btn.primary:hover {
+  background: #2563eb;
+}
+
+.users-admin-modal-btn.warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.users-admin-modal-btn.warning:hover {
+  background: #d97706;
+}
+
+.users-admin-modal-btn.danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.users-admin-modal-btn.danger:hover {
+  background: #dc2626;
+}
+
+.users-admin-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= APPOINTMENTS ================= */
+.users-admin-appointment-card {
+  background: #374151;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.users-admin-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem; /* rritja e hapësirës nga tabela */
+}
+
+
+/* ================= ANIMATION ================= */
+@keyframes usersAdminModalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

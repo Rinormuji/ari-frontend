@@ -1,21 +1,92 @@
-import { useState } from "react";
-import PropertiesTable from "../components/PropertiesTable";
-import "../admin.css";
-import Modal from "../components/Modal";
-import { FaEdit, FaTrash, FaEye, FaBan } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { FaEye, FaEdit, FaTrash, FaBan } from "react-icons/fa";
 
-function Users() {
-  const [users, setUsers] = useState([]); // demo ose fetched data
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [modalType, setModalType] = useState(null);
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const PAGE_SIZE = 10;
 
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
+export default function UsersAdmin({ currentUserRoles = [] }) {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
 
-  const openModal = (user, type) => {
-    setSelectedUser(user);
+  const [modalType, setModalType] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const isAdmin = currentUserRoles.includes("ADMIN");
+
+  /* ================= FETCH USERS ================= */
+  useEffect(() => {
+    fetchUsers();
+  }, [page, search]);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_BASE}/api/users`, {
+        params: { page: page - 1, size: PAGE_SIZE, search },
+        withCredentials: true,
+      });
+
+      setUsers(res.data.content);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error("Error fetching users", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= ACTIONS ================= */
+  const updateEmail = async () => {
+    if (!isAdmin) return;
+    await axios.put(
+      `${API_BASE}/api/users/${selectedUser.id}/email`,
+      null,
+      { params: { email: selectedUser.email }, withCredentials: true }
+    );
+    closeModal();
+    fetchUsers();
+  };
+
+  const updateRoles = async () => {
+    if (!isAdmin) return;
+    await axios.put(
+      `${API_BASE}/api/users/${selectedUser.id}/roles`,
+      selectedUser.roles,
+      { withCredentials: true }
+    );
+    closeModal();
+    fetchUsers();
+  };
+
+  const toggleStatus = async () => {
+    const newStatus =
+      selectedUser.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
+
+    await axios.put(
+      `${API_BASE}/api/users/${selectedUser.id}/status`,
+      null,
+      { params: { status: newStatus }, withCredentials: true }
+    );
+    closeModal();
+    fetchUsers();
+  };
+
+  const deleteUser = async () => {
+    await axios.delete(`${API_BASE}/api/users/${selectedUser.id}`, {
+      withCredentials: true,
+    });
+    closeModal();
+    fetchUsers();
+  };
+
+  /* ================= MODAL ================= */
+  const openModal = (type, user) => {
+    setSelectedUser({ ...user });
     setModalType(type);
   };
 
@@ -24,179 +95,178 @@ function Users() {
     setModalType(null);
   };
 
-  // =======================
-  // API ACTIONS (demo stub)
-  // =======================
-  const updateEmail = (email) => {
-    console.log("update email:", email);
-    closeModal();
-  };
-  const updateRoles = (roles) => {
-    console.log("update roles:", roles);
-    closeModal();
-  };
-  const updateStatus = () => {
-    console.log("update status");
-    closeModal();
-  };
-  const deleteUser = () => {
-    console.log("delete user");
-    closeModal();
-  };
-
+  /* ================= UI ================= */
   return (
-    <div className="users-container">
-      {/* Header */}
+    <div className="admin-page-container p-4">
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-white">User Management</h2>
-          <p className="text-gray-400">Manage registered users</p>
-        </div>
-
-        <div className="flex gap-4 text-white">
-          <div className="text-center">
-            <div className="text-2xl font-bold">{users?.length || 0}</div>
-            <div className="text-sm text-gray-400">Total Users</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-500">
-              {users?.filter(u => u.status === "ACTIVE").length || 0}
-            </div>
-            <div className="text-sm text-gray-400">Active</div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-2xl font-bold text-red-500">
-              {users?.filter(u => u.status === "BLOCKED").length || 0}
-            </div>
-            <div className="text-sm text-gray-400">Blocked</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-white">Menaxhimi i Përdoruesve</h2>
         <input
-          type="text"
-          placeholder="Search by username or email..."
-          className="p-2 rounded w-64 text-black"
+          className="filter-input"
+          placeholder="Kërko username ose email"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          style={{ width: 280 }}
         />
       </div>
 
-      {/* Table */}
-      <div className="users-table-container">
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users?.map(user => (
-              <tr key={user.id}>
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="user-avatar">{user.username.charAt(0)}</div>
-                    <div>
-                      <div className="font-medium text-white">{user.username}</div>
-                      <div className="text-sm text-gray-400">{user.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>{[...user.roles].join(", ")}</td>
-                <td>
-                  <span
-                    className={`status-badge ${
-                      user.status === "ACTIVE" ? "status-active" : "status-blocked"
-                    }`}
-                  >
-                    {user.status}
-                  </span>
-                </td>
-                <td className="actions">
-                  <button onClick={() => openModal(user, "view")} className="action-button action-view"><FaEye size={14} /></button>
-                  <button onClick={() => openModal(user, "edit")} className="action-button action-edit"><FaEdit size={14} /></button>
-                  <button
-                    className={`action-button ${
-                      user.status === "ACTIVE" ? "action-block" : "action-unblock"
-                    }`}
-                    onClick={() => openModal(user, "block")}
-                  >
-                    <FaBan size={14} />
-                  </button>
-                  <button onClick={() => openModal(user, "delete")} className="action-button action-delete"><FaTrash size={14} /></button>
-                </td>
+      {/* TABLE */}
+      <div className="properties-table-container">
+        {loading ? (
+          <div style={{ height: 200 }} />
+        ) : (
+          <table className="properties-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Roles</th>
+                <th>Status</th>
+                <th>Veprime</th>
               </tr>
-            )) || null}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id}>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <div className="user-avatar">{u.username.charAt(0)}</div>
+                      <div>
+                        <div className="text-white font-medium">{u.username}</div>
+                        <div className="text-sm text-gray-400">{u.email}</div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>{u.roles?.join(", ")}</td>
+
+                  <td>
+                    <span className={`status-badge ${u.status === "ACTIVE" ? "status-approved" : "status-rejected"}`}>
+                      {u.status}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button className="action-button action-view" onClick={() => openModal("view", u)}>
+                        <FaEye />
+                      </button>
+                      <button className="action-button action-edit" onClick={() => openModal("edit", u)}>
+                        <FaEdit />
+                      </button>
+                      <button className="action-button action-reject" onClick={() => openModal("status", u)}>
+                        <FaBan />
+                      </button>
+                      <button className="action-button action-delete" onClick={() => openModal("delete", u)}>
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center py-4">Nuk ka përdorues.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-4">
-        <button disabled={page === 0} onClick={() => setPage(prev => prev - 1)} className="px-3 py-1 bg-gray-700 rounded text-white">Prev</button>
-        <span className="text-white px-2 py-1">Page {page + 1} / {totalPages}</span>
-        <button disabled={page + 1 >= totalPages} onClick={() => setPage(prev => prev + 1)} className="px-3 py-1 bg-gray-700 rounded text-white">Next</button>
+      {/* PAGINATION */}
+      <div className="users-admin-pagination">
+  <button className="filter-button" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</button>
+  <div style={{ color: "#cbd5e1" }}>Faqja {page} / {totalPages}</div>
+  <button className="filter-button" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</button>
+</div>
+
+       {/* PAGINATION */}
+       <div className="flex items-center justify-center gap-3 mt-6">
+        ...
       </div>
 
-      {/* ---------------- MODALS ---------------- */}
-      <Modal isOpen={modalType === "view"} onClose={closeModal} title="User Information" width="450px">
-        {selectedUser && (
-          <div>
-            <p><b>Username:</b> {selectedUser.username}</p>
-            <p><b>Email:</b> {selectedUser.email}</p>
-            <p><b>Roles:</b> {[...selectedUser.roles].join(", ")}</p>
-            <p><b>Status:</b> {selectedUser.status}</p>
+      {/* MODALS */}
+      {modalType && selectedUser && (
+        <div className="users-admin-modal-overlay">
+          <div className="users-admin-modal">
+            {modalType === "view" && (
+              <>
+                <h3>Detajet e Përdoruesit</h3>
+                <p><b>Username:</b> {selectedUser.username}</p>
+                <p><b>Email:</b> {selectedUser.email}</p>
+                <p><b>First Name:</b> {selectedUser.firstName}</p>
+                <p><b>Last Name:</b> {selectedUser.lastName}</p>
+                <p><b>Phone:</b> {selectedUser.phoneNumber}</p>
+                <p><b>Status:</b> {selectedUser.status}</p>
+                <p><b>Roles:</b> {selectedUser.roles?.join(", ")}</p>
+                <p><b>Join Date:</b> {selectedUser.joinDate || "N/A"}</p>
+                <p><b>Appointments:</b></p>
+                <ul>
+                  {selectedUser.appointments?.length ? selectedUser.appointments.map(a => (
+                    <li key={a.id} className="users-admin-appointment-card">
+                      {a.propertyId} - {a.date} ({a.status})
+                    </li>
+                  )) : <li>Nuk ka appointments.</li>}
+                </ul>
+              </>
+            )}
+
+            {modalType === "edit" && (
+              <>
+                <h3>Edit User (Vetëm admin mund të ndryshojë email/roles)</h3>
+                <input
+                  className="users-admin-modal-input"
+                  value={selectedUser.email}
+                  onChange={(e) => isAdmin && setSelectedUser({...selectedUser, email: e.target.value})}
+                  disabled={!isAdmin}
+                />
+                <select
+                  className="users-admin-modal-input"
+                  multiple
+                  value={selectedUser.roles}
+                  onChange={(e) => {
+                    if (!isAdmin) return;
+                    setSelectedUser({
+                      ...selectedUser,
+                      roles: Array.from(e.target.selectedOptions).map(o => o.value)
+                    });
+                  }}
+                  disabled={!isAdmin}
+                >
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+
+                {isAdmin && (
+                  <>
+                    <button className="users-admin-modal-btn success" onClick={updateEmail}>Ruaj Email</button>
+                    <button className="users-admin-modal-btn primary" onClick={updateRoles}>Ruaj Role</button>
+                  </>
+                )}
+              </>
+            )}
+
+            {modalType === "status" && (
+              <>
+                <h3>Konfirmim</h3>
+                <p>A je i sigurt që dëshiron të <b>{selectedUser.status === "ACTIVE" ? "bllokosh" : "aktivizosh"}</b> këtë përdorues?</p>
+                <button className="users-admin-modal-btn warning" onClick={toggleStatus}>Po, vazhdo</button>
+              </>
+            )}
+
+            {modalType === "delete" && (
+              <>
+                <h3>Fshirje</h3>
+                <p>Kjo veprim është i pakthyeshëm.</p>
+                <button className="users-admin-modal-btn danger" onClick={deleteUser}>Fshij</button>
+              </>
+            )}
+
+            <button className="users-admin-modal-btn cancel" onClick={closeModal}>Mbyll</button>
           </div>
-        )}
-      </Modal>
-
-      <Modal isOpen={modalType === "edit"} onClose={closeModal} title="Edit User" width="450px">
-        {selectedUser && (
-          <div className="flex flex-col gap-3">
-            <label className="text-white text-sm">Email:</label>
-            <input className="p-2 rounded bg-[#2e2e2e] text-white" value={selectedUser.email} onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })} />
-
-            <label className="text-white text-sm">Roles:</label>
-            <select className="p-2 rounded bg-[#2e2e2e] text-white" multiple value={[...selectedUser.roles]} onChange={(e) => {
-              const options = Array.from(e.target.selectedOptions).map(o => o.value);
-              setSelectedUser({ ...selectedUser, roles: new Set(options) });
-            }}>
-              <option value="USER">USER</option>
-              <option value="ADMIN">ADMIN</option>
-            </select>
-
-            <button onClick={() => updateEmail(selectedUser.email)} className="bg-blue-500 mt-3 py-2 rounded">Save Email</button>
-            <button onClick={() => updateRoles([...selectedUser.roles])} className="bg-green-500 mt-3 py-2 rounded">Save Roles</button>
-          </div>
-        )}
-      </Modal>
-
-      <Modal isOpen={modalType === "block"} onClose={closeModal} title="Confirm Action" width="420px">
-        {selectedUser && (
-          <>
-            <p>Are you sure you want to <b>{selectedUser.status === "ACTIVE" ? "block" : "unblock"}</b> user <b>{selectedUser.username}</b>?</p>
-            <button onClick={updateStatus} className="mt-4 bg-yellow-500 w-full py-2 rounded">Yes, Confirm</button>
-          </>
-        )}
-      </Modal>
-
-      <Modal isOpen={modalType === "delete"} onClose={closeModal} title="Delete User" width="420px">
-        {selectedUser && (
-          <>
-            <p>Are you sure you want to delete user <b>{selectedUser.username}</b>? This action cannot be undone.</p>
-            <button onClick={deleteUser} className="mt-4 bg-red-600 w-full py-2 rounded">Yes, Delete</button>
-          </>
-        )}
-      </Modal>
+        </div>
+      )}
     </div>
   );
 }
-
-export default Users;
