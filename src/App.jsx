@@ -13,10 +13,13 @@ import PropertyDetail from "./pages/PropertyDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Appointment from "./pages/Appointment";
+import Profile from "./pages/Profile";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Verify from "./pages/Verify";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import OAuth2RedirectHandler from "./components/OAuth2RedirectHandler"
 
 import Dashboard from "./admin/pages/Dashboard";
@@ -42,15 +45,22 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/appointment" element={<Appointment />} />
+          
+          <Route path="/profile" element={<Profile />} />
         </Route>
+
+      
 
         {/* ==================== AUTH ROUTES ==================== */}
         <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
         </Route>
+
 
         {/* ==================== ADMIN ROUTES ==================== */}
         <Route element={<AdminLayout />}>
