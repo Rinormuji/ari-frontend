@@ -6,6 +6,9 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import PhoneInput from "react-phone-input-2";
 import 'react-phone-input-2/lib/style.css';
 import { ArrowLeft } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const Register = () => {
   const navigate = useNavigate();
@@ -54,7 +57,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
     setLoading(true);
     try {
       const res = await axios.post("/api/auth/register", {
@@ -66,18 +69,35 @@ const Register = () => {
         password: formData.password,
         confirmPassword: formData.confirmPassword
       });
+  
+      // ✅ Sukses me toast
+      toast.success("Regjistrimi u krye! Kontrolloni email-in për verifikim.");
 
-      alert("Regjistrimi u krye! Kontrolloni email-in për verifikim.");
-      navigate("/login");
-
+      // Navigim pas 2 sekondash
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+  
     } catch (err) {
       console.error(err);
+  
       const msg = err.response?.data?.message || "Ka ndodhur një gabim në server";
-      alert(msg);
+
+      if (msg.toLowerCase().includes("username")) {
+        setErrors((prev) => ({ ...prev, username: msg }));
+      } else if (msg.toLowerCase().includes("email")) {
+        setErrors((prev) => ({ ...prev, email: msg }));
+      } else if (msg.toLowerCase().includes("phone")) {
+        setErrors((prev) => ({ ...prev, phone: msg }));
+      } else {
+        alert(msg);
+      }
+  
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="register-wrapper-uni">
@@ -202,30 +222,37 @@ const Register = () => {
           </button>
         </form>
 
-        <div className="register-divider-uni">OR</div>
+        <div className="register-divider-uni">OSE</div>
 
-        <div className="register-socials-uni">
-        <button
-  type="button"
-  className="register-social-btn-uni luxury-gradient text-white hover:brightness-105 transition-all duration-200"
-  onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
->
-  <GoogleIcon /> Register with Google
-</button>
+        {/* <div className="register-socials-uni">
+          <button
+            type="button"
+            className="register-social-btn-uni luxury-gradient text-white hover:brightness-105 transition-all duration-200"
+            onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
+          >
+            <GoogleIcon /> Register with Google
+          </button>
 
-<button
-  type="button"
-  className="register-social-btn-uni luxury-gradient text-white hover:brightness-105 transition-all duration-200"
-  onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/facebook"}
->
-  <FacebookIcon /> Register with Facebook
-</button>
-        </div>
+          <button
+            type="button"
+            className="register-social-btn-uni luxury-gradient text-white hover:brightness-105 transition-all duration-200"
+            onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/facebook"}
+          >
+            <FacebookIcon /> Register with Facebook
+          </button>
+        </div> */}
 
         <div className="register-login-link-uni mt-4 text-center">
           Tashmë keni llogari të hapur? <Link to="/login">Login</Link>
         </div>
       </div>
+
+      {/* Toast container për notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+      />
     </div>
   );
 };
