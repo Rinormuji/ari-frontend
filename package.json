@@ -29,6 +29,7 @@
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^7.9.4",
     "react-slick": "^0.31.0",
+    "react-toastify": "^11.0.5",
     "recharts": "^3.5.0",
     "slick-carousel": "^1.8.1"
   },

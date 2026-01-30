@@ -1,4 +1,3 @@
-// src/admin/AppointmentsAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { FaThLarge, FaTable, FaSearch, FaCheck, FaTimes, FaEye } from "react-icons/fa";
@@ -34,61 +33,58 @@ export default function AppointmentsAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [view, setView] = useState("table"); // table/cards
+  const [view, setView] = useState("table");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
-  // filters
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
 
-  // modal detaje
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  // modal konfirmimi
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState(null); // { id, status }
+  const [confirmAction, setConfirmAction] = useState(null);
 
-  // debounce search
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(t);
   }, [search]);
 
-  // fetch appointments
+  // FETCH APPOINTMENTS - E përmirësuar me Token dhe Header
   useEffect(() => {
     let cancelled = false;
     const fetchAppointments = async () => {
       setLoading(true);
       setError(null);
       try {
-        const url = `${API_BASE}/api/appointments?page=${Math.max(0, page - 1)}&size=${pageSize}`;
-        const res = await axios.get(url, { withCredentials: true });
+        const token = localStorage.getItem("token"); // Merret tokeni
+        const res = await axios.get(`${API_BASE}/api/appointments`, {
+          params: { 
+            page: Math.max(0, page - 1), 
+            size: pageSize,
+            search: debouncedSearch || undefined 
+          },
+          headers: { 
+            Authorization: `Bearer ${token}` // Shtohet Authorization header
+          },
+          withCredentials: true,
+        });
+
         const data = res.data;
-        let content = [];
-        let tp = 1;
-        if (Array.isArray(data)) {
-          content = data;
-          tp = 1;
-        } else if (data.content) {
-          content = data.content;
-          tp = data.totalPages ?? 1;
-        } else {
-          content = data.items ?? [];
-          tp = data.totalPages ?? 1;
-        }
+        let content = data.content || (Array.isArray(data) ? data : []);
+        let tp = data.totalPages ?? 1;
 
         const mapped = content.map((a) => ({
           id: a.id,
-          propertyName: a.propertyName || a.property?.title || "-",
-          propertyId: a.propertyId || a.property?.id || null,
-          user: a.userName || a.user?.username || "-",
-          date: a.date || a.createdAt || "-",
-          status: a.status || "PENDING",
+          propertyName: a.propertyTitle ?? a.propertyName ?? "-",
+          propertyId: a.propertyId ?? null,
+          user: a.username ?? a.userEmail ?? "-",
+          date: a.date ?? "-",
+          status: a.status ?? "PENDING",
           raw: a,
         }));
 
@@ -98,7 +94,7 @@ export default function AppointmentsAdmin() {
         }
       } catch (e) {
         console.error("Error fetching appointments:", e);
-        setError(e);
+        if (!cancelled) setError(e);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -106,26 +102,29 @@ export default function AppointmentsAdmin() {
 
     fetchAppointments();
     return () => { cancelled = true; };
-  }, [page, pageSize]);
+  }, [page, pageSize, debouncedSearch]);
 
-  // client-side filter
   const filtered = useMemo(() => {
     return appointments.filter((a) => {
+      // Filtrimi sipas statusit
+      if (filterStatus !== "ALL" && a.status !== filterStatus) return false;
+  
+      // Filtrimi sipas kërkimit (Search)
       if (debouncedSearch) {
         const s = debouncedSearch.toLowerCase();
-        if (!(
-          String(a.propertyName).toLowerCase().includes(s) ||
-          String(a.user).toLowerCase().includes(s)
-        )) return false;
+        const matchesProperty = String(a.propertyName).toLowerCase().includes(s);
+        const matchesUser = String(a.user).toLowerCase().includes(s);
+        const matchesDate = String(a.date).toLowerCase().includes(s);
+
+        if (!matchesProperty && !matchesUser && !matchesDate) return false;
       }
-      if (filterStatus !== "ALL" && a.status !== filterStatus) return false;
+  
       return true;
     });
-  }, [appointments, debouncedSearch, filterStatus]);
+  }, [appointments, filterStatus, debouncedSearch]); 
 
-  // format date nicely
   const formatDate = (d) => {
-    if (!d) return "-";
+    if (!d || d === "-") return "-";
     const dt = new Date(d);
     return dt.toLocaleString("sq-AL", {
       weekday: "short",
@@ -137,15 +136,17 @@ export default function AppointmentsAdmin() {
     });
   };
 
-  // status update
+  // UPDATE STATUS - E përmirësuar me Token
   const updateStatus = async (id, status) => {
     setUpdatingStatus(true);
     try {
-      if (status === "APPROVED") {
-        await axios.put(`${API_BASE}/api/appointments/${id}/approve`, {}, { withCredentials: true });
-      } else if (status === "REJECTED") {
-        await axios.put(`${API_BASE}/api/appointments/${id}/reject`, {}, { withCredentials: true });
-      }
+      const token = localStorage.getItem("token");
+      const endpoint = status === "APPROVED" ? "approve" : "reject";
+      
+      await axios.put(`${API_BASE}/api/appointments/${id}/${endpoint}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true
+      });
   
       setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
     } catch (e) {
@@ -156,25 +157,11 @@ export default function AppointmentsAdmin() {
     }
   };
 
-  // modal detaje
-  const openModal = (appointment) => {
-    setSelectedAppointment(appointment);
-    setModalOpen(true);
-  };
-  const closeModal = () => {
-    setSelectedAppointment(null);
-    setModalOpen(false);
-  };
-
-  // modal konfirmimi
-  const openConfirmModal = (id, status) => {
-    setConfirmAction({ id, status });
-    setConfirmOpen(true);
-  };
-  const closeConfirmModal = () => {
-    setConfirmAction(null);
-    setConfirmOpen(false);
-  };
+  const openModal = (appointment) => { setSelectedAppointment(appointment); setModalOpen(true); };
+  const closeModal = () => { setSelectedAppointment(null); setModalOpen(false); };
+  const openConfirmModal = (id, status) => { setConfirmAction({ id, status }); setConfirmOpen(true); };
+  const closeConfirmModal = () => { setConfirmAction(null); setConfirmOpen(false); };
+  
   const handleConfirm = () => {
     if (confirmAction) {
       updateStatus(confirmAction.id, confirmAction.status);
@@ -184,7 +171,6 @@ export default function AppointmentsAdmin() {
 
   return (
     <div className="admin-page-container p-4">
-      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Menaxhimi i Termineve</h2>
         <div className="flex items-center gap-3">
@@ -217,7 +203,6 @@ export default function AppointmentsAdmin() {
         </div>
       </div>
 
-      {/* FILTERS */}
       <div className="filters-container-admin">
         <select className="filter-select-admin" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="ALL">Të gjitha statuset</option>
@@ -228,18 +213,11 @@ export default function AppointmentsAdmin() {
         <button className="filter-button-admin" onClick={() => { setFilterStatus("ALL"); setSearch(""); }}>Pastro filtra</button>
       </div>
 
-      {/* CONTENT */}
       <div className="mt-6 properties-view-container">
         {loading ? (
-          <div className="properties-table-container">
-            <div style={{ display: "grid", gap: 12 }}>
-              {[...Array(6)].map((_, i) => <div key={i} style={{ height: 48, background: "#111", borderRadius: 6 }} />)}
-            </div>
-          </div>
+          <div className="properties-table-container text-white p-4">Duke u ngarkuar...</div>
         ) : error ? (
-          <div className="properties-table-container p-4 text-white">
-            Gabim gjatë marrjes së termineve. Shiko console për detaje.
-          </div>
+          <div className="properties-table-container p-4 text-white">Gabim gjatë marrjes së termineve.</div>
         ) : view === "table" ? (
           <div className="properties-table-container">
             <table className="properties-table">
@@ -265,36 +243,15 @@ export default function AppointmentsAdmin() {
                       <div style={{ display: "flex", gap: 6 }}>
                         {a.status === "PENDING" && (
                           <>
-                            <button
-                              className="action-button action-approve"
-                              onClick={() => openConfirmModal(a.id, "APPROVED")}
-                              disabled={updatingStatus}
-                              title="Approve"
-                            >
-                              <FaCheck />
-                            </button>
-                            <button
-                              className="action-button action-reject"
-                              onClick={() => openConfirmModal(a.id, "REJECTED")}
-                              disabled={updatingStatus}
-                              title="Reject"
-                            >
-                              <FaTimes />
-                            </button>
+                            <button className="action-button action-approve" onClick={() => openConfirmModal(a.id, "APPROVED")} disabled={updatingStatus}><FaCheck /></button>
+                            <button className="action-button action-reject" onClick={() => openConfirmModal(a.id, "REJECTED")} disabled={updatingStatus}><FaTimes /></button>
                           </>
                         )}
-                        <button className="action-button action-view" onClick={() => openModal(a)} title="View Details">
-                          <FaEye />
-                        </button>
+                        <button className="action-button action-view" onClick={() => openModal(a)}><FaEye /></button>
                       </div>
                     </td>
                   </tr>
                 ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="text-center py-4">Nuk u gjet asnjë takim.</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
@@ -321,25 +278,18 @@ export default function AppointmentsAdmin() {
         )}
       </div>
 
-      {/* PAGINATION */}
       <div className="flex items-center justify-center gap-3 mt-6">
         <button onClick={() => setPage((s) => Math.max(1, s - 1))} className="filter-button" disabled={page <= 1}>Prev</button>
         <div style={{ color: "#cbd5e1" }}>Faqja {page} / {totalPages}</div>
         <button onClick={() => setPage((s) => Math.min(totalPages, s + 1))} className="filter-button" disabled={page >= totalPages}>Next</button>
-        <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="filter-select">
-          <option value={6}>6</option>
-          <option value={12}>12</option>
-          <option value={24}>24</option>
-        </select>
       </div>
 
-      {/* MODAL DETAJET */}
       {modalOpen && selectedAppointment && (
         <div className="admin-modal-overlay">
           <div className="admin-modal">
             <h3>Detajet e Takimit</h3>
             <p><strong>ID:</strong> {selectedAppointment.id}</p>
-            <p><strong>Prona:</strong> {selectedAppointment.propertyName} (#{selectedAppointment.propertyId})</p>
+            <p><strong>Prona:</strong> {selectedAppointment.propertyName}</p>
             <p><strong>Përdoruesi:</strong> {selectedAppointment.user}</p>
             <p><strong>Data:</strong> {formatDate(selectedAppointment.date)}</p>
             <p><strong>Statusi:</strong> <StatusBadge status={selectedAppointment.status} /></p>
@@ -350,7 +300,6 @@ export default function AppointmentsAdmin() {
         </div>
       )}
 
-      {/* MODAL KONFIRMIMI */}
       {confirmOpen && confirmAction && (
         <div className="admin-modal-overlay">
           <div className="admin-modal">
@@ -364,7 +313,6 @@ export default function AppointmentsAdmin() {
         </div>
       )}
 
-      {/* STILET */}
       <style>{`
         .status-pending { background: #facc15; color: #111; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
         .status-approved { background: #22c55e; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
@@ -373,54 +321,12 @@ export default function AppointmentsAdmin() {
         .action-approve { background: #22c55e; }
         .action-reject { background: #ef4444; }
         .action-view { background: #3b82f6; }
-
-        .admin-modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          backdrop-filter: blur(6px);
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-        }
-
-        .admin-modal {
-          background: #1f2937;
-          color: #fff;
-          padding: 20px 24px;
-          border-radius: 10px;
-          max-width: 400px;
-          width: 90%;
-          text-align: center;
-        }
-
-        .admin-modal-actions {
-          display: flex;
-          justify-content: space-around;
-          margin-top: 20px;
-        }
-
-        .admin-modal-btn {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 600;
-        }
-
-        .admin-modal-btn.cancel {
-          background: #374151;
-          color: #fff;
-        }
-
-        .admin-modal-btn.confirm {
-          background: #22c55e;
-          color: #fff;
-        }
+        .admin-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; backdrop-filter: blur(6px); background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .admin-modal { background: #1f2937; color: #fff; padding: 20px 24px; border-radius: 10px; max-width: 400px; width: 90%; text-align: center; }
+        .admin-modal-actions { display: flex; justify-content: space-around; margin-top: 20px; }
+        .admin-modal-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .admin-modal-btn.cancel { background: #374151; color: #fff; }
+        .admin-modal-btn.confirm { background: #22c55e; color: #fff; }
       `}</style>
     </div>
   );

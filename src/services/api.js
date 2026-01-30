@@ -14,32 +14,46 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Add auth token if available
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`API Request → ${config.method?.toUpperCase()} ${config.url}`)
+    }
+
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
+
 
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`API Response ✓ ${response.config.url}`)
+    }
     return response
   },
   (error) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(
+        `API Error ✗ ${error.config?.url}`,
+        error.response?.status
+      )
+    }
+
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
+
     return Promise.reject(error)
   }
 )
+
 
 // Property API functions
 export const propertyAPI = {
@@ -134,15 +148,28 @@ export const tokaAPI = {
 // Auth API functions
 export const authAPI = {
   login: (credentials) => {
-    console.log('Login request:', credentials)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Auth: login request sent')
+    }
     return api.post('/auth/login', credentials)
   },
+
   register: (userData) => {
-    console.log('Register request:', userData)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Auth: register request sent')
+    }
     return api.post('/auth/register', userData)
   },
-  logout: () => api.post('/auth/logout'),
+
+  logout: () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Auth: logout')
+    }
+    return api.post('/auth/logout')
+  },
+
   getProfile: () => api.get('/auth/profile')
 }
+
 
 export default api

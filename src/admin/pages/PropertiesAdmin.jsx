@@ -194,7 +194,7 @@ const confirmDelete = async () => {
   return (
     <div className="admin-page-container p-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Manage Properties</h2>
+        <h2 className="text-2xl font-bold text-white">Menaxhimi i Pronave</h2>
 
         <div className="flex items-center gap-3">
           <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 gap-2">
