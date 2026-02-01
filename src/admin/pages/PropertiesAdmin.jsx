@@ -1,6 +1,6 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { FaThLarge, FaTable, FaTrashAlt, FaEdit, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { propertyAPI } from "../../services/api";
@@ -18,7 +18,7 @@ import { propertyAPI } from "../../services/api";
  * ndrysho axios.delete(...) sipas nevojës.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 const defaultPageSize = 12;
 
