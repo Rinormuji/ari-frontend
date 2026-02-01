@@ -25,7 +25,7 @@ function EditProperty() {
         // Cakto URL sipas backend
         // let url = `${API_BASE}/properties/${id}`; 
         if (!type) return;
-        const res = await propertyAPI.getById(type, id);
+        const res = await propertyAPI.updatePropertyByType(type, id, payload);
         const found = res.data;
 
         if (found) {
