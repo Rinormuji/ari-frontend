@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StatsCard from "../components/StatsCard";
-import api from '../services/api'
+// import api from '../services/api'
 import {
   LineChart,
   Line,
@@ -12,7 +12,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
