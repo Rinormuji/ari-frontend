@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { FaThLarge, FaTable, FaSearch, FaCheck, FaTimes, FaEye } from "react-icons/fa";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const defaultPageSize = 12;
 
 const StatusBadge = ({ status }) => {
