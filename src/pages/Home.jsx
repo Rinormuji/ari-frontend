@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Filter, X } from 'lucide-react'
-import { propertyAPI } from '../services/api'
+// import { propertyAPI } from '../services/api'
 import PropertyFilters from '../components/PropertyFilters'
 import PropertyCard from '../components/PropertyCard'
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const Home = () => {
   const [properties, setProperties] = useState([]) // të gjitha pronat
@@ -25,7 +27,7 @@ const Home = () => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const res = await propertyAPI.getProperties({ page: 0, size: 1000 }) // merr të gjitha pronat
+        const res = await axios.get(`${API_BASE}/properties`) // merr të gjitha pronat
         const content = res.data.content || []
 
         const mappedProperties = content.map((p) => {
