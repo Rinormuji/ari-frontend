@@ -1,6 +1,6 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { FaThLarge, FaTable, FaTrashAlt, FaEdit, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { propertyAPI } from "../../services/api";
@@ -18,7 +18,7 @@ import { propertyAPI } from "../../services/api";
  * ndrysho axios.delete(...) sipas nevojës.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 const defaultPageSize = 12;
 
@@ -71,10 +71,11 @@ const [deleting, setDeleting] = useState(false);
       setLoading(true);
       setError(null);
       try {
+        const res = await propertyAPI.get(`/properties?page=${page-1}&size=${pageSize}`);
         // const url = `${API_BASE}/api/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`;
         // const res = await axios.get(url, { withCredentials: true });
-       const res = await axios.get(`${API_BASE}/api/properties?page=${page-1}&size=${pageSize}`, { withCredentials: true });
-console.log(res.data);
+//        const res = await axios.get(`${API_BASE}/api/properties?page=${page-1}&size=${pageSize}`, { withCredentials: true });
+// console.log(res.data);
 
         // Expecting Spring Page structure (content + totalPages), or fallback array
         const data = res.data;
