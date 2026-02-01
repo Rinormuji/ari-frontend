@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Filter, X } from 'lucide-react'
+import axios from 'axios';
 // import { propertyAPI } from '../services/api'
 import PropertyFilters from '../components/PropertyFilters'
 import PropertyCard from '../components/PropertyCard'
