@@ -71,7 +71,10 @@ const [deleting, setDeleting] = useState(false);
       setLoading(true);
       setError(null);
       try {
-        const res = await propertyAPI.get(`/properties?page=${page-1}&size=${pageSize}`);
+         const res = await propertyAPI.getProperties({
+        page: page - 1,
+        size: pageSize,
+      });
         // const url = `${API_BASE}/api/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`;
         // const res = await axios.get(url, { withCredentials: true });
 //        const res = await axios.get(`${API_BASE}/api/properties?page=${page-1}&size=${pageSize}`, { withCredentials: true });
