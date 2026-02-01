@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { propertyAPI } from "../services/api";
 
 const PropertyDetailSoftApple = () => {
   const { id } = useParams();
@@ -22,7 +23,8 @@ const PropertyDetailSoftApple = () => {
   useEffect(() => {
     const fetchRecommended = async () => {
       try {
-        const res = await fetch(`/api/properties/${id}/nearby?radiusKm=10`);
+        const res = await propertyAPI.getRecommendations(id, 10);
+          // fetch(`/api/properties/${id}/nearby?radiusKm=10`);
         if (res.ok) {
           const data = await res.json();
   
@@ -50,8 +52,10 @@ L.Icon.Default.mergeOptions({
   // FETCH PROPERTY
   useEffect(() => {
     const fetchProperty = async () => {
+       
       try {
-        const res = await fetch(`/api/properties/${id}`);
+        const res = await propertyAPI.getProperty(id);
+          // fetch(`/api/properties/${id}`);
         if (!res.ok) throw new Error("Failed to fetch property");
 
         const data = await res.json();
