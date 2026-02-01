@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
  * ndrysho axios.delete(...) sipas nevojës.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 const defaultPageSize = 12;
 
