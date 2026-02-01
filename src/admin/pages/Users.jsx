@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { FaEye, FaEdit, FaTrash, FaBan } from "react-icons/fa";
 import { usersAPI } from "../../services/api";
 
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const PAGE_SIZE = 10;
 
 export default function UsersAdmin({ currentUserRoles = [] }) {
@@ -327,8 +327,8 @@ const handleUpdateRoles = async () => {
 
                 {isAdmin ? (
                   <div className="flex gap-2 mt-4">
-                    <button className="users-admin-modal-btn success" onClick={updateEmail}>Ruaj Email</button>
-                    <button className="users-admin-modal-btn primary" onClick={updateRoles}>Ruaj Role</button>
+                    <button className="users-admin-modal-btn success" onClick={handleUpdateEmail}>Ruaj Email</button>
+                    <button className="users-admin-modal-btn primary" onClick={handleUpdateRoles}>Ruaj Role</button>
                   </div>
                 ) : (
                   <p className="text-red-500 text-sm mt-2">Nuk keni leje për modifikim.</p>
@@ -340,7 +340,7 @@ const handleUpdateRoles = async () => {
               <>
                 <h3>Konfirmim</h3>
                 <p>A je i sigurt që dëshiron të <b>{selectedUser.status === "ACTIVE" ? "bllokosh" : "aktivizosh"}</b> këtë përdorues?</p>
-                <button className="users-admin-modal-btn warning" onClick={toggleStatus}>Po, vazhdo</button>
+                <button className="users-admin-modal-btn warning" onClick={handleToggleStatus}>Po, vazhdo</button>
               </>
             )}
 
@@ -348,7 +348,7 @@ const handleUpdateRoles = async () => {
               <>
                 <h3>Fshirje</h3>
                 <p>Ky veprim është i pakthyeshëm. A dëshiron të fshish <b>{selectedUser.username}</b>?</p>
-                <button className="users-admin-modal-btn danger" onClick={deleteUser}>Fshij</button>
+                <button className="users-admin-modal-btn danger" onClick={handleDeleteUser}>Fshij</button>
               </>
             )}
 
