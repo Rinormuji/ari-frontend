@@ -73,7 +73,9 @@ const [deleting, setDeleting] = useState(false);
       try {
         // const url = `${API_BASE}/api/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`;
         // const res = await axios.get(url, { withCredentials: true });
-        const res = await propertyAPI.get(`/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`);
+       const res = await axios.get(`${API_BASE}/api/properties?page=${page-1}&size=${pageSize}`, { withCredentials: true });
+console.log(res.data);
+
         // Expecting Spring Page structure (content + totalPages), or fallback array
         const data = res.data;
         let content = [];
