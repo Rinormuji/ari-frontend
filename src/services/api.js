@@ -151,7 +151,50 @@ export const tokaAPI = {
   update: (id, data) => api.put(`/toka/${id}`, data),
   delete: (id) => api.delete(`/toka/${id}`)
 }
+export const usersAPI = {
+  // GET /api/users?page=...&size=...&search=...
+  getUsers: (params = {}) => {
+    const token = localStorage.getItem("token");
+    return axios.get(`${API_BASE}/api/users`, {
+      params,
+      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true,
+    });
+  },
 
+  // PUT /api/users/:id/email?email=...
+  updateEmail: (id, email) => {
+    return axios.put(
+      `${API_BASE}/api/users/${id}/email`,
+      null,
+      { params: { email }, withCredentials: true }
+    );
+  },
+
+  // PUT /api/users/:id/roles
+  updateRoles: (id, roles) => {
+    return axios.put(
+      `${API_BASE}/api/users/${id}/roles`,
+      roles,
+      { withCredentials: true }
+    );
+  },
+
+  // PUT /api/users/:id/toggle-status
+  toggleStatus: (id) => {
+    const token = localStorage.getItem("token");
+    return axios.put(
+      `${API_BASE}/api/users/${id}/toggle-status`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+    );
+  },
+
+  // DELETE /api/users/:id
+  deleteUser: (id) => {
+    return axios.delete(`${API_BASE}/api/users/${id}`, { withCredentials: true });
+  }
+};
 // Auth API functions
 export const authAPI = {
   login: (credentials) => {
