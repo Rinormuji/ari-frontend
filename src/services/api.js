@@ -175,7 +175,7 @@ export const usersAPI = {
   updateRoles: (id, roles) => {
     return axios.put(
       `${API_BASE}/api/users/${id}/roles`,
-      roles,
+      roles, // JSON array e roles
       { withCredentials: true }
     );
   },
