@@ -2,6 +2,7 @@ import '../admin.css';
 import { useState } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + '/api';
 
 function AddProperty() {
   const [type, setType] = useState("");
@@ -111,16 +112,24 @@ function AddProperty() {
         };
     
         // cakto endpoint sipas llojit të pronës
-        let url = "";
-        switch (type) {
-          case "BANESA": url = "http://localhost:8080/api/banesa"; break;
-          case "SHTEPI": url = "http://localhost:8080/api/shtepi"; break;
-          case "LOKALE": url = "http://localhost:8080/api/lokale"; break;
-          case "TOKA": url = "http://localhost:8080/api/toka"; break;
-          default:
-            alert("Lloji i pronës nuk është valid!");
-            return;
-        }
+       let url = "";
+switch (type) {
+  case "BANESA":
+    url = `${API_BASE_URL}/banesa`;
+    break;
+  case "SHTEPI":
+    url = `${API_BASE_URL}/shtepi`;
+    break;
+  case "LOKALE":
+    url = `${API_BASE_URL}/lokale`;
+    break;
+  case "TOKA":
+    url = `${API_BASE_URL}/toka`;
+    break;
+  default:
+    alert("Lloji i pronës nuk është valid!");
+    return;
+}
     
         // dergo kerkesen
         await axios.post(url, payload, {
