@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEye, FaEdit, FaTrash, FaBan } from "react-icons/fa";
+import { usersAPI } from "../../services/usersAPI";
+
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const PAGE_SIZE = 10;
@@ -28,46 +30,69 @@ export default function UsersAdmin({ currentUserRoles = [] }) {
   }, [page, search]);
 
   const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token"); // Merre token-in këtu
-      const res = await axios.get(`${API_BASE}/api/users`, {
-        params: { page: page - 1, size: PAGE_SIZE, search },
-        headers: {
-          // KJO ËSHTË PJESA KRITIKE
-          'Authorization': `Bearer ${token}` 
-        },
-        withCredentials: true,
-      });
-  
-      // Kontrollo strukturën (Spring Page vs List)
-      if (res.data.content) {
-        setUsers(res.data.content);
-        setTotalPages(res.data.totalPages);
-      } else {
-        setUsers(res.data || []);
-        setTotalPages(1);
-      }
-    } catch (err) {
-      console.error("Error fetching users", err);
-      // Nëse merr 403 këtu, do të thotë që Backend-i nuk po e pranon Token-in
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const res = await usersAPI.getUsers({ page: page-1, size: PAGE_SIZE, search });
+    const data = res.data;
+    if (data.content) {
+      setUsers(data.content);
+      setTotalPages(data.totalPages);
+    } else {
+      setUsers(data || []);
+      setTotalPages(1);
     }
-  };
+  } catch (err) {
+    console.error("Error fetching users", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // const fetchUsers = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const token = localStorage.getItem("token"); // Merre token-in këtu
+  //     const res = await axios.get(`${API_BASE}/api/users`, {
+  //       params: { page: page - 1, size: PAGE_SIZE, search },
+  //       headers: {
+  //         // KJO ËSHTË PJESA KRITIKE
+  //         'Authorization': `Bearer ${token}` 
+  //       },
+  //       withCredentials: true,
+  //     });
+  
+  //     // Kontrollo strukturën (Spring Page vs List)
+  //     if (res.data.content) {
+  //       setUsers(res.data.content);
+  //       setTotalPages(res.data.totalPages);
+  //     } else {
+  //       setUsers(res.data || []);
+  //       setTotalPages(1);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching users", err);
+  //     // Nëse merr 403 këtu, do të thotë që Backend-i nuk po e pranon Token-in
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   /* ================= ACTIONS ================= */
-  const updateEmail = async () => {
-    if (!isAdmin || !selectedUser) return;
-    try {
-      await axios.put(
-        `${API_BASE}/api/users/${selectedUser.id}/email`,
-        null,
-        { params: { email: selectedUser.email }, withCredentials: true }
-      );
-      closeModal();
-      fetchUsers();
-    } catch (err) { console.error(err); }
-  };
+  const handleUpdateEmail = async () => {
+  if (!selectedUser) return;
+  await usersAPI.updateEmail(selectedUser.id, selectedUser.email);
+};
+  // const updateEmail = async () => {
+  //   if (!isAdmin || !selectedUser) return;
+  //   try {
+  //     await axios.put(
+  //       `${API_BASE}/api/users/${selectedUser.id}/email`,
+  //       null,
+  //       { params: { email: selectedUser.email }, withCredentials: true }
+  //     );
+  //     closeModal();
+  //     fetchUsers();
+  //   } catch (err) { console.error(err); }
+  // };
 
   const updateRoles = async () => {
     if (!isAdmin || !selectedUser) return;
@@ -82,25 +107,28 @@ export default function UsersAdmin({ currentUserRoles = [] }) {
     } catch (err) { console.error(err); }
   };
 
-  const toggleStatus = async (userId) => {
-    try {
-      const token = localStorage.getItem("token"); // 1. Merre tokenin
+  const handleToggleStatus = async (id) => {
+  await usersAPI.toggleStatus(id);
+};
+  // const toggleStatus = async (userId) => {
+  //   try {
+  //     const token = localStorage.getItem("token"); // 1. Merre tokenin
       
-      // 2. Dërgoje në header
-      await axios.put(`${API_BASE}/api/users/${userId}/toggle-status`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        withCredentials: true
-      });
+  //     // 2. Dërgoje në header
+  //     await axios.put(`${API_BASE}/api/users/${userId}/toggle-status`, {}, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`
+  //       },
+  //       withCredentials: true
+  //     });
   
-      // Përditëso listën lokalisht
-      setUsers(users.map(u => u.id === userId ? { ...u, enabled: !u.enabled } : u));
-    } catch (err) {
-      console.error("Gabim gjatë bllokimit:", err);
-      alert("Nuk mund të ndryshohet statusi i përdoruesit.");
-    }
-  };
+  //     // Përditëso listën lokalisht
+  //     setUsers(users.map(u => u.id === userId ? { ...u, enabled: !u.enabled } : u));
+  //   } catch (err) {
+  //     console.error("Gabim gjatë bllokimit:", err);
+  //     alert("Nuk mund të ndryshohet statusi i përdoruesit.");
+  //   }
+  // };
 
   const deleteUser = async () => {
     if (!selectedUser) return;
