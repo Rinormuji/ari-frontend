@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEye, FaEdit, FaTrash, FaBan } from "react-icons/fa";
-import { usersAPI } from "../../services/usersAPI";
+import { usersAPI } from "../../services/api";
 
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
