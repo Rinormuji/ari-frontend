@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Filter, X } from 'lucide-react'
 import axios from 'axios';
-// import { propertyAPI } from '../services/api'
+import { propertyAPI } from '../services/api'
 import PropertyFilters from '../components/PropertyFilters'
 import PropertyCard from '../components/PropertyCard'
 
@@ -28,8 +28,10 @@ const Home = () => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const res = await axios.get(`${API_BASE}/properties`) // merr të gjitha pronat
-        const content = res.data.content || []
+        const res = await propertyAPI.getProperties({ page: 0, size: 1000 }) // merr të gjitha pronat
+         console.log(res.data)
+        const content = Array.isArray(res.data) ? res.data : res.data.content || []
+          // res.data.content || []
 
         const mappedProperties = content.map((p) => {
           const { city, neighborhood } = mapLocation(p.location)
