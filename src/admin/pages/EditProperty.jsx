@@ -21,7 +21,7 @@ function EditProperty() {
     const fetchProperty = async () => {
       try {
         // Cakto URL sipas backend
-        let url = ${API_BASE}/properties/${id}; 
+        let url = `${API_BASE}/properties/${id}`; 
         const res = await axios.get(url);
         const found = res.data;
 
