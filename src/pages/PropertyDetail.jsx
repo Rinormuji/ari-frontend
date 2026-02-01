@@ -25,14 +25,14 @@ const PropertyDetailSoftApple = () => {
       try {
         const res = await propertyAPI.getRecommendations(id, 10);
           // fetch(`/api/properties/${id}/nearby?radiusKm=10`);
-        if (res.ok) {
-          const data = await res.json();
+        // if (res.ok) {
+        //   const data = await res.json();
   
           // përjashto pronën që jemi duke parë
-          const filtered = data.filter(p => String(p.id) !== String(id));
+          const filtered = res.data.filter(p => String(p.id) !== String(id));
   
           setRecommended(filtered);
-        }
+        // }
       } catch (e) {
         console.error("Error fetching recommended properties", e);
       }
@@ -56,10 +56,10 @@ L.Icon.Default.mergeOptions({
       try {
         const res = await propertyAPI.getProperty(id);
           // fetch(`/api/properties/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch property");
+        // if (!res.ok) throw new Error("Failed to fetch property");
 
-        const data = await res.json();
-        setProperty(data);
+        // const data = await res.json();
+        setProperty(res.data);
       } catch (err) {
         alert("Gabim gjatë marrjes së pronës!");
       } finally {
