@@ -1,10 +1,12 @@
 import '../admin.css';
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { propertyAPI } from "../../services/api";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+
+// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 
 function EditProperty() {
@@ -21,8 +23,8 @@ function EditProperty() {
     const fetchProperty = async () => {
       try {
         // Cakto URL sipas backend
-        let url = `${API_BASE}/properties/${id}`; 
-        const res = await axios.get(url);
+        // let url = `${API_BASE}/properties/${id}`; 
+        const res = await propertyAPI.getById(type, id);
         const found = res.data;
 
         if (found) {
@@ -127,46 +129,71 @@ function EditProperty() {
 
   // HANDLE SAVE (UPDATE)
   const handleSave = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  e.preventDefault();
+  if (!validate()) return;
 
-    try {
-      // Convert images to base64
-      const imagesBase64 =
-        form.images.length > 0
-          ? await Promise.all(form.images.map(fileToBase64))
-          : [];
+  try {
+    const imagesBase64 =
+      form.images.length > 0
+        ? await Promise.all(form.images.map(fileToBase64))
+        : [];
 
-          const fullLocation = form.location 
-          ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}` 
-          : form.neighborhood || '';
+    const fullLocation = form.location
+      ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}`
+      : form.neighborhood || '';
 
-      const payload = {
-        ...form,
-        location: fullLocation,
-        images: imagesBase64,
-        type, // type readonly
-      };
+    const payload = { ...form, location: fullLocation, images: imagesBase64, type };
 
-      // Cakto endpoint sipas type
-      let url = "";
-      switch (type) {
-case "BANESA": url = `${API_BASE}/banesa/${id}`; break;
-        case "SHTEPI": url = `${API_BASE}/shtepi/${id}`; break;
-        case "LOKALE": url = `${API_BASE}/lokale/${id}`; break;
-        case "TOKA": url = `${API_BASE}/toka/${id}`; break;
-  default: alert("Lloji i pronës nuk është valid!"); return;
-}
+    await propertyAPI.update(type, id, payload);
+
+    alert("Pronë u përditësua me sukses!");
+  } catch (err) {
+    console.error(err);
+    alert("Ndryshimi i pronës dështoi.");
+  }
+};
+
+//   const handleSave = async (e) => {
+//     e.preventDefault();
+//     if (!validate()) return;
+
+//     try {
+//       // Convert images to base64
+//       const imagesBase64 =
+//         form.images.length > 0
+//           ? await Promise.all(form.images.map(fileToBase64))
+//           : [];
+
+//           const fullLocation = form.location 
+//           ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}` 
+//           : form.neighborhood || '';
+
+//       const payload = {
+//         ...form,
+//         location: fullLocation,
+//         images: imagesBase64,
+//         type, // type readonly
+//       };
+
+//       // Cakto endpoint sipas type
+//       let url = "";
+//       switch (type) {
+// case "BANESA": url = `${API_BASE}/banesa/${id}`; break;
+//         case "SHTEPI": url = `${API_BASE}/shtepi/${id}`; break;
+//         case "LOKALE": url = `${API_BASE}/lokale/${id}`; break;
+//         case "TOKA": url = `${API_BASE}/toka/${id}`; break;
+//   default: alert("Lloji i pronës nuk është valid!"); return;
+// }
 
 
-      await axios.put(url, payload, { headers: { "Content-Type": "application/json" } });
+//       await axios.put(url, payload, { headers: { "Content-Type": "application/json" } });
 
-      alert("Pronë u përditësua me sukses!");
-    } catch (err) {
-      console.error(err);
-      alert("Ndryshimi i pronës dështoi.");
-    }
-  };
+//       alert("Pronë u përditësua me sukses!");
+//     } catch (err) {
+//       console.error(err);
+//       alert("Ndryshimi i pronës dështoi.");
+//     }
+//   };
 
   return (
     <div className="admin-page">
