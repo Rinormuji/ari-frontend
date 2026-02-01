@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEye, FaEdit, FaTrash, FaBan } from "react-icons/fa";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const PAGE_SIZE = 10;
 
 export default function UsersAdmin({ currentUserRoles = [] }) {
