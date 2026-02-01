@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StatsCard from "../components/StatsCard";
-import { propertyAPI } from "../../services/api";
+import { adminAPI } from "../../services/api";
 import {
   LineChart,
   Line,
