@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StatsCard from "../components/StatsCard";
-// import api from '../services/api'
+import { propertyAPI } from "../services/api";
 import {
   LineChart,
   Line,
@@ -19,27 +19,43 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token found. Please log in.");
-      setLoading(false);
-      return;
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     setError("No token found. Please log in.");
+  //     setLoading(false);
+  //     return;
+  //   }
 
-    axios
-      .get(`${API_BASE}/api/users/stats`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => {
+  //   axios
+  //     .get(`${API_BASE}/api/users/stats`, {
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     })
+  //     .then(res => {
+  //       setStats(res.data);
+  //       setLoading(false);
+  //     })
+  //     .catch(err => {
+  //       console.error(err);
+  //       setError("Failed to load stats.");
+  //       setLoading(false);
+  //     });
+  // }, []);
+
+   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await propertyAPI.get("/users/stats"); // përdor api.js instance
         setStats(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error(err);
         setError("Failed to load stats.");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchStats();
   }, []);
 
   if (error)
