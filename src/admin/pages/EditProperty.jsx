@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+import api from '../services/api'
 
 function EditProperty() {
   const { id } = useParams();
@@ -20,8 +21,7 @@ function EditProperty() {
     const fetchProperty = async () => {
       try {
         // Cakto URL sipas backend
-        let url = `${API_BASE}/properties/${id}`;
-        const res = await axios.get(url);
+       const res = await api.get(`/properties/${id}`);
         const found = res.data;
 
         if (found) {
@@ -150,10 +150,10 @@ function EditProperty() {
       // Cakto endpoint sipas type
       let url = "";
       switch (type) {
-  case "BANESA": url = `${API_BASE}/banesa/${id}`; break;
-  case "SHTEPI": url = `${API_BASE}/shtepi/${id}`; break;
-  case "LOKALE": url = `${API_BASE}/lokale/${id}`; break;
-  case "TOKA": url = `${API_BASE}/toka/${id}`; break;
+  case "BANESA": url = `/banesa/${id}`; break;
+  case "SHTEPI": url = `/shtepi/${id}`; break;
+  case "LOKALE": url = `/lokale/${id}`; break;
+  case "TOKA": url = `/toka/${id}`; break;
   default: alert("Lloji i pronës nuk është valid!"); return;
 }
 
