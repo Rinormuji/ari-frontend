@@ -94,22 +94,43 @@ export default function UsersAdmin({ currentUserRoles = [] }) {
   //   } catch (err) { console.error(err); }
   // };
 
-  const updateRoles = async () => {
-    if (!isAdmin || !selectedUser) return;
-    try {
-      await axios.put(
-        `${API_BASE}/api/users/${selectedUser.id}/roles`,
-        selectedUser.roles,
-        { withCredentials: true }
-      );
-      closeModal();
-      fetchUsers();
-    } catch (err) { console.error(err); }
-  };
-
-  const handleToggleStatus = async (id) => {
-  await usersAPI.toggleStatus(id);
+const handleUpdateRoles = async () => {
+  if (!isAdmin || !selectedUser) return;
+  try {
+    await usersAPI.updateRoles(selectedUser.id, selectedUser.roles);
+    closeModal();
+    fetchUsers();
+  } catch (err) {
+    console.error("Gabim gjatë update të roleve:", err);
+  }
 };
+;
+
+  // const updateRoles = async () => {
+  //   if (!isAdmin || !selectedUser) return;
+  //   try {
+  //     await axios.put(
+  //       `${API_BASE}/api/users/${selectedUser.id}/roles`,
+  //       selectedUser.roles,
+  //       { withCredentials: true }
+  //     );
+  //     closeModal();
+  //     fetchUsers();
+  //   } catch (err) { console.error(err); }
+  // };
+
+  const handleToggleStatus = async () => {
+  if (!selectedUser) return;
+  try {
+    await usersAPI.toggleStatus(selectedUser.id);
+    setUsers(users.map(u => u.id === selectedUser.id ? { ...u, status: u.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" } : u));
+    closeModal();
+  } catch (err) {
+    console.error("Gabim gjatë bllokimit:", err);
+    alert("Nuk mund të ndryshohet statusi i përdoruesit.");
+  }
+};
+
   // const toggleStatus = async (userId) => {
   //   try {
   //     const token = localStorage.getItem("token"); // 1. Merre tokenin
@@ -130,16 +151,27 @@ export default function UsersAdmin({ currentUserRoles = [] }) {
   //   }
   // };
 
-  const deleteUser = async () => {
-    if (!selectedUser) return;
-    try {
-      await axios.delete(`${API_BASE}/api/users/${selectedUser.id}`, {
-        withCredentials: true,
-      });
-      closeModal();
-      fetchUsers();
-    } catch (err) { console.error(err); }
-  };
+  const handleDeleteUser = async () => {
+  if (!selectedUser) return;
+  try {
+    await usersAPI.deleteUser(selectedUser.id);
+    closeModal();
+    fetchUsers();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  // const deleteUser = async () => {
+  //   if (!selectedUser) return;
+  //   try {
+  //     await axios.delete(`${API_BASE}/api/users/${selectedUser.id}`, {
+  //       withCredentials: true,
+  //     });
+  //     closeModal();
+  //     fetchUsers();
+  //   } catch (err) { console.error(err); }
+  // };
 
   /* ================= MODAL ================= */
   const openModal = (type, user) => {
