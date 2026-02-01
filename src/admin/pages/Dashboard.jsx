@@ -45,7 +45,7 @@ export default function Dashboard() {
    useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = awawait adminAPI.getStats(); // përdor api.js instance
+        const res = await adminAPI.getStats(); // përdor api.js instance
         setStats(res.data);
       } catch (err) {
         console.error(err);
