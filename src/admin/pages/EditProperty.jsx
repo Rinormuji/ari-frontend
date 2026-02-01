@@ -151,10 +151,10 @@ function EditProperty() {
       // Cakto endpoint sipas type
       let url = "";
       switch (type) {
-case "BANESA": url = ${API_BASE}/banesa/${id}; break;
-        case "SHTEPI": url = ${API_BASE}/shtepi/${id}; break;
-        case "LOKALE": url = ${API_BASE}/lokale/${id}; break;
-        case "TOKA": url = ${API_BASE}/toka/${id}; break;
+case "BANESA": url = `${API_BASE}/banesa/${id}`; break;
+        case "SHTEPI": url = `${API_BASE}/shtepi/${id}`; break;
+        case "LOKALE": url = `${API_BASE}/lokale/${id}`; break;
+        case "TOKA": url = `${API_BASE}/toka/${id}`; break;
   default: alert("Lloji i pronës nuk është valid!"); return;
 }
 
