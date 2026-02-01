@@ -89,7 +89,19 @@ export const propertyAPI = {
   // Delete property (Admin only)
   deleteProperty: (id) => {
     return api.delete(`/properties/${id}`)
+  },
+    
+  updatePropertyByType: (type, id, propertyData) => {
+  let url = '';
+  switch (type.toUpperCase()) {
+    case 'BANESA': url = `/banesa/${id}`; break;
+    case 'SHTEPI': url = `/shtepi/${id}`; break;
+    case 'LOKALE': url = `/lokale/${id}`; break;
+    case 'TOKA': url = `/toka/${id}`; break;
+    default: throw new Error('Lloji i pronës nuk është valid!');
   }
+  return api.put(url, propertyData);
+}
 }
 
 // Banesa API functions
