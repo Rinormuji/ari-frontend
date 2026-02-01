@@ -25,7 +25,7 @@ function EditProperty() {
         // Cakto URL sipas backend
         // let url = `${API_BASE}/properties/${id}`; 
         if (!type) return;
-        const res = await propertyAPI.updatePropertyByType(type, id, payload);
+        const res = await propertyAPI.getProperty(id);
         const found = res.data;
 
         if (found) {
@@ -145,7 +145,7 @@ function EditProperty() {
 
     const payload = { ...form, location: fullLocation, images: imagesBase64, type };
 
-    await propertyAPI.update(type, id, payload);
+  await propertyAPI.updateProperty(type, id, payload);
 
     alert("Pronë u përditësua me sukses!");
   } catch (err) {
