@@ -11,7 +11,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
