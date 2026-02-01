@@ -119,6 +119,11 @@ export const banesaAPI = {
     return api.delete(`/banesa/${id}`)
   }
 }
+// Në api.js
+export const adminAPI = {
+  getStats: () => api.get("/users/stats"),
+};
+
 
 // Shtepi API functions
 export const shtepiAPI = {
