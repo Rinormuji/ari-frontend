@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { FaThLarge, FaTable, FaTrashAlt, FaEdit, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { propertyAPI } from "../../services/api";
 
 /**
  * PropertiesAdmin
@@ -70,8 +71,9 @@ const [deleting, setDeleting] = useState(false);
       setLoading(true);
       setError(null);
       try {
-        const url = `${API_BASE}/api/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`;
-        const res = await axios.get(url, { withCredentials: true });
+        // const url = `${API_BASE}/api/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`;
+        // const res = await axios.get(url, { withCredentials: true });
+        const res = await propertyAPI.get(`/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`);
         // Expecting Spring Page structure (content + totalPages), or fallback array
         const data = res.data;
         let content = [];
