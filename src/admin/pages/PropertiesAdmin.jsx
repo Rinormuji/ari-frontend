@@ -18,7 +18,7 @@ import { propertyAPI } from "../../services/api";
  * ndrysho axios.delete(...) sipas nevojës.
  */
 
-// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 const defaultPageSize = 12;
 
