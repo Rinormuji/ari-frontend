@@ -1,16 +1,37 @@
-import '../admin.css';
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-// import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { GripVertical, X, ImagePlus } from "lucide-react";
 import { propertyAPI } from "../../services/api";
+import MapPicker from "../components/MapPicker";
+import { useToast } from "../../context/ToastContext";
 
+const CITIES = ["Prishtinë", "Prizren", "Pejë", "Gjakovë", "Ferizaj", "Gjilan", "Mitrovicë"];
 
-// const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+const inputCls =
+  "w-full bg-[#1a1a1a] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#FFAE42]/60 transition-colors";
+const labelCls = "block text-xs font-medium text-white/50 mb-1 uppercase tracking-wider";
+const errorCls = "text-red-400 text-xs mt-1";
+
+const CheckField = ({ name, checked, onChange, label }) => (
+  <label className="flex items-center gap-2 cursor-pointer select-none">
+    <button
+      type="button"
+      onClick={() => onChange({ target: { name, type: "checkbox", checked: !checked } })}
+      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+        checked ? "bg-[#FFAE42] border-[#FFAE42]" : "border-white/20 bg-white/5"
+      }`}
+    >
+      {checked && <X size={12} className="text-black" />}
+    </button>
+    <span className="text-sm text-white/70">{label}</span>
+  </label>
+);
 
 
 function EditProperty() {
   const { id } = useParams();
+  const toast = useToast();
   const [type, setType] = useState("");
   const [form, setForm] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
@@ -22,9 +43,6 @@ function EditProperty() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        // Cakto URL sipas backend
-        // let url = `${API_BASE}/properties/${id}`; 
-        if (!type) return;
         const res = await propertyAPI.getProperty(id);
         const found = res.data;
 
@@ -51,16 +69,16 @@ function EditProperty() {
           hasGarage: found.hasGarage || false,
           hasParking: found.hasParking || false,
           hasInfrastructure: found.hasInfrastructure || false,
-          images: [], 
+          images: found.images || [],
         });
 
-          if (found.images && found.images.length > 0) {
-            setPreviewImages(found.images);
-          }
+        if (found.images && found.images.length > 0) {
+          setPreviewImages(found.images);
+        }
         }
       } catch (err) {
         console.error(err);
-        alert("Nuk u gjet prona.");
+        toast.error("Nuk u gjet prona.");
       }
     };
 
@@ -134,10 +152,11 @@ function EditProperty() {
   if (!validate()) return;
 
   try {
-    const imagesBase64 =
-      form.images.length > 0
-        ? await Promise.all(form.images.map(fileToBase64))
-        : [];
+    const imagesBase64 = await Promise.all(
+      form.images.map(item =>
+        item instanceof File ? fileToBase64(item) : item
+      )
+    );
 
     const fullLocation = form.location
       ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}`
@@ -145,12 +164,12 @@ function EditProperty() {
 
     const payload = { ...form, location: fullLocation, images: imagesBase64, type };
 
-  await propertyAPI.updateProperty(type, id, payload);
+  await propertyAPI.updatePropertyByType(type, id, payload);
 
-    alert("Pronë u përditësua me sukses!");
+    toast.success("Pronë u përditësua me sukses!");
   } catch (err) {
     console.error(err);
-    alert("Ndryshimi i pronës dështoi.");
+    toast.error("Ndryshimi i pronës dështoi.");
   }
 };
 
@@ -197,131 +216,217 @@ function EditProperty() {
 //   };
 
   return (
-    <div className="admin-page">
-      <h2 className="addproperty-title">Edit Property — {form.title}</h2>
+    <div className="max-w-3xl mx-auto">
+      <h1 className="text-xl font-bold text-white mb-2">Edito Pronën</h1>
+      <p className="text-sm text-white/40 mb-6">{form.title}</p>
 
-      <form className="addproperty-form" onSubmit={handleSave}>
-        {/* Type & ID */}
-        <div className="addproperty-type-id">
-          <select name="type" value={type} disabled className="addproperty-type">
-            <option value="BANESA">Banesa</option>
-            <option value="SHTEPI">Shtëpi</option>
-            <option value="LOKALE">Lokale</option>
-            <option value="TOKA">Tokë</option>
-          </select>
-          <input type="text" name="id" value={form.id} disabled className="addproperty-id" />
+      <form className="space-y-5" onSubmit={handleSave}>
+        {/* Type (readonly) + ID (readonly) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Lloji</label>
+            <select name="type" value={type} disabled className={`${inputCls} opacity-60 cursor-not-allowed`}>
+              <option value="BANESA">Banesa</option>
+              <option value="SHTEPI">Shtëpi</option>
+              <option value="LOKALE">Lokale</option>
+              <option value="TOKA">Tokë</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>ID</label>
+            <input type="text" name="id" value={form.id} disabled className={`${inputCls} opacity-60 cursor-not-allowed`} />
+          </div>
         </div>
 
         {/* Title */}
-        <div className="addproperty-field addproperty-fullrow">
-          <input type="text" name="title" value={form.title} onChange={handleChange} className="addproperty-input" />
-          {errors.title && <p className="addproperty-error">{errors.title}</p>}
+        <div>
+          <label className={labelCls}>Titulli *</label>
+          <input type="text" name="title" value={form.title} onChange={handleChange} className={inputCls} />
+          {errors.title && <p className={errorCls}>{errors.title}</p>}
         </div>
 
         {/* Description */}
-        <div className="addproperty-field addproperty-fullrow">
-          <textarea name="description" value={form.description} onChange={handleChange} className="addproperty-input addproperty-textarea" />
+        <div>
+          <label className={labelCls}>Përshkrimi</label>
+          <textarea name="description" value={form.description} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
         </div>
 
-        {/* Location & Neighborhood */}
-        <div className="addproperty-field addproperty-row">
-          <select name="location" value={form.location} onChange={handleChange} className="addproperty-input flex-1">
-            <option value="" disabled>Zgjidh qytetin</option>
-            <option value="Prishtinë">Prishtinë</option>
-            <option value="Prizren">Prizren</option>
-            <option value="Pejë">Pejë</option>
-            <option value="Gjakovë">Gjakovë</option>
-            <option value="Ferizaj">Ferizaj</option>
-            <option value="Gjilan">Gjilan</option>
-            <option value="Mitrovicë">Mitrovicë</option>
-          </select>
-          <input type="text" name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="Lagjja" className="addproperty-input flex-1" />
+        {/* City + Neighborhood */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Qyteti</label>
+            <select name="location" value={form.location} onChange={handleChange} className={inputCls}>
+              <option value="" disabled>Zgjidh qytetin</option>
+              {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Lagjja</label>
+            <input type="text" name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="Lagjja" className={inputCls} />
+          </div>
         </div>
 
-        {/* Price & Area */}
-        <div className="addproperty-field addproperty-row">
-          <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="Çmimi" className="addproperty-input flex-1" />
-          {errors.price && <p className="addproperty-error">{errors.price}</p>}
-          <input type="number" name="area" value={form.area} onChange={handleChange} placeholder="Sipërfaqja (m²)" className="addproperty-input flex-1" />
-          {errors.area && <p className="addproperty-error">{errors.area}</p>}
+        {/* Price + Area */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Çmimi (€) *</label>
+            <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="Çmimi" className={inputCls} />
+            {errors.price && <p className={errorCls}>{errors.price}</p>}
+          </div>
+          <div>
+            <label className={labelCls}>Sipërfaqja (m²) *</label>
+            <input type="number" name="area" value={form.area} onChange={handleChange} placeholder="Sipërfaqja" className={inputCls} />
+            {errors.area && <p className={errorCls}>{errors.area}</p>}
+          </div>
         </div>
 
         {/* Type-specific fields */}
         {type === "BANESA" && (
-          <div className="addproperty-typefields">
-            <input type="number" name="rooms" value={form.rooms} onChange={handleChange} placeholder="Numri i dhomave" className="addproperty-input" />
-            {errors.rooms && <p className="addproperty-error">{errors.rooms}</p>}
-            <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="Kati" className="addproperty-input" />
-            <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="Numri i banjove" className="addproperty-input" />
-            <label><input type="checkbox" name="hasElevator" checked={form.hasElevator} onChange={handleChange} /> Ashensor</label>
-            <label><input type="checkbox" name="hasBalcony" checked={form.hasBalcony} onChange={handleChange} /> Ballkon</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Banesës</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className={labelCls}>Dhomat *</label>
+                <input type="number" name="rooms" value={form.rooms} onChange={handleChange} placeholder="0" className={inputCls} />
+                {errors.rooms && <p className={errorCls}>{errors.rooms}</p>}
+              </div>
+              <div>
+                <label className={labelCls}>Kati</label>
+                <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Banjot</label>
+                <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <CheckField name="hasElevator" checked={form.hasElevator} onChange={handleChange} label="Ashensor" />
+              <CheckField name="hasBalcony" checked={form.hasBalcony} onChange={handleChange} label="Ballkon" />
+            </div>
           </div>
         )}
 
         {type === "SHTEPI" && (
-          <div className="addproperty-typefields">
-            <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="Numri i kateve" className="addproperty-input" />
-            {errors.floors && <p className="addproperty-error">{errors.floor}</p>}
-            <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="Numri i banjove" className="addproperty-input" />
-            <label><input type="checkbox" name="hasGarden" checked={form.hasGarden} onChange={handleChange} /> Oborr</label>
-            <label><input type="checkbox" name="hasGarage" checked={form.hasGarage} onChange={handleChange} /> Garazh</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Shtëpisë</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Katet *</label>
+                <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
+                {errors.floor && <p className={errorCls}>{errors.floor}</p>}
+              </div>
+              <div>
+                <label className={labelCls}>Banjot</label>
+                <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <CheckField name="hasGarden" checked={form.hasGarden} onChange={handleChange} label="Oborr" />
+              <CheckField name="hasGarage" checked={form.hasGarage} onChange={handleChange} label="Garazh" />
+            </div>
           </div>
         )}
 
         {type === "LOKALE" && (
-          <div className="addproperty-typefields">
-            <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="Kati" className="addproperty-input" />
-            <label><input type="checkbox" name="hasParking" checked={form.hasParking} onChange={handleChange} /> Parking</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Lokalit</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Kati</label>
+                <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+            </div>
+            <CheckField name="hasParking" checked={form.hasParking} onChange={handleChange} label="Parking" />
           </div>
         )}
 
         {type === "TOKA" && (
-          <div className="addproperty-typefields">
-            <label><input type="checkbox" name="hasInfrastructure" checked={form.hasInfrastructure} onChange={handleChange} /> Infrastrukturë</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider mb-3">Detajet e Tokës</p>
+            <CheckField name="hasInfrastructure" checked={form.hasInfrastructure} onChange={handleChange} label="Infrastrukturë" />
           </div>
         )}
 
-        {/* Latitude & Longitude */}
-        <div className="addproperty-field">
-          <input type="number" name="latitude" value={form.latitude} onChange={handleChange} placeholder="Latitude" className="addproperty-input" />
-          <input type="number" name="longitude" value={form.longitude} onChange={handleChange} placeholder="Longitude" className="addproperty-input" />
+        {/* Status + Contact */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Statusi</label>
+            <select name="status" value={form.status} onChange={handleChange} className={inputCls}>
+              <option value="" disabled>Zgjidh statusin</option>
+              <option value="FOR_SALE">Në shitje</option>
+              <option value="FOR_RENT">Me qira</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Kontakt</label>
+            <input type="text" name="contactInfo" value={form.contactInfo} onChange={handleChange} placeholder="Kontakt" className={inputCls} />
+          </div>
         </div>
 
-        {/* Status & Contact */}
-        <div className="addproperty-field addproperty-row">
-          <select name="status" value={form.status} onChange={handleChange} className="addproperty-input flex-1">
-            <option value="" disabled>Zgjidh Statusin</option>
-            <option value="FOR_SALE">Në shitje</option>
-            <option value="FOR_RENT">Me qira</option>
-          </select>
-          <input type="text" name="contactInfo" value={form.contactInfo} onChange={handleChange} placeholder="Kontakt" className="addproperty-input flex-1" />
+        {/* Map Picker */}
+        <div>
+          <label className={labelCls}>Vendndodhja në hartë</label>
+          <MapPicker
+            lat={form.latitude}
+            lng={form.longitude}
+            onSelect={(lat, lng) => setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }))}
+          />
         </div>
 
-        {/* Drag & Drop Images */}
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="images" direction="horizontal">
-            {(provided) => (
-              <div className="addproperty-images" ref={provided.innerRef} {...provided.droppableProps}>
-                {previewImages.map((src, idx) => (
-                  <Draggable key={idx} draggableId={`img-${idx}`} index={idx}>
-                    {(provided) => (
-                      <div className="addproperty-image" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                        <img src={src} alt={`preview-${idx}`} className="addproperty-img" />
-                        <button type="button" onClick={() => removeImage(idx)} className="addproperty-remove">X</button>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-                <label className="addproperty-addphoto">
-                  + <input type="file" multiple className="hidden" onChange={handleImages} />
-                </label>
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        {/* Images drag-drop */}
+        <div>
+          <label className={labelCls}>Fotot</label>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="images" direction="horizontal">
+              {(provided) => (
+                <div
+                  className="flex flex-wrap gap-3 p-3 bg-white/5 rounded-lg border border-white/10 min-h-25"
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {previewImages.map((src, idx) => (
+                    <Draggable key={idx} draggableId={`img-${idx}`} index={idx}>
+                      {(drag) => (
+                        <div
+                          className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group"
+                          ref={drag.innerRef}
+                          {...drag.draggableProps}
+                          {...drag.dragHandleProps}
+                        >
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <GripVertical size={18} className="text-white" />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={10} className="text-white" />
+                          </button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                  <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#FFAE42]/50 transition-colors text-white/40 hover:text-[#FFAE42]/70">
+                    <ImagePlus size={22} />
+                    <span className="text-xs mt-1">Shto</span>
+                    <input type="file" multiple className="hidden" onChange={handleImages} accept="image/*" />
+                  </label>
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <p className="text-xs text-white/30 mt-1">Tërhiq për të rirendosur • Kliko × për të fshirë</p>
+        </div>
 
-        <button type="submit" className="addproperty-submit">Save Changes</button>
+        <button
+          type="submit"
+          className="w-full bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold py-3 rounded-lg transition-colors text-sm"
+        >
+          Ruaj Ndryshimet
+        </button>
       </form>
     </div>
   );

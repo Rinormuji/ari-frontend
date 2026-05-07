@@ -16,12 +16,7 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`API Request → ${config.method?.toUpperCase()} ${config.url}`)
     }
 
@@ -34,13 +29,13 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`API Response ✓ ${response.config.url}`)
     }
     return response
   },
   (error) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.error(
         `API Error ✗ ${error.config?.url}`,
         error.response?.status
@@ -48,8 +43,11 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+      // Don't auto-redirect for the session-check call — AuthContext handles that
+      const url = error.config?.url || ''
+      if (!url.includes('/auth/me') && !url.includes('/auth/login')) {
+        window.location.href = '/login'
+      }
     }
 
     return Promise.reject(error)
@@ -177,34 +175,60 @@ export const usersAPI = {
   toggleStatus: (id) => api.put(`/users/${id}/toggle-status`),
 
   // DELETE /api/users/:id
-  deleteUser: (id) => api.delete(`/users/${id}`)
+  deleteUser: (id) => api.delete(`/users/${id}`),
+
+  // POST /api/users/register-admin (SuperAdmin only)
+  registerAdmin: (data) => api.post('/users/register-admin', data),
+
+  // POST /api/users/register-user (SuperAdmin only)
+  registerUser: (data) => api.post('/users/register-user', data),
 }
 
 // Auth API functions
 export const authAPI = {
   login: (credentials) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log('Auth: login request sent')
     }
     return api.post('/auth/login', credentials)
   },
 
   register: (userData) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log('Auth: register request sent')
     }
     return api.post('/auth/register', userData)
   },
 
   logout: () => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log('Auth: logout')
     }
     return api.post('/auth/logout')
   },
 
+  me: () => api.get('/auth/me'),
+
   getProfile: () => api.get('/auth/profile')
 }
 
+// Appointment API
+export const appointmentAPI = {
+  // User: create appointment
+  create: (propertyId, date) => api.post('/appointments', { propertyId, date }),
 
+  // User: get own appointments
+  getMy: () => api.get('/appointments/my'),
+
+  // Admin: get all appointments
+  getAll: (params = {}) => api.get('/appointments', { params }),
+
+  // Admin: approve
+  approve: (id) => api.put(`/appointments/${id}/approve`),
+
+  // Admin: reject
+  reject: (id) => api.put(`/appointments/${id}/reject`),
+}
+
+export { api }
 export default api

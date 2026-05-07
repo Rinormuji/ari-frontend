@@ -706,6 +706,34 @@
   flex: 1;
 }
 
+/* MAP PICKER */
+.mappicker-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mappicker-hint {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.mappicker-map {
+  width: 100%;
+  height: 340px;
+  border-radius: 0.5rem;
+  border: 1px solid #374151;
+  cursor: crosshair;
+}
+
+.mappicker-coords {
+  display: flex;
+  gap: 1.5rem;
+  color: #d1d5db;
+  font-size: 0.85rem;
+}
+
 /* USERS CSS */
 
 /* ------------------ MAIN CONTAINER ------------------ */

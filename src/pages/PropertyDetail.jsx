@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-
+import { useParams, Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { ChevronLeft, ChevronRight, X, CalendarCheck, MapPin, Euro, Ruler } from "lucide-react";
 import { propertyAPI } from "../services/api";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 const PropertyDetailSoftApple = () => {
   const { id } = useParams();
+  const { isAuthenticated } = useAuth();
+  const toast = useToast();
 
   const [property, setProperty] = useState(null);
   const [loadingProperty, setLoadingProperty] = useState(true);
@@ -61,7 +66,7 @@ L.Icon.Default.mergeOptions({
         // const data = await res.json();
         setProperty(res.data);
       } catch (err) {
-        alert("Gabim gjatë marrjes së pronës!");
+        toast.error("Gabim gjatë marrësjes së pronës!");
       } finally {
         setLoadingProperty(false);
       }
@@ -70,8 +75,19 @@ L.Icon.Default.mergeOptions({
     fetchProperty();
   }, [id]);
 
-  if (loadingProperty) return <p>Ngarkohet prona...</p>;
-  if (!property) return <p>Pronë nuk u gjet.</p>;
+  if (loadingProperty) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex flex-col items-center gap-3 text-gray-500">
+        <div className="w-8 h-8 rounded-full border-2 border-[#FFAE42] border-t-transparent animate-spin" />
+        <span className="text-sm">Duke ngarkuar pronën...</span>
+      </div>
+    </div>
+  );
+  if (!property) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <p className="text-gray-500">Pronë nuk u gjet.</p>
+    </div>
+  );
 
   // FIX FOR SAFE IMAGE NAVIGATION
   const nextImage = () => {
@@ -86,13 +102,10 @@ L.Icon.Default.mergeOptions({
 
   // Check Login Before Appointment
   const handleAppointmentClick = () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Duhet të jeni i loguar ose i regjistruar për të kërkuar një takim.");
+    if (!isAuthenticated) {
+      toast.error("Duhet të jeni i kyqur për të kërkuar një takim.");
       return;
     }
-
     setAppointmentModal(true);
   };
 
@@ -153,231 +166,220 @@ L.Icon.Default.mergeOptions({
   // SEND APPOINTMENT
   const sendAppointmentRequest = async () => {
     if (!appointmentDate) {
-      alert("Zgjidhni një datë.");
+      toast.error("Zgjidhni një datë.");
       return;
     }
-
     const selectedDate = new Date(appointmentDate);
     const minAllowed = new Date(Date.now() + 3 * 60 * 60 * 1000);
-
     if (selectedDate < minAllowed) {
-      alert("Takimi duhet të jetë të paktën 3 orë nga tani.");
+      toast.error("Takimi duhet të jetë të paktën 3 orë nga tani.");
       return;
     }
-
     setSendingAppointment(true);
-
     try {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          propertyId: property.id,
-          date: appointmentDate,
-        }),
+      await api.post("/appointments", {
+        propertyId: property.id,
+        date: appointmentDate,
       });
-
-      if (res.ok) {
-        alert("Kërkesa u dërgua me sukses!");
-        setAppointmentModal(false);
-        setAppointmentDate("");
-      } else {
-        alert("Gabim gjatë dërgimit të kërkesës.");
-      }
+      toast.success("Kërkesa u dërgua me sukses!");
+      setAppointmentModal(false);
+      setAppointmentDate("");
     } catch (e) {
-      alert("Gabim me serverin.");
+      toast.error("Gabim gjatë dërgimit të kërkesës.");
     } finally {
       setSendingAppointment(false);
     }
   };
 
   return (
-    <div className="propertySoftApple-wrapper">
-      
-      {/* MAIN SECTION */}
-      <div className="propertySoftApple-container">
-        
-        {/* LEFT IMAGES */}
-        <div className="propertySoftApple-left">
-          <div className="propertySoftApple-slider">
+    <div className="bg-gray-50 min-h-screen pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8">
 
-            <button className="softApple-arrow left" onClick={prevImage}>‹</button>
+        {/* Breadcrumb */}
+        <Link to="/properties" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors">
+          <ChevronLeft size={16} /> Kthehu te pronat
+        </Link>
 
-            <img
-              src={property.images?.[currentIndex] || "/placeholder.png"}
-              className="propertySoftApple-mainImg"
-              onClick={() => property.images?.length && setModalOpen(true)}
-              alt="Foto e pronës"
-            />
+        {/* Main grid: images + info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
 
-            <button className="softApple-arrow right" onClick={nextImage}>›</button>
-          </div>
-
-          {/* THUMBNAILS */}
-          <div className="propertySoftApple-thumbs">
-            {property.images?.length > 0 ? (
-              property.images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  className={`propertySoftApple-thumb ${i === currentIndex ? "active" : ""}`}
-                  onClick={() => setCurrentIndex(i)}
-                  alt=""
-                />
-              ))
-            ) : (
-              <p>Prona nuk ka foto.</p>
+          {/* LEFT — Images */}
+          <div>
+            <div className="relative rounded-2xl overflow-hidden bg-gray-200 aspect-4/3 cursor-pointer" onClick={() => property.images?.length && setModalOpen(true)}>
+              <img
+                src={property.images?.[currentIndex] || "/placeholder.png"}
+                alt="Foto e pronës"
+                className="w-full h-full object-cover"
+              />
+              {property.images?.length > 1 && (
+                <>
+                  <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition z-10">
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition z-10">
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
+              <div className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">
+                {currentIndex + 1} / {property.images?.length || 1}
+              </div>
+            </div>
+            {/* Thumbnails */}
+            {property.images?.length > 1 && (
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                {property.images.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    onClick={() => setCurrentIndex(i)}
+                    alt=""
+                    className={`h-16 w-24 object-cover rounded-xl cursor-pointer shrink-0 transition-all ${i === currentIndex ? "ring-2 ring-[#FFAE42] opacity-100" : "opacity-60 hover:opacity-80"}`}
+                  />
+                ))}
+              </div>
             )}
           </div>
-        </div>
 
-        {/* RIGHT INFO */}
-        <div className="propertySoftApple-right">
-          <h1>{property.title}</h1>
-          <p className="softApple-price">{property.price?.toLocaleString()} €</p>
-
-          <div className="propertySoftApple-featuresGrid">
-            {features.map((f, i) => (
-              <div key={i} className="propertySoftApple-featureCard">
-                <span>{f.label}</span>
-                <span>{f.value}</span>
+          {/* RIGHT — Info */}
+          <div className="flex flex-col gap-5">
+            <div>
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <span className="px-2.5 py-1 bg-[#FFAE42]/10 text-[#FFAE42] rounded-full font-medium text-xs">
+                  {property.type} · {property.status === "FOR_SALE" ? "Në shitje" : "Me qira"}
+                </span>
+                {property.city && (
+                  <span className="flex items-center gap-1"><MapPin size={13} />{property.city}</span>
+                )}
               </div>
-            ))}
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{property.title}</h1>
+              <div className="flex items-center gap-4 mt-3">
+                <div className="flex items-center gap-1.5 text-2xl font-bold text-blue-600">
+                  <Euro size={20} />{property.price?.toLocaleString()} €
+                </div>
+                {property.area && (
+                  <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                    <Ruler size={16} />{property.area} m²
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Features grid */}
+            {features.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {features.map((f, i) => (
+                  <div key={i} className="bg-white border border-gray-100 rounded-xl px-4 py-3 flex flex-col gap-0.5">
+                    <span className="text-xs text-gray-400 font-medium">{f.label}</span>
+                    <span className="text-sm font-semibold text-gray-800">{f.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Appointment CTA */}
+            <button
+              onClick={handleAppointmentClick}
+              className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold rounded-xl transition-colors mt-auto"
+            >
+              <CalendarCheck size={18} /> Kërko një takim
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* BOTTOM SECTION */}
-      <div className="propertySoftApple-bottom">
-        <h3>Përshkrimi</h3>
-        <p>{property.description}</p>
+        {/* Description + Contact */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          {property.description && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="font-bold text-gray-900 mb-3">Përshkrimi</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">{property.description}</p>
+            </div>
+          )}
+          {property.contactInfo && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <h2 className="font-bold text-gray-900 mb-3">Kontakt</h2>
+              <p className="text-sm text-gray-600">{property.contactInfo}</p>
+            </div>
+          )}
+        </div>
 
-        <h3>Kontakt</h3>
-        <p>{property.contactInfo}</p>
-
-        {/* APPOINTMENT BUTTON */}
-        <button className="request-appointment-btn" onClick={handleAppointmentClick}>
-          Kërko një takim
-        </button>
-
-        <div className="softApple-section">
-  <h3>Harta e pronës</h3>
-  
-  {property.latitude != null && property.longitude != null ? (
-    <MapContainer
-      center={[property.latitude, property.longitude]}
-      zoom={15}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      />
-      <Marker position={[property.latitude, property.longitude]}>
-        <Popup>{property.title}</Popup>
-      </Marker>
-    </MapContainer>
-  ) : (
-    <p>Koordinatat e pronës nuk janë të disponueshme.</p>
-  )}
-</div>
-
-{/* RECOMMENDED PROPERTIES */}
-{recommended.length > 0 && (
-  <div className="recommended-section">
-    <h3>Prona të rekomanduara</h3>
-
-    <div className="recommended-list">
-      {recommended.map((p) => (
-        <a href={`/properties/${p.id}`} className="recommended-card" key={p.id}>
-          <img src={p.images?.[0] || "/placeholder.png"} alt="" />
-          
-          <div className="recommended-info">
-            <h4>{p.title}</h4>
-            <p className="recommended-price">{p.price?.toLocaleString()} €</p>
-            <p className="recommended-meta">
-              {p.area} m² · {p.city}
-            </p>
+        {/* Map */}
+        {property.latitude != null && property.longitude != null && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-10 z-20">
+            <h2 className="font-bold text-gray-900 mb-4">Harta e pronës</h2>
+            <div className="rounded-xl overflow-hidden h-72 z-20">
+              <MapContainer center={[property.latitude, property.longitude]} zoom={15} scrollWheelZoom={false} style={{ height: "100%", width: "100%", zIndex: "20" }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
+                <Marker position={[property.latitude, property.longitude]}>
+                  <Popup>{property.title}</Popup>
+                </Marker>
+              </MapContainer>
+            </div>
           </div>
-        </a>
-      ))}
-    </div>
-  </div>
-)}
+        )}
 
-
+        {/* Recommended */}
+        {recommended.length > 0 && (
+          <div>
+            <h2 className="font-bold text-gray-900 mb-5">Prona të rekomanduara</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {recommended.map((p) => (
+                <Link key={p.id} to={`/properties/${p.id}`} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+                  <div className="h-36 overflow-hidden">
+                    <img src={p.images?.[0] || "/placeholder.png"} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                  <div className="p-3">
+                    <p className="font-semibold text-gray-800 text-sm line-clamp-1">{p.title}</p>
+                    <p className="text-blue-600 font-bold text-sm mt-1">{p.price?.toLocaleString()} €</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{p.area} m² · {p.city}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* FULLSCREEN IMAGE MODAL */}
+      {/* Fullscreen modal */}
       {modalOpen && (
-        <div className="propertySoftApple-modal" onClick={() => setModalOpen(false)}>
-
-          <button
-            className="modal-arrow left"
-            onClick={(e) => {
-              e.stopPropagation();
-              prevImage();
-            }}
-          >
-            ‹
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={() => setModalOpen(false)}>
+          <button className="absolute top-4 right-4 text-white hover:text-gray-300 transition z-10" onClick={() => setModalOpen(false)}>
+            <X size={28} />
           </button>
-
-          <img
-            src={property.images?.[currentIndex]}
-            className="propertySoftApple-modalImg"
-            alt=""
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          <button
-            className="modal-arrow right"
-            onClick={(e) => {
-              e.stopPropagation();
-              nextImage();
-            }}
-          >
-            ›
+          <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition z-10">
+            <ChevronLeft size={24} />
           </button>
-
+          <img src={property.images?.[currentIndex]} className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg" alt="" onClick={(e) => e.stopPropagation()} />
+          <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition z-10">
+            <ChevronRight size={24} />
+          </button>
         </div>
       )}
 
-      {/* APPOINTMENT MODAL */}
+      {/* Appointment modal */}
       {appointmentModal && (
-        <div className="appointment-modal" onClick={() => setAppointmentModal(false)}>
-          <div className="appointment-modal-content" onClick={(e) => e.stopPropagation()}>
-            
-            <h2>Kërko një takim</h2>
-
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setAppointmentModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Kërko një takim</h2>
+              <button onClick={() => setAppointmentModal(false)} className="text-gray-400 hover:text-gray-700 transition"><X size={20} /></button>
+            </div>
             <input
               type="datetime-local"
               value={appointmentDate}
               onChange={(e) => setAppointmentDate(e.target.value)}
-              min={new Date(Date.now() + 3 * 60 * 60 * 1000)
-                .toISOString()
-                .slice(0, 16)}
-              className="appointment-input"
+              min={new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] transition mb-4"
             />
-
-            <div className="appointment-actions">
-              <button className="cancel-btn" onClick={() => setAppointmentModal(false)}>
-                Anulo
-              </button>
-
-              <button className="submit-btn" onClick={sendAppointmentRequest} disabled={sendingAppointment}>
+            <div className="flex gap-3">
+              <button onClick={() => setAppointmentModal(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Anulo</button>
+              <button onClick={sendAppointmentRequest} disabled={sendingAppointment} className="flex-1 py-2.5 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition">
                 {sendingAppointment ? "Dërgohet..." : "Dërgo kërkesën"}
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 };

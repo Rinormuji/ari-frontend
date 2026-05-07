@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { MapPin, Circle as CircleIcon } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
@@ -127,129 +128,114 @@ const Properties = () => {
     return Array.from(s);
   }, [properties]);
 
-  if (loading) return <div className="p-4">Loading properties...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex flex-col items-center gap-3 text-gray-500">
+        <div className="w-8 h-8 rounded-full border-2 border-[#FFAE42] border-t-transparent animate-spin" />
+        <span className="text-sm">Duke ngarkuar pronat...</span>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="properties-page px-4 py-6">
-      {/* FILTER BAR */}
-      <div className="properties-filter-bar">
-        <div className="filter-left">
-          <label className="filter-label">Qyteti</label>
-          <select
-            className="filter-select"
-            value={cityFilter}
-            onChange={(e) => setCityFilter(e.target.value)}
-          >
-            <option value="">Të gjitha qytetet</option>
-            {cityOptions.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
+    <div className="bg-gray-50 min-h-screen pb-10">
 
-        <div className="filter-middle">
-          <label className="filter-label">Radius Search</label>
-          <button
-            className={`radius-toggle-btn ${circleEnabled ? "on" : "off"}`}
-            onClick={toggleCircle}
-          >
-            {circleEnabled ? "ON" : "OFF"}
-          </button>
-        </div>
-
-        {circleEnabled && (
-          <div className="filter-right">
-            <label className="filter-label">Rreze (km)</label>
-            <input
-              type="range"
-              min="0"
-              max="50"
-              step="1"
-              value={radiusKm}
-              onChange={(e) => setRadiusKm(Number(e.target.value))}
-              className="radius-range"
-            />
-            <input
-              type="number"
-              min="0"
-              max="50"
-              value={radiusKm}
-              onChange={(e) => setRadiusKm(Number(e.target.value))}
-              className="radius-number"
-            />
-            <span>km</span>
+      {/* Filter bar */}
+      <div className="bg-white border-b border-gray-200 shadow-sm py-3 px-4">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
+          {/* City filter */}
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus-within:border-[#FFAE42]">
+            <MapPin size={15} className="text-[#FFAE42] shrink-0" />
+            <select
+              value={cityFilter}
+              onChange={(e) => setCityFilter(e.target.value)}
+              className="outline-none text-sm text-gray-700 bg-transparent"
+            >
+              <option value="">Të gjitha qytetet</option>
+              {cityOptions.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
-        )}
+
+          {/* Radius toggle */}
+          <button
+            onClick={toggleCircle}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${circleEnabled ? "bg-[#FFAE42] text-black border-[#FFAE42]" : "bg-white text-gray-600 border-gray-200 hover:border-[#FFAE42]/50"}`}
+          >
+            <CircleIcon size={15} />
+            Radius: {circleEnabled ? "ON" : "OFF"}
+          </button>
+
+          {/* Radius slider */}
+          {circleEnabled && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span className="text-xs text-gray-400 shrink-0">Rreze:</span>
+              <input type="range" min="0" max="50" step="1" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-28 accent-[#FFAE42]" />
+              <input type="number" min="0" max="50" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-14 border border-gray-200 rounded-lg px-2 py-1 text-sm outline-none focus:border-[#FFAE42]" />
+              <span className="text-xs text-gray-400">km</span>
+            </div>
+          )}
+
+          <span className="ml-auto text-xs text-gray-400">{filtered.length} prona</span>
+        </div>
       </div>
 
-      {/* MAP + SIDE LIST */}
-      <div className="properties-map-and-side max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="properties-map-col lg:col-span-2">
-          <div className="properties-map-wrapper">
-            <MapContainer
-              center={[centerPoint.lat ?? defaultCenter.lat, centerPoint.lng ?? defaultCenter.lng]}
-              zoom={10}
-              className="properties-map"
-            >
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <MapClickHandler circleEnabled={circleEnabled} onSetCenter={setCenterPoint} />
-
-              {circleEnabled && centerPoint && (
-                <Circle
-                  center={[centerPoint.lat, centerPoint.lng]}
-                  radius={Number(radiusKm) * 1000}
-                  pathOptions={{ color: "#2563eb", fillOpacity: 0.08 }}
-                />
-              )}
-
-              {/* Markerat */}
-              {filtered.filter(p => p.lat != null && p.lng != null).map((p) => (
-                <Marker
-                  key={p.id}
-                  position={[p.lat, p.lng]}
-                  icon={propertyIcon}
-                  eventHandlers={{ click: () => navigate(`/properties/${p.id}`) }}
-                >
-                  <Tooltip direction="top" offset={[0, -12]} opacity={1} interactive>
-                    <div className="properties-tooltip">
-                      <img src={p.images?.[0] ?? banner} alt={p.title} className="tooltip-thumb" />
-                      <div className="tooltip-meta">
-                        <div className="tooltip-title">{p.title}</div>
-                        <div className="tooltip-sub">
-                          {p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}
-                        </div>
-                        <div className="tooltip-price">{p.price?.toLocaleString()} €</div>
-                      </div>
+      {/* Map + Side list */}
+      <div className="max-w-6xl mx-auto px-4 pt-4 grid grid-cols-1 lg:grid-cols-3 gap-4 z-30">
+        {/* Map */}
+        <div className="lg:col-span-2 z-30 rounded-2xl overflow-hidden shadow-sm border border-gray-200" style={{ height: "70vh" }}>
+          <MapContainer
+            center={[centerPoint.lat ?? defaultCenter.lat, centerPoint.lng ?? defaultCenter.lng]}
+            zoom={10}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapClickHandler circleEnabled={circleEnabled} onSetCenter={setCenterPoint} />
+            {circleEnabled && centerPoint && (
+              <Circle center={[centerPoint.lat, centerPoint.lng]} radius={Number(radiusKm) * 1000} pathOptions={{ color: "#FFAE42", fillOpacity: 0.08 }} />
+            )}
+            {filtered.filter((p) => p.lat != null && p.lng != null).map((p) => (
+              <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => navigate(`/properties/${p.id}`) }}>
+                <Tooltip direction="top" offset={[0, -12]} opacity={1} interactive>
+                  <div className="flex gap-2 items-start w-52">
+                    <img src={p.images?.[0] ?? banner} alt={p.title} className="w-14 h-14 object-cover rounded-lg shrink-0" />
+                    <div className="overflow-hidden">
+                      <p className="font-semibold text-xs leading-snug line-clamp-2">{p.title}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
+                      <p className="text-[#FFAE42] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} €</p>
                     </div>
-                  </Tooltip>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
+                  </div>
+                </Tooltip>
+              </Marker>
+            ))}
+          </MapContainer>
         </div>
 
-        {/* SIDE LIST */}
-        <aside className="properties-side-col lg:col-span-1">
-          <div className="side-card">
-            <h3 className="side-title">Prona — {filtered.length}</h3>
-            <div className="side-list side-list-scroll">
-              {filtered.map((p) => (
-                <button key={p.id} className="side-item" onClick={() => navigate(`/properties/${p.id}`)}>
-                  <img src={p.images?.[0] ?? banner} alt="" className="side-thumb" />
-                  <div className="side-meta">
-                    <div className="side-title-row">
-                      <div className="side-name">{p.title}</div>
-                      <div className="side-price">{p.price?.toLocaleString()}€</div>
-                    </div>
-                    <div className="side-sub">{p.city} · {p.area} m²</div>
-                  </div>
-                </button>
-              ))}
-              {filtered.length === 0 && <div className="side-empty">Nuk u gjet pronë.</div>}
-            </div>
-            <div className="side-hint">
-              {circleEnabled ? "Kliko në hartë për të vendosur qendrën." : "Radius OFF: shfaq të gjitha pronat."}
-            </div>
+        {/* Side list */}
+        <aside className="lg:col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden" style={{ height: "70vh" }}>
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-bold text-gray-900 text-sm">Prona — {filtered.length}</h3>
+            {circleEnabled ? (
+              <p className="text-xs text-gray-400 mt-0.5">Kliko në hartë për të vendosur qendrën.</p>
+            ) : (
+              <p className="text-xs text-gray-400 mt-0.5">Radius OFF: shfaq të gjitha pronat.</p>
+            )}
+          </div>
+          <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
+            {filtered.map((p) => (
+              <button key={p.id} onClick={() => navigate(`/properties/${p.id}`)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                <img src={p.images?.[0] ?? banner} alt="" className="w-14 h-12 object-cover rounded-xl shrink-0" />
+                <div className="overflow-hidden">
+                  <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.title}</p>
+                  <p className="text-[#FFAE42] font-bold text-sm">{p.price?.toLocaleString()} €</p>
+                  <p className="text-xs text-gray-400">{p.city} · {p.area} m²</p>
+                </div>
+              </button>
+            ))}
+            {filtered.length === 0 && (
+              <div className="p-6 text-center text-sm text-gray-400">Nuk u gjet pronë.</div>
+            )}
           </div>
         </aside>
       </div>

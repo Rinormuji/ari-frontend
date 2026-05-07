@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import StatsCard from "../components/StatsCard";
 import { adminAPI } from "../../services/api";
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell,
+  Legend,
 } from "recharts";
-
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -86,41 +85,41 @@ export default function Dashboard() {
   
 
   const chartData = [
-    {
-      name: "Statistics",
-      properties: stats?.totalProperties,
-      active: stats?.activeListings,
-      users: stats?.users,
-      appointments: stats?.appointments
-    }
+    { name: "Prona", value: stats?.totalProperties ?? 0, color: "#FFAE42" },
+    { name: "Aktive", value: stats?.activeListings ?? 0, color: "#10B981" },
+    { name: "Përdorues", value: stats?.users ?? 0, color: "#3B82F6" },
+    { name: "Takime", value: stats?.appointments ?? 0, color: "#F87171" },
   ];
 
   return (
-    <div className="dashboard-container p-4">
-      {/* CARDS */}
-      <div className="dashboard-grid mb-8">
+    <div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {loading
-          ? [...Array(4)].map((_, i) => <div key={i} className="stats-skeleton"></div>)
+          ? [...Array(4)].map((_, i) => <div key={i} className="h-24 bg-white/5 rounded-xl animate-pulse" />)
           : cards.map((card, i) => <StatsCard key={i} {...card} />)}
       </div>
 
-      {/* CHART */}
+      {/* Chart */}
       {!loading && stats && (
-        <div className="chart-wrapper p-4 rounded-xl shadow-md bg-gray-800">
-          <h3 className="chart-title text-white text-lg font-semibold mb-4">
-            Analiza e Performancës
-          </h3>
+        <div className="bg-[#111111] border border-white/10 p-5 rounded-xl">
+          <h3 className="text-white font-semibold mb-4">Analiza e Performancës</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <Line type="monotone" dataKey="properties" stroke="#FFAE42" strokeWidth={3} />
-              <Line type="monotone" dataKey="active" stroke="#10B981" strokeWidth={3} />
-              <Line type="monotone" dataKey="users" stroke="#3B82F6" strokeWidth={3} />
-              <Line type="monotone" dataKey="appointments" stroke="#FF4444" strokeWidth={3} />
-              <CartesianGrid strokeDasharray="5 5" stroke="#444" />
-              <XAxis dataKey="name" stroke="#ddd" />
-              <YAxis stroke="#ddd" />
-              <Tooltip />
-            </LineChart>
+            <BarChart data={chartData} barSize={48} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="4 4" stroke="#2a2a2a" vertical={false} />
+              <XAxis dataKey="name" stroke="#666" tick={{ fill: "#aaa", fontSize: 13 }} axisLine={false} tickLine={false} />
+              <YAxis stroke="#666" tick={{ fill: "#aaa", fontSize: 12 }} axisLine={false} tickLine={false} />
+              <Tooltip
+                cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                contentStyle={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
+                formatter={(value, name) => [value, name]}
+              />
+              <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}

@@ -1,37 +1,25 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
-// import axios from "axios";
-import { FaThLarge, FaTable, FaTrashAlt, FaEdit, FaSearch } from "react-icons/fa";
+import { LayoutGrid, Table2, Trash2, Pencil, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { propertyAPI } from "../../services/api";
-
-/**
- * PropertiesAdmin
- * - fetch real nga backend: GET /api/properties?page=...&size=...
- * - filtrat, search, pagination, toggle view (table/cards)
- * - delete (DELETE /api/properties/:id) + optimistic refresh
- *
- * Config:
- * - API base: process.env.REACT_APP_API_BASE || "http://localhost:8080"
- *
- * NOTE: nëse backend ka një endpoint të ndryshëm për fshirje/ndryshim,
- * ndrysho axios.delete(...) sipas nevojës.
- */
+import { propertyAPI, api } from "../../services/api";
+import { useToast } from "../../context/ToastContext";
 
 // const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 const defaultPageSize = 12;
 
-const StatusBadge = ({ status }) => (
-  <span className={`status-badge ${status === "FOR_SALE" ? "status-sale" : "status-rent"}`}>
-    {status === "FOR_SALE" ? "Shitje" : "Qira"}
-  </span>
-);
-
-const SmallMeta = ({ children }) => <div style={{ color: "#cbd5e1", fontSize: 13 }}>{children}</div>;
+const typeBadge = {
+  BANESA: "bg-blue-500/15 text-blue-300",
+  SHTEPI: "bg-emerald-500/15 text-emerald-300",
+  LOKALE: "bg-purple-500/15 text-purple-300",
+  TOKA: "bg-amber-500/15 text-amber-300",
+};
+const typeLabel = { BANESA: "Banesa", SHTEPI: "Shtëpi", LOKALE: "Lokale", TOKA: "Tokë" };
 
 export default function PropertiesAdmin() {
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [view, setView] = useState("table"); // "table" or "cards"
   const [properties, setProperties] = useState([]);
@@ -169,9 +157,7 @@ const confirmDelete = async () => {
 
   try {
     setDeleting(true);
-    await axios.delete(`${API_BASE}/api/properties/${propertyToDelete}`, {
-      withCredentials: true,
-    });
+    await api.delete(`/properties/${propertyToDelete}`);
 
     setProperties((prev) =>
       prev.filter((p) => p.id !== propertyToDelete)
@@ -179,9 +165,10 @@ const confirmDelete = async () => {
 
     setDeleteModalOpen(false);
     setPropertyToDelete(null);
+    toast.success("Prona u fshi me sukses.");
   } catch (e) {
     console.error("Delete error:", e);
-    alert("Fshirja dështoi.");
+    toast.error("Fshirja dështoi.");
   } finally {
     setDeleting(false);
   }
@@ -200,259 +187,183 @@ const confirmDelete = async () => {
   }, [properties]);
 
   return (
-    <div className="admin-page-container p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Menaxhimi i Pronave</h2>
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 gap-2">
-            <FaSearch className="text-white" />
+    <div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-xl font-bold text-white">Menaxhimi i Pronave</h1>
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
+            <Search size={14} className="text-white/40 shrink-0" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Kerko me titull, qytet..."
-              className="filter-input"
-              style={{ width: 280 }}
+              placeholder="Kërko titull, qytet..."
+              className="bg-transparent text-white text-sm outline-none w-full placeholder-white/30"
             />
+            {search && <button onClick={() => setSearch("")}><X size={13} className="text-white/40" /></button>}
           </div>
-
-          <div className="flex gap-2">
-            <button
-              className={`p-2 rounded-md border shadow-sm transition-all duration-200 ${view === "table" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"}`}
-              onClick={() => setView("table")}
-              title="Table View"
-            >
-              <FaTable size={18} />
-            </button>
-            <button
-              className={`p-2 rounded-md border shadow-sm transition-all duration-200 ${view === "cards" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"}`}
-              onClick={() => setView("cards")}
-              title="Card View"
-            >
-              <FaThLarge size={18} />
-            </button>
-          </div>
+          {/* View toggle */}
+          <button onClick={() => setView("table")} className={`p-2 rounded-lg border transition-colors ${view === "table" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}>
+            <Table2 size={17} />
+          </button>
+          <button onClick={() => setView("cards")} className={`p-2 rounded-lg border transition-colors ${view === "cards" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}>
+            <LayoutGrid size={17} />
+          </button>
         </div>
       </div>
 
-      {/* FILTERS */}
-      <div className="filters-container-admin">
-        <select className="filter-select-admin" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-          <option value="">Të gjitha llojet</option>
-          <option value="BANESA">Banesa</option>
-          <option value="SHTEPI">Shtëpi</option>
-          <option value="LOKALE">Lokale</option>
-          <option value="TOKA">Tokë</option>
-        </select>
-
-        <select className="filter-select-admin" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="">Të gjitha statuset</option>
-          <option value="FOR_SALE">Në shitje</option>
-          <option value="FOR_RENT">Me qira</option>
-        </select>
-
-        <select className="filter-select-admin" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {[
+          { value: typeFilter, onChange: setTypeFilter, options: [["", "Të gjitha llojet"], ["BANESA","Banesa"], ["SHTEPI","Shtëpi"], ["LOKALE","Lokale"], ["TOKA","Tokë"]] },
+          { value: statusFilter, onChange: setStatusFilter, options: [["","Të gjitha statuset"],["FOR_SALE","Në shitje"],["FOR_RENT","Me qira"]] },
+        ].map((f, i) => (
+          <select key={i} value={f.value} onChange={(e) => f.onChange(e.target.value)}
+            className="bg-[#1a1a1a] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/40">
+            {f.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        ))}
+        <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
+          className="bg-[#1a1a1a] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/40">
           <option value="">Të gjitha qytetet</option>
-          {cityOptions.map((c) => (<option key={c} value={c}>{c}</option>))}
+          {cityOptions.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
-
-        <input className="filter-input-admin" placeholder="Min çmimi" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number" />
-        <input className="filter-input-admin" placeholder="Max çmimi" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" />
-
-        {/* <input className="filter-input-admin" placeholder="Min m²" value={minArea} onChange={(e) => setMinArea(e.target.value)} type="number" /> */}
-        <input className="filter-input-admin" placeholder="Max m²" value={maxArea} onChange={(e) => setMaxArea(e.target.value)} type="number" />
-
-        <button className="filter-button-admin" onClick={() => { setTypeFilter(""); setStatusFilter(""); setCityFilter(""); setMinPrice(""); setMaxPrice(""); setMinArea(""); setMaxArea(""); setSearch(""); }}>
-          Pastro filtra
-        </button>
-      </div>
-
-      {/* CONTENT */}
-      <div className="mt-6 properties-view-container">
-        {loading ? (
-          <div className="properties-table-container">
-            <div style={{ display: "grid", gap: 12 }}>
-              {[...Array(6)].map((_, i) => <div key={i} style={{ height: 48, background: "#111", borderRadius: 6 }} />)}
-            </div>
-          </div>
-        ) : error ? (
-          <div className="properties-table-container p-4 text-white">
-            Gabim gjatë marrjes së pronave. Shiko console për detaje.
-          </div>
-        ) : view === "table" ? (
-          <div className="properties-table-container">
-            <table className="properties-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Titulli</th>
-                  <th>Qyteti</th>
-                  <th>Lloji</th>
-                  <th>Statusi</th>
-                  <th>Çmimi</th>
-                  <th>Sipërfaqe</th>
-                  <th>Detaje</th>
-                  <th>Veprime</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.id}</td>
-                    <td style={{ maxWidth: 240 }}>{p.title}</td>
-                    <td>{p.city}</td>
-                    <td>{p.type}</td>
-                    <td><StatusBadge status={p.status} /></td>
-                    <td>{p.price !== null ? Number(p.price).toLocaleString() + " €" : "-"}</td>
-                    <td>{p.area !== null ? `${p.area} m²` : "-"}</td>
-                    <td>
-                    <SmallMeta>
-                        {p.rooms ? `${p.rooms} dhoma · ` : ""}
-                        { (p.type === "BANESA" || p.type === "LOKALE") && p.floor ? `Kati ${p.floor}` : "" }
-                        { p.type === "SHTEPI" && p.floor ? `${p.floor} Kate` : "" }
-                    </SmallMeta>
-
-                    </td>
-                    <td>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button className="action-button action-edit" onClick={() => handleEdit(p.id)} title="Edit">
-                          <FaEdit />
-                        </button>
-                        <button className="action-button action-delete" onClick={() => handleDelete(p.id)} title="Delete">
-                          <FaTrashAlt />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="properties-cards-grid">
-            {filtered.map((p) => (
-              <div key={p.id} className="property-card-admin">
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                    <h3>{p.title}</h3>
-                    <div>
-                      <StatusBadge status={p.status} />
-                    </div>
-                  </div>
-                  <SmallMeta>{p.city} · {p.type}</SmallMeta>
-
-                  <p style={{ marginTop: 12, fontWeight: 700, color: "#60a5fa" }}>
-                    {p.price !== null ? Number(p.price).toLocaleString() + " €" : "-"}
-                  </p>
-
-                  <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-  {p.rooms ? <div className="chip">🛏 {p.rooms}</div> : null}
-
-  {/* Floor / Kate */}
-  {(p.type === "BANESA" || p.type === "LOKALE") && p.floor ? (
-    <div className="chip">⬛ Kati {p.floor}</div>
-  ) : p.type === "SHTEPI" && p.floor ? (
-    <div className="chip">⬛ {p.floor} Kate</div>
-  ) : null}
-
-  {p.hasElevator ? <div className="chip">🔼 Ashensor</div> : null}
-  {p.hasBalcony ? <div className="chip">🌇 Ballkon</div> : null}
-  {p.hasGarage ? <div className="chip">🚗 Garazh</div> : null}
-  {p.hasGarden ? <div className="chip">🌳 Oborr</div> : null}
-  {p.hasParking ? <div className="chip">🅿️ Parking</div> : null}
-</div>
-
-                </div>
-
-                <div className="actions" style={{ marginTop: 12 }}>
-                  <button className="action-button action-edit" onClick={() => handleEdit(p.id)}><FaEdit /></button>
-                  <button className="action-button action-delete" onClick={() => handleDelete(p.id)}><FaTrashAlt /></button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <input placeholder="Min €" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number"
+          className="w-24 bg-[#1a1a1a] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#FFAE42]/40" />
+        <input placeholder="Max €" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number"
+          className="w-24 bg-[#1a1a1a] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#FFAE42]/40" />
+        {(typeFilter || statusFilter || cityFilter || minPrice || maxPrice || search) && (
+          <button onClick={() => { setTypeFilter(""); setStatusFilter(""); setCityFilter(""); setMinPrice(""); setMaxPrice(""); setMinArea(""); setMaxArea(""); setSearch(""); }}
+            className="flex items-center gap-1 text-sm text-white/50 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors">
+            <X size={13} /> Pastro
+          </button>
         )}
       </div>
 
-      {/* PAGINATION */}
-      <div className="flex items-center justify-center gap-3 mt-6">
-        <button
-          onClick={() => setPage((s) => Math.max(1, s - 1))}
-          className="filter-button"
-          disabled={page <= 1}
-        >
-          Prev
-        </button>
-
-        <div style={{ color: "#cbd5e1" }}>
-          Faqja {page} / {totalPages}
+      {/* Content */}
+      {loading ? (
+        <div className="space-y-2">
+          {[...Array(6)].map((_, i) => <div key={i} className="h-12 bg-white/5 rounded-lg animate-pulse" />)}
         </div>
+      ) : error ? (
+        <div className="text-red-400 py-8 text-center">Gabim gjatë marrjes së pronave.</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-white/40 py-8 text-center">Nuk u gjetën prona.</div>
+      ) : view === "table" ? (
+        <div className="bg-[#111111] rounded-xl border border-white/10 overflow-x-auto">
+          <table className="w-full text-sm min-w-175">
+            <thead>
+              <tr className="border-b border-white/10">
+                {["ID", "Titulli", "Qyteti", "Lloji", "Statusi", "Çmimi", "m²", ""].map((h) => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <tr key={p.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                  <td className="px-4 py-3 text-white/40 text-xs font-mono">{p.id}</td>
+                  <td className="px-4 py-3 text-white font-medium max-w-50 truncate">{p.title}</td>
+                  <td className="px-4 py-3 text-white/60">{p.city || "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${typeBadge[p.type] || "bg-white/10 text-white/60"}`}>
+                      {typeLabel[p.type] || p.type}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.status === "FOR_SALE" ? "bg-green-500/15 text-green-300" : "bg-blue-500/15 text-blue-300"}`}>
+                      {p.status === "FOR_SALE" ? "Shitje" : "Qira"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-white/80">{p.price !== null ? Number(p.price).toLocaleString() + " €" : "—"}</td>
+                  <td className="px-4 py-3 text-white/60">{p.area !== null ? `${p.area} m²` : "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FFAE42]/15 hover:text-[#FFAE42] text-white/50 transition-colors">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((p) => (
+            <div key={p.id} className="bg-[#111111] border border-white/10 rounded-xl p-4 flex flex-col gap-3 hover:border-white/20 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-white font-medium text-sm leading-snug">{p.title}</p>
+                  <p className="text-xs text-white/40 mt-0.5">{p.city}{p.neighborhood ? ` · ${p.neighborhood}` : ""}</p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${p.status === "FOR_SALE" ? "bg-green-500/15 text-green-300" : "bg-blue-500/15 text-blue-300"}`}>
+                  {p.status === "FOR_SALE" ? "Shitje" : "Qira"}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadge[p.type] || "bg-white/10 text-white/60"}`}>{typeLabel[p.type]}</span>
+                {p.rooms ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.rooms} dhoma</span> : null}
+                {p.area ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.area} m²</span> : null}
+              </div>
+              <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
+                <span className="text-[#FFAE42] font-semibold text-sm">{p.price !== null ? Number(p.price).toLocaleString() + " €" : "—"}</span>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FFAE42]/15 hover:text-[#FFAE42] text-white/50 transition-colors">
+                    <Pencil size={14} />
+                  </button>
+                  <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <button
-          onClick={() => setPage((s) => Math.min(totalPages, s + 1))}
-          className="filter-button"
-          disabled={page >= totalPages}
-        >
-          Next
+      {/* Pagination */}
+      <div className="flex items-center justify-center gap-3 mt-6">
+        <button onClick={() => setPage((s) => Math.max(1, s - 1))} disabled={page <= 1}
+          className="px-3 py-1.5 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white disabled:opacity-30 transition-colors">
+          ← Prev
         </button>
-
-        <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="filter-select">
-          <option value={6}>6</option>
-          <option value={12}>12</option>
-          <option value={24}>24</option>
+        <span className="text-sm text-white/50">Faqja {page} / {totalPages}</span>
+        <button onClick={() => setPage((s) => Math.min(totalPages, s + 1))} disabled={page >= totalPages}
+          className="px-3 py-1.5 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white disabled:opacity-30 transition-colors">
+          Next →
+        </button>
+        <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+          className="bg-[#1a1a1a] border border-white/10 text-white/60 text-sm rounded-lg px-2 py-1.5 focus:outline-none">
+          {[6, 12, 24].map((n) => <option key={n} value={n}>{n}/faqe</option>)}
         </select>
       </div>
 
-            {/* PAGINATION */}
-            <div className="flex items-center justify-center gap-3 mt-6">
-        ...
-      </div>
-
+      {/* Delete Modal */}
       {deleteModalOpen && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
-            <h3>Konfirmo fshirjen</h3>
-            <p>
-              A je i sigurt që dëshiron të fshish këtë pronë?
-              <br />
-              <span>Kjo veprim nuk mund të kthehet mbrapsht.</span>
-            </p>
-
-            <div className="admin-modal-actions">
-              <button
-                className="admin-modal-btn cancel"
-                onClick={() => {
-                  setDeleteModalOpen(false);
-                  setPropertyToDelete(null);
-                }}
-                disabled={deleting}
-              >
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-white font-semibold text-lg mb-2">Konfirmo fshirjen</h3>
+            <p className="text-white/60 text-sm mb-6">A je i sigurt që dëshiron të fshish këtë pronë? Ky veprim nuk mund të kthehet mbrapsht.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => { setDeleteModalOpen(false); setPropertyToDelete(null); }} disabled={deleting}
+                className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-50">
                 Anulo
               </button>
-
-              <button
-                className="admin-modal-btn delete"
-                onClick={confirmDelete}
-                disabled={deleting}
-              >
+              <button onClick={confirmDelete} disabled={deleting}
+                className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors disabled:opacity-50">
                 {deleting ? "Duke fshirë..." : "Fshij"}
               </button>
             </div>
           </div>
         </div>
       )}
-
-      <style>{`
-        .chip {
-          border: 1px solid rgba(255,255,255,0.08);
-          padding: 6px 8px;
-          border-radius: 999px;
-          font-size: 13px;
-          color: #e6eef8;
-          background: rgba(255,255,255,0.02);
-        }
-      `}</style>
-
     </div>
   );
 }
+

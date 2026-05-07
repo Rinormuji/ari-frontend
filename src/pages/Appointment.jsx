@@ -1,287 +1,250 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, Phone, Mail, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
-import { propertyAPI } from '../services/api'
+import { useState, useEffect } from "react";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { CalendarDays, Building2, CheckCircle, XCircle, Clock, AlertCircle, ArrowLeft, Plus, X } from "lucide-react";
+import { appointmentAPI, propertyAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
-const Appointment = () => {
-  const [appointments, setAppointments] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [selectedDate, setSelectedDate] = useState('')
-  const [selectedTime, setSelectedTime] = useState('')
-  const [selectedProperty, setSelectedProperty] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState('')
+const STATUS = {
+  PENDING:  { label: "Në pritje",  cls: "bg-yellow-100 text-yellow-700 border-yellow-200", icon: Clock },
+  APPROVED: { label: "Aprovuar",  cls: "bg-green-100 text-green-700 border-green-200",  icon: CheckCircle },
+  REJECTED: { label: "Refuzuar",  cls: "bg-red-100 text-red-600 border-red-200",       icon: XCircle },
+};
+
+const StatusBadge = ({ status }) => {
+  const cfg = STATUS[status] || { label: status, cls: "bg-gray-100 text-gray-600 border-gray-200", icon: AlertCircle };
+  const Icon = cfg.icon;
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${cfg.cls}`}>
+      <Icon size={13} /> {cfg.label}
+    </span>
+  );
+};
+
+export default function Appointment() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const preselectedPropertyId = searchParams.get("propertyId");
+
+  const [appointments, setAppointments] = useState([]);
+  const [properties, setProperties] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [form, setForm] = useState({
+    propertyId: preselectedPropertyId || "",
+    date: "",
+    time: "10:00",
+  });
 
   useEffect(() => {
-    fetchAppointments()
-  }, [])
-
-  const fetchAppointments = async () => {
-    try {
-      // This would be implemented when we have the appointment API
-      setAppointments([])
-    } catch (error) {
-      console.error('Error fetching appointments:', error)
-    } finally {
-      setLoading(false)
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      const redirect = preselectedPropertyId ? `/appointment?propertyId=${preselectedPropertyId}` : "/appointment";
+      navigate(`/login?redirect=${encodeURIComponent(redirect)}`, { replace: true });
+      return;
     }
-  }
+    fetchData();
+    if (preselectedPropertyId) setShowForm(true);
+  }, [isAuthenticated, authLoading]);
+
+  const fetchData = async () => {
+    setLoadingData(true);
+    try {
+      const [apptRes, propRes] = await Promise.all([
+        appointmentAPI.getMy(),
+        propertyAPI.getProperties({ page: 0, size: 100 }),
+      ]);
+      const apptData = apptRes.data;
+      setAppointments(Array.isArray(apptData) ? apptData : apptData?.content ?? []);
+      const propData = propRes.data;
+      const list = Array.isArray(propData) ? propData : propData.content ?? [];
+      setProperties(list);
+    } catch (e) {
+      console.error(e);
+      toast.error("Gabim gjatë ngarkimit të të dhënave.");
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
+    e.preventDefault();
+    if (!form.propertyId) return toast.error("Zgjidh pronën.");
+    if (!form.date) return toast.error("Zgjidh datën.");
 
+    const dateTime = `${form.date}T${form.time}:00`;
+    setSubmitting(true);
     try {
-      // This would call the appointment API
-      setMessage('Kërkesa për takim u dërgua me sukses!')
-      setShowForm(false)
-      setSelectedDate('')
-      setSelectedTime('')
-      setSelectedProperty('')
-    } catch (error) {
-      setMessage('Gabim në dërgimin e kërkesës. Provo përsëri.')
+      await appointmentAPI.create(Number(form.propertyId), dateTime);
+      toast.success("Takimi u rezervua me sukses! Do të merrni konfirmim brenda pak.");
+      setShowForm(false);
+      setForm({ propertyId: preselectedPropertyId || "", date: "", time: "10:00" });
+      fetchData();
+    } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data || "Gabim gjatë rezervimit.";
+      toast.error(typeof msg === "string" ? msg : "Gabim gjatë rezervimit.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'APPROVED':
-        return 'text-green-600 bg-green-100'
-      case 'REJECTED':
-        return 'text-red-600 bg-red-100'
-      case 'PENDING':
-        return 'text-yellow-600 bg-yellow-100'
-      default:
-        return 'text-gray-600 bg-gray-100'
-    }
-  }
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'APPROVED':
-        return <CheckCircle className="w-5 h-5" />
-      case 'REJECTED':
-        return <XCircle className="w-5 h-5" />
-      case 'PENDING':
-        return <AlertCircle className="w-5 h-5" />
-      default:
-        return <Clock className="w-5 h-5" />
-    }
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-2 border-[#FFAE42] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero */}
+      <section className="bg-black text-white">
+        <div className="max-w-5xl mx-auto px-6 py-16 text-center">
+          <span className="inline-block text-[#FFAE42] text-xs font-semibold tracking-widest uppercase mb-4">Rezervimet</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">Takimet e Mia</h1>
+          <p className="text-gray-400 text-base max-w-xl mx-auto">Rezervo takim për të vizituar pronën tënde të preferuar.</p>
+        </div>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+        {/* Book button */}
+        {!showForm && (
+          <div className="flex justify-end mb-6">
+            <button
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-2 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
+            >
+              <Plus size={16} /> Rezervo Takim
+            </button>
+          </div>
+        )}
+
+        {/* Booking form */}
+        {showForm && (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8"
           >
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Takimet e Mia
-            </h1>
-            <p className="text-xl text-gray-600">
-              Menaxhoni takimet tuaja për vizita të pronave
-            </p>
-          </motion.div>
-        </div>
-      </div>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-gray-900">Rezervo Takim të Ri</h2>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-700 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Appointment Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="lg:col-span-1"
-          >
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Kërko Takim të Ri
-              </h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Property selector */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Prona *</label>
+                <select
+                  value={form.propertyId}
+                  onChange={(e) => setForm((f) => ({ ...f, propertyId: e.target.value }))}
+                  required
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition bg-white"
+                >
+                  <option value="">— Zgjidh pronën —</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title} ({p.city?.split(",")[0] || p.city})
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              {!showForm ? (
+              {/* Date + time row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Data *</label>
+                  <input
+                    type="date"
+                    min={minDate}
+                    value={form.date}
+                    onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Ora *</label>
+                  <select
+                    value={form.time}
+                    onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition bg-white"
+                  >
+                    {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"].map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
                 <button
-                  onClick={() => setShowForm(true)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition-colors"
                 >
-                  Kërko Takim të Ri
+                  {submitting ? "Duke dërguar..." : "Dërgo Kërkesën"}
                 </button>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Data
-                    </label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ora
-                    </label>
-                    <select
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Zgjidhni orën</option>
-                      <option value="09:00">09:00</option>
-                      <option value="10:00">10:00</option>
-                      <option value="11:00">11:00</option>
-                      <option value="12:00">12:00</option>
-                      <option value="14:00">14:00</option>
-                      <option value="15:00">15:00</option>
-                      <option value="16:00">16:00</option>
-                      <option value="17:00">17:00</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Prona
-                    </label>
-                    <select
-                      value={selectedProperty}
-                      onChange={(e) => setSelectedProperty(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Zgjidhni pronën</option>
-                      <option value="1">Banesë moderne në qendër</option>
-                      <option value="2">Shtëpi familjare me oborr</option>
-                      <option value="3">Lokal tregtar në qendër</option>
-                    </select>
-                  </div>
-
-                  <div className="flex space-x-3">
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-semibold disabled:opacity-50"
-                    >
-                      {submitting ? 'Duke dërguar...' : 'Dërgo Kërkesën'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowForm(false)}
-                      className="px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      Anulo
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {message && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`mt-4 p-3 rounded-xl text-sm ${
-                    message.includes('sukses') 
-                      ? 'bg-green-50 text-green-600 border border-green-200'
-                      : 'bg-red-50 text-red-600 border border-red-200'
-                  }`}
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="px-5 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-sm transition-colors"
                 >
-                  {message}
-                </motion.div>
-              )}
-            </div>
+                  Anulo
+                </button>
+              </div>
+            </form>
           </motion.div>
+        )}
 
-          {/* Appointments List */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-2"
-          >
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Takimet e Mia
-              </h3>
-
-              {loading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, index) => (
-                    <div key={index} className="animate-pulse">
-                      <div className="h-20 bg-gray-200 rounded-xl"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : appointments.length > 0 ? (
-                <div className="space-y-4">
-                  {appointments.map((appointment, index) => (
-                    <motion.div
-                      key={appointment.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <Calendar className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900">
-                              {appointment.propertyTitle}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              {appointment.date} në {appointment.time}
-                            </p>
-                          </div>
-                        </div>
-                        <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(appointment.status)}`}>
-                          {getStatusIcon(appointment.status)}
-                          <span>{appointment.status}</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-center py-12"
-                >
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-8 h-8 text-gray-400" />
+        {/* Appointments list */}
+        {loadingData ? (
+          <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-[#FFAE42] border-t-transparent rounded-full animate-spin" /></div>
+        ) : appointments.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+            <CalendarDays size={40} className="text-gray-300 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Nuk keni takime akoma</h3>
+            <p className="text-gray-400 text-sm mb-6">Rezervoni takimin tuaj të parë duke klikuar butonin mësipërm.</p>
+            <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors">
+              <Plus size={16} /> Rezervo Tani
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h2 className="text-base font-semibold text-gray-700 mb-3">Rezervimet tuaja ({appointments.length})</h2>
+            {appointments.map((a) => (
+              <div key={a.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-sm transition-shadow">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#FFAE42]/10 flex items-center justify-center shrink-0">
+                    <Building2 size={20} className="text-[#FFAE42]" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Nuk keni takime
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Klikoni "Kërko Takim të Ri" për të krijuar një takim të ri.
-                  </p>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">
+                      {a.propertyTitle || `Pronë #${a.propertyId}`}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {a.date ? new Date(a.date).toLocaleString("sq-AL", { dateStyle: "medium", timeStyle: "short" }) : "—"}
+                    </p>
+                  </div>
+                </div>
+                <StatusBadge status={a.status} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
-
-export default Appointment
-
-
-

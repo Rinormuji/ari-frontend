@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Phone, Key } from "lucide-react";
-import axios from "axios";
+import api from "../services/api";
 
-const API_URL = "http://localhost:8080/api/profile";
+const API_PATH = "/profile";
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -29,10 +29,8 @@ const Profile = () => {
 
   // Merr profilin e user-it
   useEffect(() => {
-    axios
-      .get(API_URL, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
+    api
+      .get(API_PATH)
       .then((res) => setProfile(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -56,9 +54,7 @@ const Profile = () => {
     setError("");
 
     try {
-      await axios.put(API_URL, profile, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await api.put(API_PATH, profile);
       setMessage("Profili u përditësua me sukses!");
       setTimeout(() => setMessage(""), 3000); // zhduket pas 3 sek
     } catch (err) {
@@ -81,9 +77,7 @@ const Profile = () => {
     setPwError("");
 
     try {
-      await axios.put(`${API_URL}/password`, passwords, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await api.put(`${API_PATH}/password`, passwords);
       setPwMessage("Fjalëkalimi u ndryshua me sukses!");
       setTimeout(() => setPwMessage(""), 3000); // zhduket pas 3 sek
       setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -98,114 +92,65 @@ const Profile = () => {
   };
 
   return (
-    <div className="forgot-wrapper-uni">
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="forgot-card-uni"
+        transition={{ duration: 0.5 }}
+        className="max-w-lg mx-auto space-y-6"
       >
-        <h2 className="forgot-title-uni">Profili juaj</h2>
-        <p className="forgot-desc-uni">Shikoni ose përditësoni informacionin tuaj</p>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Profili juaj</h1>
+          <p className="text-sm text-gray-500 mt-1">Shikoni ose përditësoni informacionin tuaj</p>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-xl p-8"
-        >
-          <form onSubmit={handleUpdateProfile} className="space-y-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <form onSubmit={handleUpdateProfile} className="space-y-4">
             {/* Username */}
-            <div className="forgot-input-wrapper-uni">
-              <User className="forgot-input-icon-left" />
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={profile.username}
-                onChange={handleChange}
-                className="forgot-input-uni"
-                required
-              />
+            <div className="relative">
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input type="text" name="username" placeholder="Username" value={profile.username} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
             </div>
-
             {/* First Name */}
-            <div className="forgot-input-wrapper-uni">
-              <User className="forgot-input-icon-left" />
-              <input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={profile.firstName}
-                onChange={handleChange}
-                className="forgot-input-uni"
-                required
-              />
+            <div className="relative">
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input type="text" name="firstName" placeholder="Emri" value={profile.firstName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
             </div>
-
             {/* Last Name */}
-            <div className="forgot-input-wrapper-uni">
-              <User className="forgot-input-icon-left" />
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={profile.lastName}
-                onChange={handleChange}
-                className="forgot-input-uni"
-                required
-              />
+            <div className="relative">
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input type="text" name="lastName" placeholder="Mbiemri" value={profile.lastName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
             </div>
-
             {/* Phone */}
-            <div className="forgot-input-wrapper-uni">
-              <Phone className="forgot-input-icon-left" />
-              <input
-                type="text"
-                name="phoneNumber"
-                placeholder="Phone Number"
-                value={profile.phoneNumber}
-                onChange={handleChange}
-                className="forgot-input-uni"
-                required
-              />
+            <div className="relative">
+              <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input type="text" name="phoneNumber" placeholder="Numri i telefonit" value={profile.phoneNumber} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
             </div>
 
             {message && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl text-sm"
-              >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
                 {message}
               </motion.div>
             )}
-
             {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm"
-              >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
                 {error}
               </motion.div>
             )}
 
-            <button type="submit" disabled={loading} className="forgot-btn-uni">
+            <button type="submit" disabled={loading} className="w-full py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
               {loading ? "Duke përditësuar..." : "Përditëso Profilin"}
             </button>
           </form>
 
-          <hr className="my-6" />
+          <hr className="my-6 border-gray-100" />
 
-          {/* Toggle Password Fields */}
+          {/* Password toggle */}
           <button
             onClick={() => setShowPasswordFields(!showPasswordFields)}
-            className="forgot-btn-uni flex items-center justify-center gap-2"
+            className="w-full flex items-center justify-center gap-2 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
           >
-            <Key />
+            <Key size={16} />
             {showPasswordFields ? "Anulo Ndryshimin e Fjalëkalimit" : "Ndrysho Fjalëkalimin"}
           </button>
 
@@ -215,86 +160,43 @@ const Profile = () => {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="overflow-hidden mt-4 space-y-4"
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden mt-4"
               >
                 <form onSubmit={handleChangePassword} className="space-y-4">
-                  <div className="forgot-input-wrapper-uni mt-2"  style={{ marginTop: '12px' }}>
-                    <Key className="forgot-input-icon-left" />
-                    <input
-                      type="password"
-                      name="currentPassword"
-                      placeholder="Fjalëkalimi aktual"
-                      value={passwords.currentPassword}
-                      onChange={handlePasswordChange}
-                      className="forgot-input-uni"
-                      required
-                    />
+                  <div className="relative">
+                    <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input type="password" name="currentPassword" placeholder="Fjalëkalimi aktual" value={passwords.currentPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
                   </div>
-
-                  <div className="forgot-input-wrapper-uni">
-                    <Key className="forgot-input-icon-left" />
-                    <input
-                      type="password"
-                      name="newPassword"
-                      placeholder="Fjalëkalimi i ri"
-                      value={passwords.newPassword}
-                      onChange={handlePasswordChange}
-                      className="forgot-input-uni"
-                      required
-                    />
+                  <div className="relative">
+                    <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input type="password" name="newPassword" placeholder="Fjalëkalimi i ri" value={passwords.newPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
                   </div>
-
-                  <div className="forgot-input-wrapper-uni">
-                    <Key className="forgot-input-icon-left" />
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      placeholder="Konfirmo fjalëkalimin"
-                      value={passwords.confirmPassword}
-                      onChange={handlePasswordChange}
-                      className="forgot-input-uni"
-                      required
-                    />
+                  <div className="relative">
+                    <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input type="password" name="confirmPassword" placeholder="Konfirmo fjalëkalimin" value={passwords.confirmPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
                   </div>
 
                   {pwMessage && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl text-sm"
-                    >
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
                       {pwMessage}
                     </motion.div>
                   )}
-
                   {pwError && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm"
-                    >
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
                       {pwError}
                     </motion.div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={pwLoading}
-                    className="forgot-btn-uni flex items-center justify-center gap-2"
-                  >
-                    {pwLoading && (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    )}
+                  <button type="submit" disabled={pwLoading} className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
+                    {pwLoading && <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />}
                     {pwLoading ? "Duke përditësuar..." : "Ndrysho Fjalëkalimin"}
                   </button>
                 </form>
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );

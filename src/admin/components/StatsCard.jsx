@@ -1,14 +1,10 @@
-function StatsCard({ title, value, gradient }) {
-    return (
-      <div
-        className="stats-card"
-        style={{ background: gradient || "linear-gradient(135deg, #FFAE42, #FF7F50)" }}
-      >
-        <p className="stats-card-title">{title}</p>
-        <p className="stats-card-value">{value}</p>
-      </div>
-    );
-  }
-  
-  export default StatsCard;
-  
+function StatsCard({ title, value }) {
+  return (
+    <div className="bg-[#111111] border border-white/10 rounded-xl p-5 flex flex-col gap-2">
+      <p className="text-xs font-medium text-white/40 uppercase tracking-wider">{title}</p>
+      <p className="text-3xl font-bold text-white">{value ?? "—"}</p>
+    </div>
+  );
+}
+
+export default StatsCard;

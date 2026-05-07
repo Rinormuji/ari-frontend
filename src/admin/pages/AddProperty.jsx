@@ -1,10 +1,34 @@
-import '../admin.css';
 import { useState } from "react";
-import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + '/api';
+import { GripVertical, X, ImagePlus } from "lucide-react";
+import api from "../../services/api";
+import MapPicker from "../components/MapPicker";
+import { useToast } from "../../context/ToastContext";
+
+const CITIES = ["Prishtinë", "Prizren", "Pejë", "Gjakovë", "Ferizaj", "Gjilan", "Mitrovicë"];
+
+const inputCls =
+  "w-full bg-[#1a1a1a] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#FFAE42]/60 transition-colors";
+const labelCls = "block text-xs font-medium text-white/50 mb-1 uppercase tracking-wider";
+const errorCls = "text-red-400 text-xs mt-1";
+
+const CheckField = ({ name, checked, onChange, label }) => (
+  <label className="flex items-center gap-2 cursor-pointer select-none">
+    <button
+      type="button"
+      onClick={() => onChange({ target: { name, type: "checkbox", checked: !checked } })}
+      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+        checked ? "bg-[#FFAE42] border-[#FFAE42]" : "border-white/20 bg-white/5"
+      }`}
+    >
+      {checked && <X size={12} className="text-black" />}
+    </button>
+    <span className="text-sm text-white/70">{label}</span>
+  </label>
+);
 
 function AddProperty() {
+  const toast = useToast();
   const [type, setType] = useState("");
   const [form, setForm] = useState({
     id: "",
@@ -32,51 +56,47 @@ function AddProperty() {
 
   const [errors, setErrors] = useState({});
   const [previewImages, setPreviewImages] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: inputType === "checkbox" ? checked : value }));
+    setForm((prev) => ({ ...prev, [name]: inputType === "checkbox" ? checked : value }));
   };
 
   const handleImages = (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map(f => URL.createObjectURL(f));
-    setPreviewImages(prev => [...prev, ...previews]);
-    setForm(prev => ({ ...prev, images: [...prev.images, ...files] }));
+    setPreviewImages((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    setForm((prev) => ({ ...prev, images: [...prev.images, ...files] }));
   };
 
   const removeImage = (idx) => {
-    setPreviewImages(prev => prev.filter((_, i) => i !== idx));
-    setForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
+    setPreviewImages((prev) => prev.filter((_, i) => i !== idx));
+    setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
   };
 
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const items = Array.from(previewImages);
-    const [reordered] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reordered);
-    setPreviewImages(items);
-
-    const files = Array.from(form.images);
-    const [fileReordered] = files.splice(result.source.index, 1);
-    files.splice(result.destination.index, 0, fileReordered);
-    setForm(prev => ({ ...prev, images: files }));
+  const onDragEnd = ({ source, destination }) => {
+    if (!destination) return;
+    const imgs = [...previewImages];
+    const [img] = imgs.splice(source.index, 1);
+    imgs.splice(destination.index, 0, img);
+    setPreviewImages(imgs);
+    const files = [...form.images];
+    const [file] = files.splice(source.index, 1);
+    files.splice(destination.index, 0, file);
+    setForm((prev) => ({ ...prev, images: files }));
   };
 
   const validate = () => {
-    const newErrors = {};
-    if (!form.id) newErrors.id = "ID duhet të vendoset";
-    if (!form.title) newErrors.title = "Titulli është i detyrueshëm";
-    if (!form.price || form.price <= 0) newErrors.price = "Çmimi duhet të jetë më i madh se 0";
-    if (!form.area || form.area <= 0) newErrors.area = "Sipërfaqja duhet të jetë më e madhe se 0";
-    if (!type) newErrors.type = "Ju lutem zgjidhni llojin e pronës";
-
-    if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave duhet të jetë më i madh se 0";
-    if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) newErrors.floor = "Numri i kateve duhet të jetë më i madh se 0";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const e = {};
+    if (!form.id) e.id = "ID është i detyrueshëm";
+    if (!type) e.type = "Zgjidh llojin e pronës";
+    if (!form.title) e.title = "Titulli është i detyrueshëm";
+    if (!form.price || form.price <= 0) e.price = "Çmimi duhet të jetë > 0";
+    if (!form.area || form.area <= 0) e.area = "Sipërfaqja duhet të jetë > 0";
+    if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) e.rooms = "Numri i dhomave duhet të jetë > 0";
+    if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) e.floor = "Numri i kateve duhet të jetë > 0";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const fileToBase64 = (file) =>
@@ -84,204 +104,255 @@ function AddProperty() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+      reader.onerror = reject;
     });
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      if (!validate()) return;
-    
-      try {
-        // Convert-image ne base64
-        const imagesBase64 =
-          form.images.length > 0
-            ? await Promise.all(form.images.map(fileToBase64))
-            : [];
-    
-        // 🔹 Kombino city + neighborhood në një string për backend
-        const fullLocation = form.location 
-          ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}` 
-          : form.neighborhood || '';
-    
-        // krijo payload
-        const payload = { 
-          ...form, 
-          type, 
-          images: imagesBase64,
-          location: fullLocation  // ✅ kjo zëvendëson fushën location
-        };
-    
-        // cakto endpoint sipas llojit të pronës
-       let url = "";
-switch (type) {
-  case "BANESA":
-    url = `${API_BASE_URL}/banesa`;
-    break;
-  case "SHTEPI":
-    url = `${API_BASE_URL}/shtepi`;
-    break;
-  case "LOKALE":
-    url = `${API_BASE_URL}/lokale`;
-    break;
-  case "TOKA":
-    url = `${API_BASE_URL}/toka`;
-    break;
-  default:
-    alert("Lloji i pronës nuk është valid!");
-    return;
-}
-    
-        // dergo kerkesen
-        await axios.post(url, payload, {
-          headers: { "Content-Type": "application/json" }
-        });
-    
-        alert("Pronë u shtua me sukses!");
-        setForm({
-          id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: "",
-          price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
-           hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
-          bathrooms: "", latitude: "", longitude: "", images: [], status: ""
-        });
-        setPreviewImages([]);
-        setErrors({});
-    
-      } catch (err) {
-        console.error(err);
-        alert("Shtimi i pronës dështoi");
-      }
-    };
-    
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      const imagesBase64 =
+        form.images.length > 0 ? await Promise.all(form.images.map(fileToBase64)) : [];
+      const fullLocation = form.location
+        ? `${form.location}${form.neighborhood ? ", " + form.neighborhood : ""}`
+        : form.neighborhood || "";
+      const endpoints = { BANESA: "/banesa", SHTEPI: "/shtepi", LOKALE: "/lokale", TOKA: "/toka" };
+      await api.post(endpoints[type], { ...form, type, images: imagesBase64, location: fullLocation });
+
+      toast.success("Pronë u shtua me sukses!");
+      setForm({
+        id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: "",
+        price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
+        hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
+        bathrooms: "", latitude: "", longitude: "", images: [], status: "",
+      });
+      setPreviewImages([]);
+      setErrors({});
+      setType("");
+    } catch (err) {
+      console.error(err);
+      toast.error("Shtimi i pronës dështoi");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="admin-page">
-      <h2 className="addproperty-title">Shto Pronë</h2>
+    <div className="max-w-3xl mx-auto">
+      <h1 className="text-xl font-bold text-white mb-6">Shto Pronë të Re</h1>
 
-      <form className="addproperty-form" onSubmit={handleSubmit}>
-        {/* Lloji & ID */}
-        <div className="addproperty-type-id">
-          <select name="type" value={type} onChange={(e) => setType(e.target.value)} className="addproperty-type">
-            <option value="" disabled>Zgjidh llojin e pronës</option>
-            <option value="BANESA">Banesa</option>
-            <option value="SHTEPI">Shtëpi</option>
-            <option value="LOKALE">Lokale</option>
-            <option value="TOKA">Tokë</option>
-          </select>
-          <input type="text" name="id" placeholder="ID (manual)" value={form.id} onChange={handleChange} className="addproperty-id" />
-        </div>
-        {errors.id && <p className="addproperty-error">{errors.id}</p>}
-
-        {/* Titulli */}
-        <div className="addproperty-field addproperty-fullrow">
-          <input type="text" name="title" placeholder="Titulli" value={form.title} onChange={handleChange} className="addproperty-input" />
-          {errors.title && <p className="addproperty-error">{errors.title}</p>}
-        </div>
-
-        {/* Përshkrimi */}
-        <div className="addproperty-field addproperty-fullrow">
-          <textarea name="description" placeholder="Përshkrimi" value={form.description} onChange={handleChange} className="addproperty-input addproperty-textarea" />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Type + ID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Lloji i pronës *</label>
+            <select value={type} onChange={(e) => setType(e.target.value)} className={inputCls}>
+              <option value="" disabled>Zgjidh llojin...</option>
+              <option value="BANESA">Banesa</option>
+              <option value="SHTEPI">Shtëpi</option>
+              <option value="LOKALE">Lokale</option>
+              <option value="TOKA">Tokë</option>
+            </select>
+            {errors.type && <p className={errorCls}>{errors.type}</p>}
+          </div>
+          <div>
+            <label className={labelCls}>ID *</label>
+            <input type="text" name="id" placeholder="p.sh. B-101" value={form.id} onChange={handleChange} className={inputCls} />
+            {errors.id && <p className={errorCls}>{errors.id}</p>}
+          </div>
         </div>
 
-        {/* Location & Neighborhood */}
-        <div className="addproperty-field addproperty-row">
-          <select name="location" value={form.location} onChange={handleChange} className="addproperty-input flex-1">
-            <option value="" disabled>Zgjidh qytetin</option>
-            <option value="Prishtinë">Prishtinë</option>
-            <option value="Prizren">Prizren</option>
-            <option value="Pejë">Pejë</option>
-            <option value="Gjakovë">Gjakovë</option>
-            <option value="Ferizaj">Ferizaj</option>
-            <option value="Gjilan">Gjilan</option>
-            <option value="Mitrovicë">Mitrovicë</option>
-          </select>
-          <input type="text" name="neighborhood" placeholder="Lagjja" value={form.neighborhood} onChange={handleChange} className="addproperty-input flex-1" />
+        {/* Title */}
+        <div>
+          <label className={labelCls}>Titulli *</label>
+          <input type="text" name="title" placeholder="Titulli i pronës" value={form.title} onChange={handleChange} className={inputCls} />
+          {errors.title && <p className={errorCls}>{errors.title}</p>}
         </div>
 
-        {/* Price & Area */}
-        <div className="addproperty-field addproperty-row">
-          <input type="number" name="price" placeholder="Çmimi" value={form.price} onChange={handleChange} className="addproperty-input flex-1" />
-          {errors.price && <p className="addproperty-error">{errors.price}</p>}
-          <input type="number" name="area" placeholder="Sipërfaqja (m²)" value={form.area} onChange={handleChange} className="addproperty-input flex-1" />
-          {errors.area && <p className="addproperty-error">{errors.area}</p>}
+        {/* Description */}
+        <div>
+          <label className={labelCls}>Përshkrimi</label>
+          <textarea name="description" placeholder="Përshkrim i detajuar..." value={form.description} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
         </div>
 
-        {/* Fushat sipas llojit */}
+        {/* City + Neighborhood */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Qyteti</label>
+            <select name="location" value={form.location} onChange={handleChange} className={inputCls}>
+              <option value="" disabled>Zgjidh qytetin</option>
+              {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Lagjja</label>
+            <input type="text" name="neighborhood" placeholder="Lagjja" value={form.neighborhood} onChange={handleChange} className={inputCls} />
+          </div>
+        </div>
+
+        {/* Price + Area */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Çmimi (€) *</label>
+            <input type="number" name="price" placeholder="0" value={form.price} onChange={handleChange} className={inputCls} />
+            {errors.price && <p className={errorCls}>{errors.price}</p>}
+          </div>
+          <div>
+            <label className={labelCls}>Sipërfaqja (m²) *</label>
+            <input type="number" name="area" placeholder="0" value={form.area} onChange={handleChange} className={inputCls} />
+            {errors.area && <p className={errorCls}>{errors.area}</p>}
+          </div>
+        </div>
+
+        {/* Type-specific fields */}
         {type === "BANESA" && (
-          <div className="addproperty-typefields">
-            <input type="number" name="rooms" placeholder="Numri i dhomave" value={form.rooms} onChange={handleChange} className="addproperty-input" />
-            {errors.rooms && <p className="addproperty-error">{errors.rooms}</p>}
-            <input type="number" name="floor" placeholder="Kati" value={form.floor} onChange={handleChange} className="addproperty-input" />
-            <input type="number" name="bathrooms" placeholder="Numri i banjove" value={form.bathrooms} onChange={handleChange} className="addproperty-input" />
-            <label><input type="checkbox" name="hasElevator" checked={form.hasElevator} onChange={handleChange} /> Ashensor</label>
-            <label><input type="checkbox" name="hasBalcony" checked={form.hasBalcony} onChange={handleChange} /> Ballkon</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Banesës</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className={labelCls}>Dhomat *</label>
+                <input type="number" name="rooms" value={form.rooms} onChange={handleChange} placeholder="0" className={inputCls} />
+                {errors.rooms && <p className={errorCls}>{errors.rooms}</p>}
+              </div>
+              <div>
+                <label className={labelCls}>Kati</label>
+                <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Banjot</label>
+                <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <CheckField name="hasElevator" checked={form.hasElevator} onChange={handleChange} label="Ashensor" />
+              <CheckField name="hasBalcony" checked={form.hasBalcony} onChange={handleChange} label="Ballkon" />
+            </div>
           </div>
         )}
 
         {type === "SHTEPI" && (
-          <div className="addproperty-typefields">
-            <input type="number" name="floor" placeholder="Numri i kateve" value={form.floor} onChange={handleChange} className="addproperty-input" />
-            {errors.floor && <p className="addproperty-error">{errors.floor}</p>}
-            <input type="number" name="bathrooms" placeholder="Numri i banjove" value={form.bathrooms} onChange={handleChange} className="addproperty-input" />
-            <label><input type="checkbox" name="hasGarden" checked={form.hasGarden} onChange={handleChange} /> Oborr</label>
-            <label><input type="checkbox" name="hasGarage" checked={form.hasGarage} onChange={handleChange} /> Garazh</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Shtëpisë</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Katet *</label>
+                <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
+                {errors.floor && <p className={errorCls}>{errors.floor}</p>}
+              </div>
+              <div>
+                <label className={labelCls}>Banjot</label>
+                <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <CheckField name="hasGarden" checked={form.hasGarden} onChange={handleChange} label="Oborr" />
+              <CheckField name="hasGarage" checked={form.hasGarage} onChange={handleChange} label="Garazh" />
+            </div>
           </div>
         )}
 
         {type === "LOKALE" && (
-          <div className="addproperty-typefields">
-            <input type="number" name="floor" placeholder="Kati" value={form.floor} onChange={handleChange} className="addproperty-input" />
-            <label><input type="checkbox" name="hasParking" checked={form.hasParking} onChange={handleChange} /> Parking</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Lokalit</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Kati</label>
+                <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+            </div>
+            <CheckField name="hasParking" checked={form.hasParking} onChange={handleChange} label="Parking" />
           </div>
         )}
 
         {type === "TOKA" && (
-          <div className="addproperty-typefields">
-            <label><input type="checkbox" name="hasInfrastructure" checked={form.hasInfrastructure} onChange={handleChange} /> Infrastrukturë</label>
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider mb-3">Detajet e Tokës</p>
+            <CheckField name="hasInfrastructure" checked={form.hasInfrastructure} onChange={handleChange} label="Infrastrukturë" />
           </div>
         )}
 
-        {/* Latitude & Longitude */}
-        <div className="addproperty-field">
-          <input type="number" name="latitude" placeholder="Latitude" value={form.latitude} onChange={handleChange} className="addproperty-input" />
-          <input type="number" name="longitude" placeholder="Longitude" value={form.longitude} onChange={handleChange} className="addproperty-input" />
+        {/* Status + Contact */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Statusi</label>
+            <select name="status" value={form.status} onChange={handleChange} className={inputCls}>
+              <option value="" disabled>Zgjidh statusin</option>
+              <option value="FOR_SALE">Në shitje</option>
+              <option value="FOR_RENT">Me qira</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Kontakt</label>
+            <input type="text" name="contactInfo" placeholder="+383..." value={form.contactInfo} onChange={handleChange} className={inputCls} />
+          </div>
         </div>
 
-        {/* Status & Contact */}
-        <div className="addproperty-field addproperty-row">
-          <select name="status" value={form.status} onChange={handleChange} className="addproperty-input flex-1">
-            <option value="" disabled>Zgjidh Statusin</option>
-            <option value="FOR_SALE">Në shitje</option>
-            <option value="FOR_RENT">Me qira</option>
-          </select>
-          <input type="text" name="contactInfo" placeholder="Kontakt" value={form.contactInfo} onChange={handleChange} className="addproperty-input flex-1" />
+        {/* Map Picker */}
+        <div>
+          <label className={labelCls}>Vendndodhja në hartë</label>
+          <MapPicker
+            lat={form.latitude}
+            lng={form.longitude}
+            onSelect={(lat, lng) => setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }))}
+          />
         </div>
 
-        {/* Drag & Drop Images */}
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="images" direction="horizontal">
-            {(provided) => (
-              <div className="addproperty-images" ref={provided.innerRef} {...provided.droppableProps}>
-                {previewImages.map((src, idx) => (
-                  <Draggable key={idx} draggableId={`img-${idx}`} index={idx}>
-                    {(provided) => (
-                      <div className="addproperty-image" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                        <img src={src} alt={`preview-${idx}`} className="addproperty-img" />
-                        <button type="button" onClick={() => removeImage(idx)} className="addproperty-remove">X</button>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-                <label className="addproperty-addphoto">
-                  + <input type="file" multiple className="hidden" onChange={handleImages} />
-                </label>
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        {/* Images */}
+        <div>
+          <label className={labelCls}>Fotot</label>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="images" direction="horizontal">
+              {(provided) => (
+                <div
+                  className="flex flex-wrap gap-3 p-3 bg-white/5 rounded-lg border border-white/10 min-h-25"
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {previewImages.map((src, idx) => (
+                    <Draggable key={idx} draggableId={`img-${idx}`} index={idx}>
+                      {(drag) => (
+                        <div
+                          className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group"
+                          ref={drag.innerRef}
+                          {...drag.draggableProps}
+                          {...drag.dragHandleProps}
+                        >
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <GripVertical size={18} className="text-white" />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={10} className="text-white" />
+                          </button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                  <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#FFAE42]/50 transition-colors text-white/40 hover:text-[#FFAE42]/70">
+                    <ImagePlus size={22} />
+                    <span className="text-xs mt-1">Shto</span>
+                    <input type="file" multiple className="hidden" onChange={handleImages} accept="image/*" />
+                  </label>
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <p className="text-xs text-white/30 mt-1">Tërhiq për të rirendosur • Kliko × për të fshirë</p>
+        </div>
 
-        <button type="submit" className="addproperty-submit">Shto Pronë</button>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-50 text-black font-semibold py-3 rounded-lg transition-colors text-sm"
+        >
+          {submitting ? "Duke shtuar..." : "Shto Pronën"}
+        </button>
       </form>
     </div>
   );

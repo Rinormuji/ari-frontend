@@ -1,29 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { authAPI } from '../services/api'
 
-const AuthContext = createContext()
-const API_URL = "http://localhost:8080/api/auth"
-
-// Fetch current user from backend
-const getUser = async (token) => {
-  if (!token) return { ok: false, status: 401 }
-  try {
-    const res = await axios.get(`${API_URL}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    return { ok: true, user: res.data }
-  } catch (err) {
-    return { ok: false, status: err.response?.status || "INTERNAL_ERROR" }
-  }
-}
-
-// Remove session locally (and optionally call backend logout)
-const logoutUserRequest = async () => {
-  localStorage.removeItem("token")
-  localStorage.removeItem("user")
-  return { ok: true }
-}
+export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
@@ -33,64 +12,50 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  // Load user from localStorage on mount
+  // On mount: verify session via HttpOnly cookie — no localStorage needed
   useEffect(() => {
     const initializeUser = async () => {
-      const token = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
-  
-      // Nëse nuk ka fare token, thjesht ndalo loading
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-  
       try {
-        // Provojmë të verifikojmë tokenin me backend
-        const response = await getUser(token);
-        
-        if (response.ok) {
-          setAuthState({ user: response.user, isAuthenticated: true });
-          localStorage.setItem("user", JSON.stringify(response.user));
-        } else {
-          // VETËM nëse backend konfirmon që tokeni nuk vlen (psh status 401)
-          if (response.status === 401) {
-             localStorage.removeItem("token");
-             localStorage.removeItem("user");
-             setAuthState({ user: null, isAuthenticated: false });
-          }
-        }
+        const response = await authAPI.me()
+        setAuthState({ user: response.data, isAuthenticated: true })
       } catch (err) {
-        console.error("Gabim gjatë inicializimit:", err);
-        // Nëse ka gabim rrjeti, MOS e fshi tokenin, 
-        // sepse ndoshta serveri është thjesht offline për momentin
+        // 401 means no valid cookie — not an error, just not logged in
+        setAuthState({ user: null, isAuthenticated: false })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-  
-    initializeUser();
-  }, []);
+    }
 
-  const login = (userData, token) => {
-    localStorage.setItem("token", token)
-    localStorage.setItem("user", JSON.stringify(userData))
+    initializeUser()
+  }, [])
+
+  const login = (userData, redirect = null) => {
     setAuthState({ user: userData, isAuthenticated: true })
 
-    if (userData.roles?.includes("ROLE_ADMIN")) {
-      navigate("/admin")
+    if (redirect) {
+      navigate(redirect)
+    } else if (userData.roles?.includes('SUPER_ADMIN') || userData.roles?.includes('ADMIN')) {
+      navigate('/admin')
     } else {
-      navigate("/")
+      navigate('/')
     }
   }
 
   const logout = async () => {
-    await logoutUserRequest()
+    try {
+      await authAPI.logout()
+    } catch (_) {
+      // ignore errors; cookie cleared server-side
+    }
     setAuthState({ user: null, isAuthenticated: false })
-    navigate("/login")
+    navigate('/login')
   }
 
-  const isAdmin = () => authState.user?.roles?.includes("ROLE_ADMIN") ?? false
+  const isAdmin = () =>
+    !!(authState.user?.roles?.includes('ADMIN') ||
+    authState.user?.roles?.includes('SUPER_ADMIN'))
+
+  const isSuperAdmin = () => !!(authState.user?.roles?.includes('SUPER_ADMIN'))
 
   return (
     <AuthContext.Provider value={{
@@ -99,7 +64,8 @@ export const AuthProvider = ({ children }) => {
       loading,
       login,
       logout,
-      isAdmin
+      isAdmin,
+      isSuperAdmin
     }}>
       {children}
     </AuthContext.Provider>

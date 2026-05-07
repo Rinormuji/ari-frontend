@@ -1,95 +1,68 @@
-import { useEffect } from "react";
 import logo2 from '../assets/images/logo2.png';
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import TikTokIcon from "@mui/icons-material/MusicNote";
-import BackToTopButton from "./BackToTopButton";
+import { Link } from 'react-router-dom';
+import { Facebook, Instagram, Music, Mail, Phone, MapPin } from 'lucide-react';
+import BackToTopButton from './BackToTopButton';
 
 export default function Footer() {
-
-  // Back to top function
-  // const scrollToTop = () => {
-  //   window.scrollTo({ top: 0, behavior: "smooth" });
-  // };
-
-  // Optional: Scroll animation initialization (AOS library)
-  useEffect(() => {
-    if (window.AOS) {
-      window.AOS.init({ duration: 700, once: true });
-    }
-  }, []);
-
   return (
-    <footer className="ari-footer-container">
+    <footer className="bg-black border-t border-white/10 text-gray-400">
+      <BackToTopButton />
 
-<BackToTopButton />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 sm:grid-cols-3 gap-10">
 
-
-      {/* SVG Separator */}
-      <div className="ari-footer-svg">
-        <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
-          <path fill="#0f1115" d="M0,0 C720,100 720,0 1440,100 L1440,0 L0,0 Z" />
-        </svg>
-      </div>
-
-      {/* Footer Main Content */}
-      <div className="ari-footer-main" data-aos="fade-up">
-
-        {/* --- About / Logo --- */}
-        <div className="ari-footer-block ari-footer-about">
-          <img src={logo2} alt="Ari Real Estate" className="ari-footer-logo" />
-          {/* <p className="ari-footer-tagline">
-            Ne ndihmojmë klientët të gjejnë shtëpinë e ëndrrave — me transparencë dhe eksperiencë.
-          </p> */}
+        {/* Logo */}
+        <div className="flex flex-col gap-3">
+          <img src={logo2} alt="Ari Real Estate" className="h-14 w-auto" />
+          <p className="text-sm leading-relaxed text-gray-500">
+            Platforma juaj për gjetjen e pronës ideale në Kosovë.
+          </p>
         </div>
 
-        {/* --- Navigation Links --- */}
-        <div className="ari-footer-block ari-footer-links">
-          <h4 className="ari-footer-heading">Shiko edhe</h4>
-          <a href="/" className="ari-footer-link">Ballina</a>
-          <a href="/properties" className="ari-footer-link">Kërko Prona</a>
-          <a href="/about" className="ari-footer-link">Rreth Nesh</a>
-          <a href="/contact" className="ari-footer-link">Kontakti</a>
+        {/* Links */}
+        <div className="flex flex-col gap-3">
+          <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-1">Navigimi</h4>
+          {[
+            { label: "Ballina", to: "/" },
+            { label: "Kërko Prona", to: "/properties" },
+            { label: "Rreth Nesh", to: "/about" },
+            { label: "Kontakti", to: "/contact" },
+          ].map(({ label, to }) => (
+            <Link key={to} to={to} className="text-sm hover:text-[#FFAE42] transition-colors">
+              {label}
+            </Link>
+          ))}
         </div>
 
-        {/* --- Contacts & Social --- */}
-        <div className="ari-footer-block ari-footer-contact">
-          <h4 className="ari-footer-heading">Kontakti</h4>
-          <div className="ari-footer-info">
-            <span className="ari-footer-info-title">Email:</span>
-            <a href="mailto:info@arirealestate.com" className="ari-footer-info-link">info@arirealestate.com</a>
-          </div>
-          <div className="ari-footer-info">
-            <span className="ari-footer-info-title">Tel:</span>
-            <a href="tel:+38348465726" className="ari-footer-info-link">+383 48 465 726</a>
-          </div>
-          <div className="ari-footer-info">
-            <span className="ari-footer-info-title">Adresa:</span>
-            <a 
-              href="https://maps.app.goo.gl/ip4iUs994cqPUgjR6" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="ari-footer-info-link"
-            >Gjilan, Kosovë</a>
-          </div>
+        {/* Contact */}
+        <div className="flex flex-col gap-3">
+          <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-1">Kontakti</h4>
+          <a href="mailto:info@arirealestate.com" className="flex items-center gap-2 text-sm hover:text-[#FFAE42] transition-colors">
+            <Mail size={14} /> info@arirealestate.com
+          </a>
+          <a href="tel:+38348465726" className="flex items-center gap-2 text-sm hover:text-[#FFAE42] transition-colors">
+            <Phone size={14} /> +383 48 465 726
+          </a>
+          <a href="https://maps.app.goo.gl/ip4iUs994cqPUgjR6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-[#FFAE42] transition-colors">
+            <MapPin size={14} /> Gjilan, Kosovë
+          </a>
 
-          <div className="ari-footer-socials">
-            <a href="https://www.facebook.com/p/Ari-Real-Estate-61554838910212/" className="ari-footer-social-icon" target="_blank" rel="noopener noreferrer"><FacebookIcon /></a>
-            <a href="https://www.instagram.com/ari_realestate.ks/" className="ari-footer-social-icon" target="_blank" rel="noopener noreferrer"><InstagramIcon /></a>
-            <a href="https://www.tiktok.com/@ari_realestate1" className="ari-footer-social-icon" target="_blank" rel="noopener noreferrer"><TikTokIcon /></a>
+          <div className="flex items-center gap-4 mt-2">
+            <a href="https://www.facebook.com/p/Ari-Real-Estate-61554838910212/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#FFAE42] transition-colors">
+              <Facebook size={20} />
+            </a>
+            <a href="https://www.instagram.com/ari_realestate.ks/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#FFAE42] transition-colors">
+              <Instagram size={20} />
+            </a>
+            <a href="https://www.tiktok.com/@ari_realestate1" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#FFAE42] transition-colors">
+              <Music size={20} />
+            </a>
           </div>
         </div>
-
-        {/* --- Back to Top Button --- */}
-        {/* <button className="ari-footer-backtotop" onClick={scrollToTop}>↑ Top</button> */}
-
       </div>
 
-      {/* --- Copyright --- */}
-      <div className="ari-footer-bottom">
-        © 2025 Ari Real Estate. All rights reserved.
+      <div className="border-t border-white/10 text-center text-xs text-gray-600 py-5">
+        © {new Date().getFullYear()} Ari Real Estate. All rights reserved.
       </div>
-
     </footer>
   );
 }

@@ -1,34 +1,21 @@
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import { FaThLarge, FaTable, FaSearch, FaCheck, FaTimes, FaEye } from "react-icons/fa";
-
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+import api from "../../services/api";
+import { LayoutGrid, Table2, Search, Check, X, Eye } from "lucide-react";
+import { useToast } from "../../context/ToastContext";
 const defaultPageSize = 12;
 
+const statusCfg = {
+  PENDING:  { cls: "bg-yellow-400/15 text-yellow-300", label: "Në pritje" },
+  APPROVED: { cls: "bg-green-500/15 text-green-300",  label: "Aprovuar" },
+  REJECTED: { cls: "bg-red-500/15 text-red-400",     label: "Refuzuar" },
+};
 const StatusBadge = ({ status }) => {
-  let color = "";
-  let text = "";
-  switch (status) {
-    case "PENDING":
-      color = "status-pending";
-      text = "Në pritje";
-      break;
-    case "APPROVED":
-      color = "status-approved";
-      text = "Aprovuar";
-      break;
-    case "REJECTED":
-      color = "status-rejected";
-      text = "Refuzuar";
-      break;
-    default:
-      color = "";
-      text = status;
-  }
-  return <span className={`status-badge ${color}`}>{text}</span>;
+  const cfg = statusCfg[status] || { cls: "bg-white/10 text-white/60", label: status };
+  return <span className={`text-xs px-2 py-1 rounded-full font-medium ${cfg.cls}`}>{cfg.label}</span>;
 };
 
 export default function AppointmentsAdmin() {
+  const toast = useToast();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,17 +48,12 @@ export default function AppointmentsAdmin() {
       setLoading(true);
       setError(null);
       try {
-        const token = localStorage.getItem("token"); // Merret tokeni
-        const res = await axios.get(`${API_BASE}/api/appointments`, {
+        const res = await api.get(`/appointments`, {
           params: { 
             page: Math.max(0, page - 1), 
             size: pageSize,
             search: debouncedSearch || undefined 
           },
-          headers: { 
-            Authorization: `Bearer ${token}` // Shtohet Authorization header
-          },
-          withCredentials: true,
         });
 
         const data = res.data;
@@ -140,18 +122,15 @@ export default function AppointmentsAdmin() {
   const updateStatus = async (id, status) => {
     setUpdatingStatus(true);
     try {
-      const token = localStorage.getItem("token");
       const endpoint = status === "APPROVED" ? "approve" : "reject";
       
-      await axios.put(`${API_BASE}/api/appointments/${id}/${endpoint}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
+      await api.put(`/appointments/${id}/${endpoint}`, {});
   
       setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+      toast.success(status === "APPROVED" ? "Takimi u aprovua." : "Takimi u refuzua.");
     } catch (e) {
       console.error("Error updating status:", e);
-      alert("Nuk mund të ndryshohet statusi.");
+      toast.error("Nuk mund të ndryshohet statusi.");
     } finally {
       setUpdatingStatus(false);
     }
@@ -170,164 +149,159 @@ export default function AppointmentsAdmin() {
   };
 
   return (
-    <div className="admin-page-container p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Menaxhimi i Termineve</h2>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 gap-2">
-            <FaSearch className="text-white" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Kërko pronë ose përdorues"
-              className="filter-input"
-              style={{ width: 280 }}
-            />
+    <div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-xl font-bold text-white">Menaxhimi i Termineve</h1>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
+            <Search size={14} className="text-white/40 shrink-0" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Kërko pronë ose përdorues..."
+              className="bg-transparent text-white text-sm outline-none w-full placeholder-white/30" />
+            {search && <button onClick={() => setSearch("")}><X size={13} className="text-white/40" /></button>}
           </div>
-          <div className="flex gap-2">
-            <button
-              className={`p-2 rounded-md border shadow-sm transition-all duration-200 ${view === "table" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"}`}
-              onClick={() => setView("table")}
-              title="Table View"
-            >
-              <FaTable size={18} />
-            </button>
-            <button
-              className={`p-2 rounded-md border shadow-sm transition-all duration-200 ${view === "cards" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300"}`}
-              onClick={() => setView("cards")}
-              title="Card View"
-            >
-              <FaThLarge size={18} />
-            </button>
-          </div>
+          <button onClick={() => setView("table")} className={`p-2 rounded-lg border transition-colors ${view === "table" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}><Table2 size={17} /></button>
+          <button onClick={() => setView("cards")} className={`p-2 rounded-lg border transition-colors ${view === "cards" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}><LayoutGrid size={17} /></button>
         </div>
       </div>
 
-      <div className="filters-container-admin">
-        <select className="filter-select-admin" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+          className="bg-[#1a1a1a] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/40">
           <option value="ALL">Të gjitha statuset</option>
           <option value="PENDING">Në pritje</option>
           <option value="APPROVED">Aprovuar</option>
           <option value="REJECTED">Refuzuar</option>
         </select>
-        <button className="filter-button-admin" onClick={() => { setFilterStatus("ALL"); setSearch(""); }}>Pastro filtra</button>
-      </div>
-
-      <div className="mt-6 properties-view-container">
-        {loading ? (
-          <div className="properties-table-container text-white p-4">Duke u ngarkuar...</div>
-        ) : error ? (
-          <div className="properties-table-container p-4 text-white">Gabim gjatë marrjes së termineve.</div>
-        ) : view === "table" ? (
-          <div className="properties-table-container">
-            <table className="properties-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Prona</th>
-                  <th>Përdoruesi</th>
-                  <th>Data</th>
-                  <th>Statusi</th>
-                  <th>Veprime</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((a) => (
-                  <tr key={a.id}>
-                    <td>{a.id}</td>
-                    <td>{a.propertyName} (#{a.propertyId})</td>
-                    <td>{a.user}</td>
-                    <td>{formatDate(a.date)}</td>
-                    <td><StatusBadge status={a.status} /></td>
-                    <td>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {a.status === "PENDING" && (
-                          <>
-                            <button className="action-button action-approve" onClick={() => openConfirmModal(a.id, "APPROVED")} disabled={updatingStatus}><FaCheck /></button>
-                            <button className="action-button action-reject" onClick={() => openConfirmModal(a.id, "REJECTED")} disabled={updatingStatus}><FaTimes /></button>
-                          </>
-                        )}
-                        <button className="action-button action-view" onClick={() => openModal(a)}><FaEye /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="properties-cards-grid">
-            {filtered.map((a) => (
-              <div key={a.id} className="property-card-admin">
-                <h3>{a.propertyName}</h3>
-                <p>{a.user}</p>
-                <p>{formatDate(a.date)}</p>
-                <StatusBadge status={a.status} />
-                <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                  {a.status === "PENDING" && (
-                    <>
-                      <button className="action-button action-approve" onClick={() => openConfirmModal(a.id, "APPROVED")} disabled={updatingStatus}><FaCheck /></button>
-                      <button className="action-button action-reject" onClick={() => openConfirmModal(a.id, "REJECTED")} disabled={updatingStatus}><FaTimes /></button>
-                    </>
-                  )}
-                  <button className="action-button action-view" onClick={() => openModal(a)}><FaEye /></button>
-                </div>
-              </div>
-            ))}
-          </div>
+        {(filterStatus !== "ALL" || search) && (
+          <button onClick={() => { setFilterStatus("ALL"); setSearch(""); }}
+            className="flex items-center gap-1 text-sm text-white/50 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors">
+            <X size={13} /> Pastro
+          </button>
         )}
       </div>
 
+      {/* Content */}
+      {loading ? (
+        <div className="space-y-2">{[...Array(6)].map((_, i) => <div key={i} className="h-12 bg-white/5 rounded-lg animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-red-400 py-8 text-center">Gabim gjatë marrjes së termineve.</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-white/40 py-8 text-center">Nuk u gjetën termine.</div>
+      ) : view === "table" ? (
+        <div className="bg-[#111111] rounded-xl border border-white/10 overflow-x-auto">
+          <table className="w-full text-sm min-w-150">
+            <thead>
+              <tr className="border-b border-white/10">
+                {["ID", "Prona", "Përdoruesi", "Data", "Statusi", ""].map((h) => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((a) => (
+                <tr key={a.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                  <td className="px-4 py-3 text-white/40 text-xs font-mono">{a.id}</td>
+                  <td className="px-4 py-3 text-white">{a.propertyName}</td>
+                  <td className="px-4 py-3 text-white/60">{a.user}</td>
+                  <td className="px-4 py-3 text-white/60 text-xs">{formatDate(a.date)}</td>
+                  <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      {a.status === "PENDING" && (
+                        <>
+                          <button onClick={() => openConfirmModal(a.id, "APPROVED")} disabled={updatingStatus}
+                            className="p-1.5 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-400 transition-colors disabled:opacity-50"><Check size={14} /></button>
+                          <button onClick={() => openConfirmModal(a.id, "REJECTED")} disabled={updatingStatus}
+                            className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors disabled:opacity-50"><X size={14} /></button>
+                        </>
+                      )}
+                      <button onClick={() => openModal(a)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"><Eye size={14} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((a) => (
+            <div key={a.id} className="bg-[#111111] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
+              <div className="flex justify-between items-start mb-3">
+                <p className="text-white font-medium text-sm">{a.propertyName}</p>
+                <StatusBadge status={a.status} />
+              </div>
+              <p className="text-white/50 text-xs mb-1">{a.user}</p>
+              <p className="text-white/40 text-xs mb-4">{formatDate(a.date)}</p>
+              <div className="flex gap-2 pt-2 border-t border-white/5">
+                {a.status === "PENDING" && (
+                  <>
+                    <button onClick={() => openConfirmModal(a.id, "APPROVED")} disabled={updatingStatus}
+                      className="p-1.5 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-400 transition-colors disabled:opacity-50"><Check size={14} /></button>
+                    <button onClick={() => openConfirmModal(a.id, "REJECTED")} disabled={updatingStatus}
+                      className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors disabled:opacity-50"><X size={14} /></button>
+                  </>
+                )}
+                <button onClick={() => openModal(a)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"><Eye size={14} /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
       <div className="flex items-center justify-center gap-3 mt-6">
-        <button onClick={() => setPage((s) => Math.max(1, s - 1))} className="filter-button" disabled={page <= 1}>Prev</button>
-        <div style={{ color: "#cbd5e1" }}>Faqja {page} / {totalPages}</div>
-        <button onClick={() => setPage((s) => Math.min(totalPages, s + 1))} className="filter-button" disabled={page >= totalPages}>Next</button>
+        <button onClick={() => setPage((s) => Math.max(1, s - 1))} disabled={page <= 1}
+          className="px-3 py-1.5 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white disabled:opacity-30 transition-colors">← Prev</button>
+        <span className="text-sm text-white/50">Faqja {page} / {totalPages}</span>
+        <button onClick={() => setPage((s) => Math.min(totalPages, s + 1))} disabled={page >= totalPages}
+          className="px-3 py-1.5 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white disabled:opacity-30 transition-colors">Next →</button>
       </div>
 
+      {/* Detail Modal */}
       {modalOpen && selectedAppointment && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
-            <h3>Detajet e Takimit</h3>
-            <p><strong>ID:</strong> {selectedAppointment.id}</p>
-            <p><strong>Prona:</strong> {selectedAppointment.propertyName}</p>
-            <p><strong>Përdoruesi:</strong> {selectedAppointment.user}</p>
-            <p><strong>Data:</strong> {formatDate(selectedAppointment.date)}</p>
-            <p><strong>Statusi:</strong> <StatusBadge status={selectedAppointment.status} /></p>
-            <div className="admin-modal-actions">
-              <button className="admin-modal-btn cancel" onClick={closeModal}>Mbyll</button>
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-white font-semibold text-lg mb-4">Detajet e Takimit</h3>
+            {[
+              ["ID", selectedAppointment.id],
+              ["Prona", selectedAppointment.propertyName],
+              ["Përdoruesi", selectedAppointment.user],
+              ["Data", formatDate(selectedAppointment.date)],
+            ].map(([l, v]) => (
+              <div key={l} className="flex gap-2 mb-2">
+                <span className="text-white/40 text-sm w-24 shrink-0">{l}:</span>
+                <span className="text-white text-sm">{v}</span>
+              </div>
+            ))}
+            <div className="flex gap-2 mb-4">
+              <span className="text-white/40 text-sm w-24 shrink-0">Statusi:</span>
+              <StatusBadge status={selectedAppointment.status} />
+            </div>
+            <div className="flex justify-end">
+              <button onClick={closeModal} className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white transition-colors">Mbyll</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Confirm Modal */}
       {confirmOpen && confirmAction && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
-            <h3>Konfirmim Veprimi</h3>
-            <p>A jeni i sigurt që dëshironi të {confirmAction.status === "APPROVED" ? "aprovoni" : "refuzoni"} këtë takim?</p>
-            <div className="admin-modal-actions">
-              <button className="admin-modal-btn cancel" onClick={closeConfirmModal}>Anulo</button>
-              <button className="admin-modal-btn confirm" onClick={handleConfirm}>Po, konfirmo</button>
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-white font-semibold text-lg mb-2">Konfirmim Veprimi</h3>
+            <p className="text-white/60 text-sm mb-6">A jeni i sigurt që dëshironi të {confirmAction.status === "APPROVED" ? "aprovoni" : "refuzoni"} këtë takim?</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={closeConfirmModal} className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white transition-colors">Anulo</button>
+              <button onClick={handleConfirm} className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${confirmAction.status === "APPROVED" ? "bg-green-500 hover:bg-green-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}`}>
+                Po, konfirmo
+              </button>
             </div>
           </div>
         </div>
       )}
-
-      <style>{`
-        .status-pending { background: #facc15; color: #111; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
-        .status-approved { background: #22c55e; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
-        .status-rejected { background: #ef4444; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
-        .action-button { padding: 4px 6px; border: none; border-radius: 4px; cursor: pointer; color: white; background: #374151; }
-        .action-approve { background: #22c55e; }
-        .action-reject { background: #ef4444; }
-        .action-view { background: #3b82f6; }
-        .admin-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; backdrop-filter: blur(6px); background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .admin-modal { background: #1f2937; color: #fff; padding: 20px 24px; border-radius: 10px; max-width: 400px; width: 90%; text-align: center; }
-        .admin-modal-actions { display: flex; justify-content: space-around; margin-top: 20px; }
-        .admin-modal-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .admin-modal-btn.cancel { background: #374151; color: #fff; }
-        .admin-modal-btn.confirm { background: #22c55e; color: #fff; }
-      `}</style>
     </div>
   );
 }
