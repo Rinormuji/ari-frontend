@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import axios from "axios";
+import { authAPI } from "../services/api";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { ArrowLeft, Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
@@ -51,7 +51,7 @@ const Register = () => {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      await axios.post("/api/auth/register", {
+      await authAPI.register({
         firstName: formData.name, lastName: formData.surname,
         username: formData.username, email: formData.email,
         phoneNumber: formData.phone, password: formData.password,
