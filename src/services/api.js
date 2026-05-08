@@ -13,9 +13,13 @@ const api = axios.create({
   },
 })
 
-// Request interceptor
+// Request interceptor — attach JWT from localStorage
 api.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem('jwt')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
     if (import.meta.env.DEV) {
       console.log(`API Request → ${config.method?.toUpperCase()} ${config.url}`)
     }
@@ -45,6 +49,7 @@ api.interceptors.response.use(
       // Don't auto-redirect for the session-check call — AuthContext handles that
       const url = error.config?.url || ''
       if (!url.includes('/auth/me') && !url.includes('/auth/login')) {
+        localStorage.removeItem('jwt')
         window.location.href = '/login'
       }
     }
@@ -185,11 +190,15 @@ export const usersAPI = {
 
 // Auth API functions
 export const authAPI = {
-  login: (credentials) => {
+  login: async (credentials) => {
     if (import.meta.env.DEV) {
       console.log('Auth: login request sent')
     }
-    return api.post('/auth/login', credentials)
+    const response = await api.post('/auth/login', credentials)
+    if (response.data?.token) {
+      localStorage.setItem('jwt', response.data.token)
+    }
+    return response
   },
 
   register: (userData) => {
@@ -203,6 +212,7 @@ export const authAPI = {
     if (import.meta.env.DEV) {
       console.log('Auth: logout')
     }
+    localStorage.removeItem('jwt')
     return api.post('/auth/logout')
   },
 
