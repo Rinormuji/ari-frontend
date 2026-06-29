@@ -6,7 +6,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { ArrowLeft, Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
 import { useToast } from "../context/ToastContext";
-import logo2 from "../assets/images/logo2.png";
+import logo2 from "../assets/images/ari-logo.jpg";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -70,13 +70,13 @@ const Register = () => {
     }
   };
 
-  const inp = "w-full bg-white/5 border border-white/10 text-white placeholder-white/30 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-[#FFAE42]/50 focus:border-[#FFAE42] outline-none transition";
+  const inp = "w-full bg-white/5 border border-white/10 text-white placeholder-white/30 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-[#EFD391]/50 focus:border-[#EFD391] outline-none transition";
   const err = (field) => errors[field] ? <p className="text-red-400 text-xs mt-1">{errors[field]}</p> : null;
 
   return (
-    <div className="min-h-screen flex bg-black">
+    <div className="min-h-screen flex bg-[#0F4638]">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-2/5 bg-[#0a0a0a] border-r border-white/5 p-12">
+      <div className="hidden lg:flex flex-col justify-between w-2/5 bg-[#0B332B] border-r border-white/5 p-12">
         <img src={logo2} alt="Ari Real Estate" className="h-14 w-auto" />
         <div>
           <h2 className="text-3xl font-bold text-white leading-snug mb-4">Krijo llogarinë<br/>tënde sot</h2>
@@ -112,11 +112,11 @@ const Register = () => {
               width: 100% !important;
             }
             .react-tel-input .form-control::placeholder { color: rgba(255,255,255,0.30) !important; }
-            .react-tel-input .form-control:focus { border-color: #FFAE42 !important; outline: none !important; box-shadow: 0 0 0 2px rgba(255,174,66,0.25) !important; }
+            .react-tel-input .form-control:focus { border-color: #EFD391 !important; outline: none !important; box-shadow: 0 0 0 2px rgba(239,211,145,0.25) !important; }
             .react-tel-input .flag-dropdown { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.10) !important; border-radius: 0.75rem 0 0 0.75rem !important; }
             .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus { background: rgba(255,255,255,0.08) !important; }
-            .react-tel-input .country-list { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.10) !important; }
-            .react-tel-input .country-list .country:hover { background: rgba(255,174,66,0.1) !important; }
+            .react-tel-input .country-list { background: #123E35 !important; border: 1px solid rgba(255,255,255,0.10) !important; }
+            .react-tel-input .country-list .country:hover { background: rgba(239,211,145,0.1) !important; }
             .react-tel-input .country-list .country-name { color: white !important; }
             .react-tel-input .country-list .dial-code { color: rgba(255,255,255,0.4) !important; }
           `}</style>
@@ -191,7 +191,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-50 text-black font-semibold rounded-xl transition-colors text-sm mt-1"
+              className="w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-50 text-black font-semibold rounded-xl transition-colors text-sm mt-1"
             >
               {loading ? "Po regjistrohemi..." : "Regjistrohu"}
             </button>
@@ -199,7 +199,7 @@ const Register = () => {
 
           <p className="text-center text-sm text-white/40 mt-6">
             Tashmë keni llogari?{" "}
-            <Link to="/login" className="text-[#FFAE42] hover:underline font-medium">Kyçuni këtu</Link>
+            <Link to="/login" className="text-[#EFD391] hover:underline font-medium">Kyçuni këtu</Link>
           </p>
 
           <div className="mt-6 pt-4 border-t border-white/5">

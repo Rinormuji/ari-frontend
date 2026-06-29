@@ -25,7 +25,7 @@ const Verify = () => {
       <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-sm text-center">
         {status === "loading" && (
           <>
-            <div className="w-10 h-10 rounded-full border-2 border-[#FFAE42] border-t-transparent animate-spin mx-auto mb-4" />
+            <div className="w-10 h-10 rounded-full border-2 border-[#EFD391] border-t-transparent animate-spin mx-auto mb-4" />
             <p className="text-gray-500 text-sm">Duke verifikuar...</p>
           </>
         )}
@@ -34,7 +34,7 @@ const Verify = () => {
             <CheckCircle2 size={40} className="text-green-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Email u verifikua!</h2>
             <p className="text-sm text-gray-500 mb-6">{message}</p>
-            <Link to="/login" className="inline-flex items-center justify-center w-full py-3 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold rounded-xl transition-colors text-sm">
+            <Link to="/login" className="inline-flex items-center justify-center w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold rounded-xl transition-colors text-sm">
               Kyqu tani
             </Link>
           </>

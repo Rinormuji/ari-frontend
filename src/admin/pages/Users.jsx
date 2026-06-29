@@ -209,7 +209,7 @@ const handleUpdateRoles = async () => {
   };
 
   /* ================= UI ================= */
-  const inputCls = "w-full bg-[#0f0f0f] border border-white/10 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/60";
+  const inputCls = "w-full bg-[#0f0f0f] border border-white/10 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/60";
 
   // Regular admins only see users with USER role (not admins/superadmins)
   const displayedUsers = superAdmin
@@ -228,7 +228,7 @@ const handleUpdateRoles = async () => {
           {superAdmin && (
             <button
               onClick={() => { setShowRegForm(true); setRegForm(f => ({ ...f, role: "USER" })); }}
-              className="inline-flex items-center gap-2 bg-[#FFAE42]/10 border border-[#FFAE42]/30 text-[#FFAE42] text-xs font-semibold px-3 py-2 rounded-lg hover:bg-[#FFAE42]/20 transition-colors"
+              className="inline-flex items-center gap-2 bg-[#EFD391]/10 border border-[#EFD391]/30 text-[#EFD391] text-xs font-semibold px-3 py-2 rounded-lg hover:bg-[#EFD391]/20 transition-colors"
             >
               <UserPlus size={14} /> Shto Përdorues
             </button>
@@ -241,7 +241,7 @@ const handleUpdateRoles = async () => {
               <ShieldCheck size={14} /> Shto Admin
             </button>
           )}
-          <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 gap-2 w-full sm:w-72">
+          <div className="flex items-center bg-[#123E35] border border-white/10 rounded-lg px-3 py-2 gap-2 w-full sm:w-72">
             <Search size={14} className="text-white/40 shrink-0" />
             <input className="bg-transparent text-white text-sm outline-none w-full placeholder-white/30"
               placeholder="Kërko username ose email" value={search}
@@ -252,10 +252,10 @@ const handleUpdateRoles = async () => {
 
       {/* Register Form (SuperAdmin only) */}
       {superAdmin && showRegForm && (
-        <div className="bg-[#111111] border border-[#FFAE42]/20 rounded-2xl p-5 mb-6">
+        <div className="bg-[#0F4638] border border-[#EFD391]/20 rounded-2xl p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-[#FFAE42]" />
+              <ShieldCheck size={16} className="text-[#EFD391]" />
               <h2 className="text-white font-semibold text-sm">
                 Regjistro {regForm.role === "ADMIN" ? "Admin" : "Përdorues"} të Ri
               </h2>
@@ -299,7 +299,7 @@ const handleUpdateRoles = async () => {
             <button
               type="submit"
               disabled={regLoading}
-              className="col-span-full sm:col-span-1 py-2 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-50 text-black text-sm font-semibold rounded-lg transition-colors"
+              className="col-span-full sm:col-span-1 py-2 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-50 text-black text-sm font-semibold rounded-lg transition-colors"
             >
               {regLoading ? "Duke regjistruar..." : "Regjistro"}
             </button>
@@ -308,7 +308,7 @@ const handleUpdateRoles = async () => {
       )}
 
       {/* Table */}
-      <div className="bg-[#111111] rounded-xl border border-white/10 overflow-x-auto">
+      <div className="bg-[#0F4638] rounded-xl border border-white/10 overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-white/40">Duke u ngarkuar...</div>
         ) : (
@@ -325,7 +325,7 @@ const handleUpdateRoles = async () => {
                 <tr key={u.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#FFAE42]/20 text-[#FFAE42] flex items-center justify-center text-sm font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-[#EFD391]/20 text-[#EFD391] flex items-center justify-center text-sm font-bold shrink-0">
                         {u.username?.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -343,7 +343,7 @@ const handleUpdateRoles = async () => {
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <button onClick={() => openModal("view", u)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"><Eye size={14} /></button>
-                      <button onClick={() => openModal("edit", u)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FFAE42]/15 hover:text-[#FFAE42] text-white/50 transition-colors"><Pencil size={14} /></button>
+                      <button onClick={() => openModal("edit", u)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors"><Pencil size={14} /></button>
                       <button onClick={() => openModal("status", u)} className="p-1.5 rounded-lg bg-white/5 hover:bg-yellow-500/15 hover:text-yellow-400 text-white/50 transition-colors"><Ban size={14} /></button>
                       <button onClick={() => openModal("delete", u)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors"><Trash2 size={14} /></button>
                     </div>
@@ -370,7 +370,7 @@ const handleUpdateRoles = async () => {
       {/* Modal */}
       {modalType && selectedUser && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+          <div className="bg-[#123E35] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             {modalType === "view" && (
               <>
                 <h3 className="text-white font-semibold text-lg mb-4">Detajet e Përdoruesit</h3>
@@ -398,14 +398,14 @@ const handleUpdateRoles = async () => {
                       <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>
                     </select>
                     <div className="flex gap-2">
-                      <button onClick={handleUpdateEmail} className="flex-1 py-2 text-sm rounded-lg bg-[#FFAE42] hover:bg-[#e09a35] text-black font-medium transition-colors">Ruaj Email</button>
+                      <button onClick={handleUpdateEmail} className="flex-1 py-2 text-sm rounded-lg bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-medium transition-colors">Ruaj Email</button>
                       <button onClick={handleUpdateRoles} className="flex-1 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/15 text-white transition-colors">Ruaj Role</button>
                     </div>
                   </>
                 ) : (
                   <>
                     <p className="text-sm text-white/50 mb-3 bg-white/5 rounded-lg px-3 py-2">{selectedUser.roles?.join(", ") || "—"}</p>
-                    <button onClick={handleUpdateEmail} className="w-full py-2 text-sm rounded-lg bg-[#FFAE42] hover:bg-[#e09a35] text-black font-medium transition-colors">Ruaj Email</button>
+                    <button onClick={handleUpdateEmail} className="w-full py-2 text-sm rounded-lg bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-medium transition-colors">Ruaj Email</button>
                   </>
                 )}
               </>

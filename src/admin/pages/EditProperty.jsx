@@ -9,7 +9,7 @@ import { useToast } from "../../context/ToastContext";
 const CITIES = ["Prishtinë", "Prizren", "Pejë", "Gjakovë", "Ferizaj", "Gjilan", "Mitrovicë"];
 
 const inputCls =
-  "w-full bg-[#1a1a1a] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#FFAE42]/60 transition-colors";
+  "w-full bg-[#123E35] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#EFD391]/60 transition-colors";
 const labelCls = "block text-xs font-medium text-white/50 mb-1 uppercase tracking-wider";
 const errorCls = "text-red-400 text-xs mt-1";
 
@@ -19,7 +19,7 @@ const CheckField = ({ name, checked, onChange, label }) => (
       type="button"
       onClick={() => onChange({ target: { name, type: "checkbox", checked: !checked } })}
       className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-        checked ? "bg-[#FFAE42] border-[#FFAE42]" : "border-white/20 bg-white/5"
+        checked ? "bg-[#EFD391] border-[#EFD391]" : "border-white/20 bg-white/5"
       }`}
     >
       {checked && <X size={12} className="text-black" />}
@@ -283,7 +283,7 @@ function EditProperty() {
         {/* Type-specific fields */}
         {type === "BANESA" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
-            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Banesës</p>
+            <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Banesës</p>
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className={labelCls}>Dhomat *</label>
@@ -308,7 +308,7 @@ function EditProperty() {
 
         {type === "SHTEPI" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
-            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Shtëpisë</p>
+            <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Shtëpisë</p>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Katet *</label>
@@ -329,7 +329,7 @@ function EditProperty() {
 
         {type === "LOKALE" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
-            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider">Detajet e Lokalit</p>
+            <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Lokalit</p>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Kati</label>
@@ -342,7 +342,7 @@ function EditProperty() {
 
         {type === "TOKA" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-xs font-semibold text-[#FFAE42] uppercase tracking-wider mb-3">Detajet e Tokës</p>
+            <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider mb-3">Detajet e Tokës</p>
             <CheckField name="hasInfrastructure" checked={form.hasInfrastructure} onChange={handleChange} label="Infrastrukturë" />
           </div>
         )}
@@ -409,7 +409,7 @@ function EditProperty() {
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                  <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#FFAE42]/50 transition-colors text-white/40 hover:text-[#FFAE42]/70">
+                  <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#EFD391]/50 transition-colors text-white/40 hover:text-[#EFD391]/70">
                     <ImagePlus size={22} />
                     <span className="text-xs mt-1">Shto</span>
                     <input type="file" multiple className="hidden" onChange={handleImages} accept="image/*" />
@@ -423,7 +423,7 @@ function EditProperty() {
 
         <button
           type="submit"
-          className="w-full bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold py-3 rounded-lg transition-colors text-sm"
+          className="w-full bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold py-3 rounded-lg transition-colors text-sm"
         >
           Ruaj Ndryshimet
         </button>

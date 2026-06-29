@@ -78,7 +78,7 @@ L.Icon.Default.mergeOptions({
   if (loadingProperty) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex flex-col items-center gap-3 text-gray-500">
-        <div className="w-8 h-8 rounded-full border-2 border-[#FFAE42] border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-[#EFD391] border-t-transparent animate-spin" />
         <span className="text-sm">Duke ngarkuar pronën...</span>
       </div>
     </div>
@@ -234,7 +234,7 @@ L.Icon.Default.mergeOptions({
                     src={img}
                     onClick={() => setCurrentIndex(i)}
                     alt=""
-                    className={`h-16 w-24 object-cover rounded-xl cursor-pointer shrink-0 transition-all ${i === currentIndex ? "ring-2 ring-[#FFAE42] opacity-100" : "opacity-60 hover:opacity-80"}`}
+                    className={`h-16 w-24 object-cover rounded-xl cursor-pointer shrink-0 transition-all ${i === currentIndex ? "ring-2 ring-[#EFD391] opacity-100" : "opacity-60 hover:opacity-80"}`}
                   />
                 ))}
               </div>
@@ -245,7 +245,7 @@ L.Icon.Default.mergeOptions({
           <div className="flex flex-col gap-5">
             <div>
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <span className="px-2.5 py-1 bg-[#FFAE42]/10 text-[#FFAE42] rounded-full font-medium text-xs">
+                <span className="px-2.5 py-1 bg-[#EFD391]/10 text-[#EFD391] rounded-full font-medium text-xs">
                   {property.type} · {property.status === "FOR_SALE" ? "Në shitje" : "Me qira"}
                 </span>
                 {property.city && (
@@ -280,7 +280,7 @@ L.Icon.Default.mergeOptions({
             {/* Appointment CTA */}
             <button
               onClick={handleAppointmentClick}
-              className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold rounded-xl transition-colors mt-auto"
+              className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold rounded-xl transition-colors mt-auto"
             >
               <CalendarCheck size={18} /> Kërko një takim
             </button>
@@ -369,11 +369,11 @@ L.Icon.Default.mergeOptions({
               value={appointmentDate}
               onChange={(e) => setAppointmentDate(e.target.value)}
               min={new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] transition mb-4"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] transition mb-4"
             />
             <div className="flex gap-3">
               <button onClick={() => setAppointmentModal(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Anulo</button>
-              <button onClick={sendAppointmentRequest} disabled={sendingAppointment} className="flex-1 py-2.5 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition">
+              <button onClick={sendAppointmentRequest} disabled={sendingAppointment} className="flex-1 py-2.5 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition">
                 {sendingAppointment ? "Dërgohet..." : "Dërgo kërkesën"}
               </button>
             </div>

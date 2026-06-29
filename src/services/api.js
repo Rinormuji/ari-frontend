@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL + '/api'
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/api`
 
 // Create axios instance with default config
 const api = axios.create({
@@ -48,7 +48,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Don't auto-redirect for the session-check call — AuthContext handles that
       const url = error.config?.url || ''
-      if (!url.includes('/auth/me') && !url.includes('/auth/login')) {
+      const isPublicPropertyRead =
+        error.config?.method?.toLowerCase() === 'get' && url.includes('/properties')
+      if (!url.includes('/auth/me') && !url.includes('/auth/login') && !isPublicPropertyRead) {
         localStorage.removeItem('jwt')
         window.location.href = '/login'
       }
@@ -73,7 +75,7 @@ export const propertyAPI = {
 
   // Get property recommendations
   getRecommendations: (id, radiusKm = 5.0) => {
-    return api.get(`/properties/${id}/recommendations`, {
+    return api.get(`/properties/${id}/nearby`, {
       params: { radiusKm }
     })
   },

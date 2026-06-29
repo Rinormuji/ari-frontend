@@ -109,22 +109,22 @@ const Profile = () => {
             {/* Username */}
             <div className="relative">
               <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="username" placeholder="Username" value={profile.username} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+              <input type="text" name="username" placeholder="Username" value={profile.username} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
             </div>
             {/* First Name */}
             <div className="relative">
               <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="firstName" placeholder="Emri" value={profile.firstName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+              <input type="text" name="firstName" placeholder="Emri" value={profile.firstName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
             </div>
             {/* Last Name */}
             <div className="relative">
               <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="lastName" placeholder="Mbiemri" value={profile.lastName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+              <input type="text" name="lastName" placeholder="Mbiemri" value={profile.lastName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
             </div>
             {/* Phone */}
             <div className="relative">
               <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="phoneNumber" placeholder="Numri i telefonit" value={profile.phoneNumber} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+              <input type="text" name="phoneNumber" placeholder="Numri i telefonit" value={profile.phoneNumber} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
             </div>
 
             {message && (
@@ -138,7 +138,7 @@ const Profile = () => {
               </motion.div>
             )}
 
-            <button type="submit" disabled={loading} className="w-full py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
+            <button type="submit" disabled={loading} className="w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
               {loading ? "Duke përditësuar..." : "Përditëso Profilin"}
             </button>
           </form>
@@ -166,15 +166,15 @@ const Profile = () => {
                 <form onSubmit={handleChangePassword} className="space-y-4">
                   <div className="relative">
                     <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                    <input type="password" name="currentPassword" placeholder="Fjalëkalimi aktual" value={passwords.currentPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+                    <input type="password" name="currentPassword" placeholder="Fjalëkalimi aktual" value={passwords.currentPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
                   </div>
                   <div className="relative">
                     <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                    <input type="password" name="newPassword" placeholder="Fjalëkalimi i ri" value={passwords.newPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+                    <input type="password" name="newPassword" placeholder="Fjalëkalimi i ri" value={passwords.newPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
                   </div>
                   <div className="relative">
                     <Key size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                    <input type="password" name="confirmPassword" placeholder="Konfirmo fjalëkalimin" value={passwords.confirmPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition" required />
+                    <input type="password" name="confirmPassword" placeholder="Konfirmo fjalëkalimin" value={passwords.confirmPassword} onChange={handlePasswordChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
                   </div>
 
                   {pwMessage && (
@@ -188,7 +188,7 @@ const Profile = () => {
                     </motion.div>
                   )}
 
-                  <button type="submit" disabled={pwLoading} className="w-full flex items-center justify-center gap-2 py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
+                  <button type="submit" disabled={pwLoading} className="w-full flex items-center justify-center gap-2 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
                     {pwLoading && <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />}
                     {pwLoading ? "Duke përditësuar..." : "Ndrysho Fjalëkalimin"}
                   </button>

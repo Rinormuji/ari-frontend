@@ -154,21 +154,21 @@ export default function AppointmentsAdmin() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-xl font-bold text-white">Menaxhimi i Termineve</h1>
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
+          <div className="flex items-center bg-[#123E35] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
             <Search size={14} className="text-white/40 shrink-0" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Kërko pronë ose përdorues..."
               className="bg-transparent text-white text-sm outline-none w-full placeholder-white/30" />
             {search && <button onClick={() => setSearch("")}><X size={13} className="text-white/40" /></button>}
           </div>
-          <button onClick={() => setView("table")} className={`p-2 rounded-lg border transition-colors ${view === "table" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}><Table2 size={17} /></button>
-          <button onClick={() => setView("cards")} className={`p-2 rounded-lg border transition-colors ${view === "cards" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}><LayoutGrid size={17} /></button>
+          <button onClick={() => setView("table")} className={`p-2 rounded-lg border transition-colors ${view === "table" ? "bg-[#EFD391]/15 border-[#EFD391]/30 text-[#EFD391]" : "border-white/10 text-white/40 hover:text-white"}`}><Table2 size={17} /></button>
+          <button onClick={() => setView("cards")} className={`p-2 rounded-lg border transition-colors ${view === "cards" ? "bg-[#EFD391]/15 border-[#EFD391]/30 text-[#EFD391]" : "border-white/10 text-white/40 hover:text-white"}`}><LayoutGrid size={17} /></button>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-5">
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-          className="bg-[#1a1a1a] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/40">
+          className="bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40">
           <option value="ALL">Të gjitha statuset</option>
           <option value="PENDING">Në pritje</option>
           <option value="APPROVED">Aprovuar</option>
@@ -190,7 +190,7 @@ export default function AppointmentsAdmin() {
       ) : filtered.length === 0 ? (
         <div className="text-white/40 py-8 text-center">Nuk u gjetën termine.</div>
       ) : view === "table" ? (
-        <div className="bg-[#111111] rounded-xl border border-white/10 overflow-x-auto">
+        <div className="bg-[#0F4638] rounded-xl border border-white/10 overflow-x-auto">
           <table className="w-full text-sm min-w-150">
             <thead>
               <tr className="border-b border-white/10">
@@ -228,7 +228,7 @@ export default function AppointmentsAdmin() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((a) => (
-            <div key={a.id} className="bg-[#111111] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
+            <div key={a.id} className="bg-[#0F4638] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
               <div className="flex justify-between items-start mb-3">
                 <p className="text-white font-medium text-sm">{a.propertyName}</p>
                 <StatusBadge status={a.status} />
@@ -263,7 +263,7 @@ export default function AppointmentsAdmin() {
       {/* Detail Modal */}
       {modalOpen && selectedAppointment && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+          <div className="bg-[#123E35] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-white font-semibold text-lg mb-4">Detajet e Takimit</h3>
             {[
               ["ID", selectedAppointment.id],
@@ -290,7 +290,7 @@ export default function AppointmentsAdmin() {
       {/* Confirm Modal */}
       {confirmOpen && confirmAction && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+          <div className="bg-[#123E35] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-white font-semibold text-lg mb-2">Konfirmim Veprimi</h3>
             <p className="text-white/60 text-sm mb-6">A jeni i sigurt që dëshironi të {confirmAction.status === "APPROVED" ? "aprovoni" : "refuzoni"} këtë takim?</p>
             <div className="flex gap-3 justify-end">

@@ -3,7 +3,7 @@
 =========================== */
 .admin-sidebar {
     width: 16rem; /* 64 Tailwind units */
-    background-color: #000; /* i zi */
+    background-color: #0F4638;
     border-radius: 0%;
     color: #fff;
     padding-left: 1.5rem;
@@ -48,9 +48,9 @@
   .admin-topbar {
     background: linear-gradient(
       90deg,
-      #000000 0%,       /* Zeza absolute */
-      #552200 50%,      /* Portokalli i errët si mesazh tranzicioni */
-      #FFAE42 100%      /* Portokalli i ndritshëm në fund */
+      #0A3028 0%,
+      #0F4638 50%,
+      #EFD391 100%
     );
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -87,7 +87,7 @@
   color: #f1f5f9;
   font-weight: 600;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(135deg, #1f2933, #374151); /* i errët */
+  background: linear-gradient(135deg, #123E35, #374151); /* i errët */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -114,7 +114,7 @@
 
 /* CHART WRAPPER */
 .chart-wrapper {
-  background-color: #1f2933; /* vetëm chart-i është i errët */
+  background-color: #123E35; /* vetëm chart-i është i errët */
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
@@ -169,7 +169,7 @@
 
 /* CSS PER PROPERTIES */
 .properties-table-container {
-    background-color: #1f1f1f; /* gri e errët */
+    background-color: #123E35; /* gri e errët */
     padding: 1rem;
     border-radius: 1rem;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -191,7 +191,7 @@
   }
   
   .properties-table th {
-    background-color: #2a2a2a;
+    background-color: #184F41;
     font-weight: 600;
   }
   
@@ -226,12 +226,12 @@
   }
   
   .action-edit {
-    background-color: #3b82f6; /* blue */
+    background-color: #0F5948; /* blue */
     color: #fff;
   }
   
   .action-edit:hover {
-    background-color: #2563eb;
+    background-color: #0B4236;
   }
   
   .action-delete {
@@ -274,7 +274,7 @@
   }
   
   .property-card-admin {
-    background-color: #1f1f1f; /* i errët */
+    background-color: #123E35; /* i errët */
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -333,12 +333,12 @@
   }
   
   .property-card-admin .action-edit {
-    background-color: #3b82f6;
+    background-color: #0F5948;
     color: #fff;
   }
   
   .property-card-admin .action-edit:hover {
-    background-color: #2563eb;
+    background-color: #0B4236;
   }
   
   .property-card-admin .action-delete {
@@ -365,7 +365,7 @@
 
   /* FILTERS WRAPPER */
 .filters-container-admin {
-  /* background-color: #1f1f1f; */
+  /* background-color: #123E35; */
   padding: 1rem;
   border-radius: 1rem;
   /* box-shadow: 0 4px 10px rgba(0,0,0,0.5); */
@@ -378,7 +378,7 @@
 /* FILTER INPUTS */
 .filter-input-admin,
 .filter-select-admin {
-  /* background-color: #2a2a2a; */
+  /* background-color: #184F41; */
   /* color: #fff; */
   border: 1px solid #3a3a3a;
   padding: 0.5rem 0.75rem;
@@ -391,7 +391,7 @@
 
 /* FILTER BUTTON */
 .filter-button-admin {
-  background-color: #3b82f6;
+  background-color: #0F5948;
   color: #fff;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
@@ -401,7 +401,7 @@
 }
 
 .filter-button-admin:hover {
-  background-color: #2563eb;
+  background-color: #0B4236;
   transform: scale(1.05);
 }
 
@@ -435,7 +435,7 @@
 
 /* MODAL BOX */
 .admin-modal {
-  background: #1f2933;
+  background: #123E35;
   border-radius: 1rem;
   padding: 2rem;
   width: 420px;
@@ -572,7 +572,7 @@
   /* Container i formularit */
 
 .addproperty-form { 
-    background: #1f1f1f; 
+    background: #123E35; 
     padding: 1.5rem; 
     border-radius: 0.75rem; 
     display: flex; 
@@ -659,7 +659,7 @@
   font-size: 2rem; 
 }
 .addproperty-submit { 
-  background: #2563eb; 
+  background: #0B4236; 
   color: white; 
   padding: 0.5rem 1rem; 
   border-radius: 0.25rem; 
@@ -771,7 +771,7 @@
   padding: 0.85rem 0.7rem;
   color: #e4e4e4;
   font-size: 0.88rem;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #184F41;
 }
 
 /* Hover row */
@@ -819,10 +819,10 @@
 
 /* Colors by role */
 .role-select.user {
-  background-color: #2563eb;
+  background-color: #0B4236;
 }
 .role-select.moderator {
-  background-color: #7c3aed;
+  background-color: #D9BF7B;
 }
 .role-select.admin {
   background-color: #dc2626;
@@ -850,11 +850,11 @@
 }
 
 /* Button colors */
-.action-view { background-color: #8b5cf6; }
-.action-view:hover { background-color: #7c3aed; }
+.action-view { background-color: #EFD391; }
+.action-view:hover { background-color: #D9BF7B; }
 
-.action-edit { background-color: #3b82f6; }
-.action-edit:hover { background-color: #2563eb; }
+.action-edit { background-color: #0F5948; }
+.action-edit:hover { background-color: #0B4236; }
 
 .action-block { background-color: #f59e0b; }
 .action-block:hover { background-color: #d97706; }
@@ -874,7 +874,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background: linear-gradient(135deg, #0F5948, #EFD391);
   color: white;
   font-size: 1rem;
 }
@@ -946,7 +946,7 @@
   width: 70px;
   height: 70px;
   border-radius: 100px;
-  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background: linear-gradient(135deg, #0F5948, #EFD391);
   font-size: 1.8rem;
   font-weight: 700;
   display: flex;
@@ -1026,7 +1026,7 @@
 }
 
 .modal-box {
-  background: #1f1f1f;
+  background: #123E35;
   border-radius: 1rem;
   padding: 1rem 1.2rem;
   color: white;
@@ -1067,7 +1067,7 @@
 
 /* EDITPROPERTY */
 .edit-property-container {
-  background: #1f2937;
+  background: #123E35;
   padding: 25px;
   border-radius: 12px;
   max-width: 520px;
@@ -1093,7 +1093,7 @@
 }
 
 .save-btn {
-  background: #2563eb;
+  background: #0B4236;
   padding: 12px;
   border-radius: 8px;
   color: white;
@@ -1112,7 +1112,7 @@
 /* ============================= */
 
 .appointments-table-container {
-  background-color: #1f1f1f;
+  background-color: #123E35;
   padding: 1rem;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -1134,7 +1134,7 @@
 }
 
 .appointments-table th {
-  background-color: #2a2a2a;
+  background-color: #184F41;
   font-weight: 600;
 }
 
@@ -1184,11 +1184,11 @@
 
 /* Blue - view */
 .app-action-view {
-  background-color: #3b82f6;
+  background-color: #0F5948;
   color: #fff;
 }
 .app-action-view:hover {
-  background-color: #2563eb;
+  background-color: #0B4236;
 }
 
 /* Green - approve */
@@ -1223,7 +1223,7 @@
 
 .appointments-actions select,
 .appointments-actions input {
-  background-color: #2a2a2a;
+  background-color: #184F41;
   border: 1px solid #444;
   padding: 0.5rem 0.75rem;
   border-radius: 0.4rem;
@@ -1247,7 +1247,7 @@
 }
 
 .app-pagination button {
-  background-color: #2a2a2a;
+  background-color: #184F41;
   border: 1px solid #444;
   padding: 0.4rem 0.75rem;
   cursor: pointer;
@@ -1260,8 +1260,8 @@
 }
 
 .app-pagination .active {
-  background-color: #3b82f6;
-  border-color: #2563eb;
+  background-color: #0F5948;
+  border-color: #0B4236;
 }
 
 /* ============================= */
@@ -1280,7 +1280,7 @@
 }
 
 .app-modal {
-  background-color: #1f1f1f;
+  background-color: #123E35;
   padding: 1.5rem;
   border-radius: 1rem;
   width: 380px;
@@ -1315,7 +1315,7 @@
 
 /* ================= MODAL BOX ================= */
 .users-admin-modal {
-  background: #1f2933;
+  background: #123E35;
   border-radius: 1rem;
   padding: 2rem;
   width: 460px;
@@ -1389,12 +1389,12 @@
 }
 
 .users-admin-modal-btn.primary {
-  background: #3b82f6;
+  background: #0F5948;
   color: #fff;
 }
 
 .users-admin-modal-btn.primary:hover {
-  background: #2563eb;
+  background: #0B4236;
 }
 
 .users-admin-modal-btn.warning {

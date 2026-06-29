@@ -14,15 +14,15 @@ const AboutAri = () => {
     <div className="bg-gray-50 min-h-screen">
 
       {/* Hero */}
-      <section className="relative bg-black text-white overflow-hidden">
+      <section className="relative bg-[#0F4638] text-white overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-black via-gray-900 to-black opacity-90" />
         <div className="relative max-w-4xl mx-auto px-6 py-28 text-center">
-          <span className="inline-block text-[#FFAE42] text-sm font-semibold tracking-widest uppercase mb-4">Rreth Nesh</span>
+          <span className="inline-block text-[#EFD391] text-sm font-semibold tracking-widest uppercase mb-4">Rreth Nesh</span>
           <h1 className="text-4xl sm:text-5xl font-bold mb-5 leading-tight">Ari Real Estate</h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Një platformë moderne për menaxhimin, shitjen dhe dhënien me qera të pronave me teknologjitë më të fundit.
           </p>
-          <Link to="/properties" className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-[#FFAE42] text-black font-semibold rounded-xl hover:bg-[#e09a35] transition-colors text-sm">
+          <Link to="/properties" className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-[#EFD391] text-black font-semibold rounded-xl hover:bg-[#D9BF7B] transition-colors text-sm">
             Shiko Pronat
           </Link>
         </div>
@@ -42,8 +42,8 @@ const AboutAri = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map(({ icon: Icon, title, text }) => (
             <div key={title} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-[#FFAE42]/10 flex items-center justify-center">
-                <Icon size={20} className="text-[#FFAE42]" />
+              <div className="w-10 h-10 rounded-xl bg-[#EFD391]/10 flex items-center justify-center">
+                <Icon size={20} className="text-[#EFD391]" />
               </div>
               <h3 className="font-semibold text-gray-900">{title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{text}</p>

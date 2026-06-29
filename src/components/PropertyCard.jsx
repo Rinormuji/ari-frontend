@@ -1,17 +1,43 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
-  MapPin,
-  Building2,
-  Ruler,
   Euro,
+  MapPin,
+  Ruler,
+  Building2,
   Bed,
   Layers,
-  CalendarDays
+  Car,
+  Trees,
+  Warehouse,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+
+const typeLabels = {
+  BANESA: "Banesë",
+  SHTEPI: "Shtëpi",
+  LOKALE: "Lokal",
+  TOKA: "Tokë",
+};
+
+const statusLabels = {
+  FOR_SALE: "Në shitje",
+  FOR_RENT: "Me qira",
+};
+
+const firstLocation = (property) => {
+  const location = property.location || property.city || "";
+  return location.split(",")[0]?.trim() || "Kosovë";
+};
+
+const formatMoney = (value) => {
+  const number = Number(value);
+  if (Number.isNaN(number)) return "Me marrëveshje";
+  return `${number.toLocaleString()} €`;
+};
 
 const PropertyCard = ({ property }) => {
   const images = property.images?.length ? property.images : ["/placeholder.jpg"];
@@ -19,49 +45,70 @@ const PropertyCard = ({ property }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  const handleBook = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const features = [
+    (property.type === "BANESA" || property.type === "SHTEPI") && property.rooms
+      ? { icon: Bed, label: `${property.rooms} dhoma` }
+      : null,
+    (property.type === "BANESA" || property.type === "LOKALE") && property.floor !== null && property.floor !== undefined && Number(property.floor) > 0
+      ? { icon: Layers, label: `Kati ${property.floor}` }
+      : null,
+    property.type === "SHTEPI" && property.floor
+      ? { icon: Layers, label: `${property.floor} kate` }
+      : null,
+    property.hasParking ? { icon: Car, label: "Parking" } : null,
+    property.hasGarage ? { icon: Warehouse, label: "Garazh" } : null,
+    property.hasGarden ? { icon: Trees, label: "Oborr" } : null,
+  ].filter(Boolean).slice(0, 3);
+
+  const handleBook = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (!isAuthenticated) {
       navigate(`/login?redirect=${encodeURIComponent(`/appointment?propertyId=${property.id}`)}`);
-    } else {
-      navigate(`/appointment?propertyId=${property.id}`);
+      return;
     }
+
+    navigate(`/appointment?propertyId=${property.id}`);
   };
 
-  const nextImage = (e) => {
-    e.preventDefault();
+  const nextImage = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     setCurrentIndex((prev) => (prev + 1) % images.length);
   };
 
-  const prevImage = (e) => {
-    e.preventDefault();
+  const prevImage = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   return (
-    <Link to={`/properties/${property.id}`} className="block group">
-      <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full">
-
-        {/* IMAGE */}
-        <div className="relative h-52 overflow-hidden">
+    <Link to={`/properties/${property.id}`} className="group block h-full">
+      <article className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+        <div className="relative h-52 shrink-0 overflow-hidden bg-[#edf1ee]">
           <img
             src={images[currentIndex]}
             alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
 
           {images.length > 1 && (
             <>
               <button
+                type="button"
                 onClick={prevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1.5 hover:bg-black/70 transition z-10"
+                aria-label="Foto e mëparshme"
+                className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 p-1.5 text-white transition hover:bg-black/70"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
+                type="button"
                 onClick={nextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1.5 hover:bg-black/70 transition z-10"
+                aria-label="Foto tjetër"
+                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 p-1.5 text-white transition hover:bg-black/70"
               >
                 <ChevronRight size={18} />
               </button>
@@ -69,71 +116,57 @@ const PropertyCard = ({ property }) => {
           )}
         </div>
 
-        {/* CONTENT */}
-        <div className="p-4 space-y-2">
-
-          {/* Type + City */}
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <Building2 className="w-3.5 h-3.5 text-[#FFAE42]" />
-              <span className="capitalize">
-                {property.type}, {property.status === "FOR_SALE" ? "Në shitje" : "Me qira"}
+        <div className="flex flex-1 flex-col gap-3 p-4">
+          <div className="flex items-center justify-between gap-3 text-xs font-medium text-gray-500">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <Building2 className="h-3.5 w-3.5 shrink-0 text-[#D9BF7B]" />
+              <span className="truncate">
+                {typeLabels[property.type] || property.type}, {statusLabels[property.status] || property.status}
               </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-[#FFAE42]" />
-              <span>{property.city?.split(',')[0] || property.city}</span>
-            </div>
+            </span>
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#D9BF7B]" />
+              <span className="truncate">{firstLocation(property)}</span>
+            </span>
           </div>
 
-          {/* Title */}
-          <h3 className="text-base font-semibold text-gray-800 line-clamp-1">{property.title}</h3>
+          <h3 className="min-h-12 text-base font-bold leading-6 text-[#071f1a] line-clamp-2">
+            {property.title}
+          </h3>
 
-          {/* Chips */}
-          <div className="flex flex-wrap gap-1.5">
-            {(property.type === "BANESA" || property.type === "SHTEPI") && property.rooms && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                <Bed className="w-3 h-3 text-[#FFAE42]" />{property.rooms}
-              </span>
+          <div className="min-h-8">
+            {features.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {features.map(({ icon: Icon, label }) => (
+                  <span key={label} className="inline-flex items-center gap-1 rounded-full border border-[#0F4638]/10 bg-[#f5f6f3] px-2 py-1 text-xs font-medium text-[#0F4638]/75">
+                    <Icon className="h-3 w-3 text-[#D9BF7B]" />
+                    {label}
+                  </span>
+                ))}
+              </div>
             )}
-            {(property.type === "BANESA" || property.type === "LOKALE") && property.floor && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                <Layers className="w-3 h-3 text-[#FFAE42]" />Kati: {property.floor}
-              </span>
-            )}
-            {property.type === "SHTEPI" && property.floor && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                <Layers className="w-3 h-3 text-[#FFAE42]" />{property.floor} Kate
-              </span>
-            )}
-            {property.hasElevator && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">🔼 Ashensor</span>}
-            {property.hasBalcony && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">🌇 Ballkon</span>}
-            {property.hasGarage && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">🚗 Garazh</span>}
-            {property.hasGarden && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">🌳 Oborr</span>}
-            {property.hasParking && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">🅿️ Parking</span>}
           </div>
 
-          {/* Price & Area */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            <div className="flex items-center gap-1 text-sm">
-              <Euro className="w-4 h-4 text-[#FFAE42]" />
-              <span className="font-bold text-blue-600">{property.price.toLocaleString()} €</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-gray-600">
-              <Ruler className="w-4 h-4 text-[#FFAE42]" />
-              <span>{property.area} m²</span>
-            </div>
+          <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-3">
+            <span className="inline-flex items-center gap-1 text-sm font-bold text-[#0F4638]">
+              <Euro className="h-4 w-4 text-[#D9BF7B]" />
+              {formatMoney(property.price)}
+            </span>
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-600">
+              <Ruler className="h-4 w-4 text-[#D9BF7B]" />
+              {property.area || "-"} m²
+            </span>
           </div>
 
-          {/* Book button */}
           <button
+            type="button"
             onClick={handleBook}
-            className="w-full mt-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold bg-[#FFAE42] hover:bg-[#e09a35] text-black rounded-xl transition-colors"
+            className="mt-1 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#EFD391] text-sm font-bold text-black transition hover:bg-[#D9BF7B]"
           >
-            <CalendarDays size={14} /> Rezervo Takim
+            <CalendarDays size={15} /> Rezervo Takim
           </button>
         </div>
-      </div>
+      </article>
     </Link>
   );
 };

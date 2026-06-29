@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { X, LayoutDashboard, Building2, PlusSquare, Users, CalendarCheck } from "lucide-react";
-import logo from '../../assets/images/logo.png';
+import logo from '../../assets/images/ari-logo.jpg';
 
 const navItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
@@ -17,7 +17,7 @@ function AdminSidebar({ open, onClose }) {
     <aside
       className={`
         fixed lg:static inset-y-0 left-0 z-30 w-64 shrink-0
-        bg-[#111111] border-r border-white/10 flex flex-col
+        bg-[#0F4638] border-r border-white/10 flex flex-col
         transform transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
@@ -45,7 +45,7 @@ function AdminSidebar({ open, onClose }) {
                 flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium
                 transition-colors duration-150
                 ${active
-                  ? "bg-[#FFAE42]/15 text-[#FFAE42]"
+                  ? "bg-[#EFD391]/15 text-[#EFD391]"
                   : "text-white/60 hover:bg-white/5 hover:text-white"}
               `}
             >

@@ -64,28 +64,28 @@ export default function Dashboard() {
     {
       title: "Total Properties",
       value: stats?.totalProperties,
-      gradient: "linear-gradient(135deg, #1f2933, #374151)" // ngjyra e errët, harmonizuar
+      gradient: "linear-gradient(135deg, #123E35, #374151)" // ngjyra e errët, harmonizuar
     },
     {
       title: "Appointments",
       value: stats?.appointments,
-      gradient: "linear-gradient(135deg, #1f2933, #374151)"
+      gradient: "linear-gradient(135deg, #123E35, #374151)"
     },
     {
       title: "Users",
       value: stats?.users,
-      gradient: "linear-gradient(135deg, #1f2933, #374151)"
+      gradient: "linear-gradient(135deg, #123E35, #374151)"
     },
     {
       title: "Active Listings",
       value: stats?.activeListings,
-      gradient: "linear-gradient(135deg, #1f2933, #374151)"
+      gradient: "linear-gradient(135deg, #123E35, #374151)"
     }
   ];
   
 
   const chartData = [
-    { name: "Prona", value: stats?.totalProperties ?? 0, color: "#FFAE42" },
+    { name: "Prona", value: stats?.totalProperties ?? 0, color: "#EFD391" },
     { name: "Aktive", value: stats?.activeListings ?? 0, color: "#10B981" },
     { name: "Përdorues", value: stats?.users ?? 0, color: "#3B82F6" },
     { name: "Takime", value: stats?.appointments ?? 0, color: "#F87171" },
@@ -102,16 +102,16 @@ export default function Dashboard() {
 
       {/* Chart */}
       {!loading && stats && (
-        <div className="bg-[#111111] border border-white/10 p-5 rounded-xl">
+        <div className="bg-[#0F4638] border border-white/10 p-5 rounded-xl">
           <h3 className="text-white font-semibold mb-4">Analiza e Performancës</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData} barSize={48} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="4 4" stroke="#2a2a2a" vertical={false} />
+              <CartesianGrid strokeDasharray="4 4" stroke="#184F41" vertical={false} />
               <XAxis dataKey="name" stroke="#666" tick={{ fill: "#aaa", fontSize: 13 }} axisLine={false} tickLine={false} />
               <YAxis stroke="#666" tick={{ fill: "#aaa", fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip
                 cursor={{ fill: "rgba(255,255,255,0.04)" }}
-                contentStyle={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
+                contentStyle={{ background: "#123E35", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }}
                 formatter={(value, name) => [value, name]}
               />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>

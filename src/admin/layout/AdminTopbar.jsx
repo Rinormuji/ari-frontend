@@ -5,7 +5,7 @@ function AdminTopbar({ onMenuClick }) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between h-14 px-4 md:px-6 bg-[#111111] border-b border-white/10 shrink-0">
+    <header className="sticky top-0 z-10 flex items-center justify-between h-14 px-4 md:px-6 bg-[#0F4638] border-b border-white/10 shrink-0">
       {/* Mobile hamburger */}
       <button
         onClick={onMenuClick}

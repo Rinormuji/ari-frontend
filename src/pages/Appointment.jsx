@@ -100,7 +100,7 @@ export default function Appointment() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-[#FFAE42] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#EFD391] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -108,9 +108,9 @@ export default function Appointment() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-black text-white">
+      <section className="bg-[#0F4638] text-white">
         <div className="max-w-5xl mx-auto px-6 py-16 text-center">
-          <span className="inline-block text-[#FFAE42] text-xs font-semibold tracking-widest uppercase mb-4">Rezervimet</span>
+          <span className="inline-block text-[#EFD391] text-xs font-semibold tracking-widest uppercase mb-4">Rezervimet</span>
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">Takimet e Mia</h1>
           <p className="text-gray-400 text-base max-w-xl mx-auto">Rezervo takim për të vizituar pronën tënde të preferuar.</p>
         </div>
@@ -122,7 +122,7 @@ export default function Appointment() {
           <div className="flex justify-end mb-6">
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
+              className="inline-flex items-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
             >
               <Plus size={16} /> Rezervo Takim
             </button>
@@ -151,7 +151,7 @@ export default function Appointment() {
                   value={form.propertyId}
                   onChange={(e) => setForm((f) => ({ ...f, propertyId: e.target.value }))}
                   required
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition bg-white"
                 >
                   <option value="">— Zgjidh pronën —</option>
                   {properties.map((p) => (
@@ -172,7 +172,7 @@ export default function Appointment() {
                     value={form.date}
                     onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
                     required
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition"
                   />
                 </div>
                 <div>
@@ -180,7 +180,7 @@ export default function Appointment() {
                   <select
                     value={form.time}
                     onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#FFAE42]/40 focus:border-[#FFAE42] outline-none transition bg-white"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition bg-white"
                   >
                     {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"].map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -193,7 +193,7 @@ export default function Appointment() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 bg-[#FFAE42] hover:bg-[#e09a35] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition-colors"
+                  className="flex-1 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition-colors"
                 >
                   {submitting ? "Duke dërguar..." : "Dërgo Kërkesën"}
                 </button>
@@ -211,13 +211,13 @@ export default function Appointment() {
 
         {/* Appointments list */}
         {loadingData ? (
-          <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-[#FFAE42] border-t-transparent rounded-full animate-spin" /></div>
+          <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-[#EFD391] border-t-transparent rounded-full animate-spin" /></div>
         ) : appointments.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
             <CalendarDays size={40} className="text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-700 mb-2">Nuk keni takime akoma</h3>
             <p className="text-gray-400 text-sm mb-6">Rezervoni takimin tuaj të parë duke klikuar butonin mësipërm.</p>
-            <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors">
+            <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors">
               <Plus size={16} /> Rezervo Tani
             </button>
           </div>
@@ -227,8 +227,8 @@ export default function Appointment() {
             {appointments.map((a) => (
               <div key={a.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-sm transition-shadow">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FFAE42]/10 flex items-center justify-center shrink-0">
-                    <Building2 size={20} className="text-[#FFAE42]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EFD391]/10 flex items-center justify-center shrink-0">
+                    <Building2 size={20} className="text-[#EFD391]" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 text-sm">

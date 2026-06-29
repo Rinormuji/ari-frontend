@@ -193,7 +193,7 @@ const confirmDelete = async () => {
         <h1 className="text-xl font-bold text-white">Menaxhimi i Pronave</h1>
         <div className="flex items-center gap-2">
           {/* Search */}
-          <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
+          <div className="flex items-center bg-[#123E35] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
             <Search size={14} className="text-white/40 shrink-0" />
             <input
               value={search}
@@ -204,10 +204,10 @@ const confirmDelete = async () => {
             {search && <button onClick={() => setSearch("")}><X size={13} className="text-white/40" /></button>}
           </div>
           {/* View toggle */}
-          <button onClick={() => setView("table")} className={`p-2 rounded-lg border transition-colors ${view === "table" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}>
+          <button onClick={() => setView("table")} className={`p-2 rounded-lg border transition-colors ${view === "table" ? "bg-[#EFD391]/15 border-[#EFD391]/30 text-[#EFD391]" : "border-white/10 text-white/40 hover:text-white"}`}>
             <Table2 size={17} />
           </button>
-          <button onClick={() => setView("cards")} className={`p-2 rounded-lg border transition-colors ${view === "cards" ? "bg-[#FFAE42]/15 border-[#FFAE42]/30 text-[#FFAE42]" : "border-white/10 text-white/40 hover:text-white"}`}>
+          <button onClick={() => setView("cards")} className={`p-2 rounded-lg border transition-colors ${view === "cards" ? "bg-[#EFD391]/15 border-[#EFD391]/30 text-[#EFD391]" : "border-white/10 text-white/40 hover:text-white"}`}>
             <LayoutGrid size={17} />
           </button>
         </div>
@@ -220,19 +220,19 @@ const confirmDelete = async () => {
           { value: statusFilter, onChange: setStatusFilter, options: [["","Të gjitha statuset"],["FOR_SALE","Në shitje"],["FOR_RENT","Me qira"]] },
         ].map((f, i) => (
           <select key={i} value={f.value} onChange={(e) => f.onChange(e.target.value)}
-            className="bg-[#1a1a1a] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/40">
+            className="bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40">
             {f.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         ))}
         <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-          className="bg-[#1a1a1a] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#FFAE42]/40">
+          className="bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40">
           <option value="">Të gjitha qytetet</option>
           {cityOptions.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         <input placeholder="Min €" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number"
-          className="w-24 bg-[#1a1a1a] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#FFAE42]/40" />
+          className="w-24 bg-[#123E35] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#EFD391]/40" />
         <input placeholder="Max €" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number"
-          className="w-24 bg-[#1a1a1a] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#FFAE42]/40" />
+          className="w-24 bg-[#123E35] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#EFD391]/40" />
         {(typeFilter || statusFilter || cityFilter || minPrice || maxPrice || search) && (
           <button onClick={() => { setTypeFilter(""); setStatusFilter(""); setCityFilter(""); setMinPrice(""); setMaxPrice(""); setMinArea(""); setMaxArea(""); setSearch(""); }}
             className="flex items-center gap-1 text-sm text-white/50 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors">
@@ -251,7 +251,7 @@ const confirmDelete = async () => {
       ) : filtered.length === 0 ? (
         <div className="text-white/40 py-8 text-center">Nuk u gjetën prona.</div>
       ) : view === "table" ? (
-        <div className="bg-[#111111] rounded-xl border border-white/10 overflow-x-auto">
+        <div className="bg-[#0F4638] rounded-xl border border-white/10 overflow-x-auto">
           <table className="w-full text-sm min-w-175">
             <thead>
               <tr className="border-b border-white/10">
@@ -280,7 +280,7 @@ const confirmDelete = async () => {
                   <td className="px-4 py-3 text-white/60">{p.area !== null ? `${p.area} m²` : "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FFAE42]/15 hover:text-[#FFAE42] text-white/50 transition-colors">
+                      <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
@@ -296,7 +296,7 @@ const confirmDelete = async () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((p) => (
-            <div key={p.id} className="bg-[#111111] border border-white/10 rounded-xl p-4 flex flex-col gap-3 hover:border-white/20 transition-colors">
+            <div key={p.id} className="bg-[#0F4638] border border-white/10 rounded-xl p-4 flex flex-col gap-3 hover:border-white/20 transition-colors">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-white font-medium text-sm leading-snug">{p.title}</p>
@@ -312,9 +312,9 @@ const confirmDelete = async () => {
                 {p.area ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.area} m²</span> : null}
               </div>
               <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-                <span className="text-[#FFAE42] font-semibold text-sm">{p.price !== null ? Number(p.price).toLocaleString() + " €" : "—"}</span>
+                <span className="text-[#EFD391] font-semibold text-sm">{p.price !== null ? Number(p.price).toLocaleString() + " €" : "—"}</span>
                 <div className="flex gap-2">
-                  <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#FFAE42]/15 hover:text-[#FFAE42] text-white/50 transition-colors">
+                  <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
                     <Pencil size={14} />
                   </button>
                   <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
@@ -339,7 +339,7 @@ const confirmDelete = async () => {
           Next →
         </button>
         <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-          className="bg-[#1a1a1a] border border-white/10 text-white/60 text-sm rounded-lg px-2 py-1.5 focus:outline-none">
+          className="bg-[#123E35] border border-white/10 text-white/60 text-sm rounded-lg px-2 py-1.5 focus:outline-none">
           {[6, 12, 24].map((n) => <option key={n} value={n}>{n}/faqe</option>)}
         </select>
       </div>
@@ -347,7 +347,7 @@ const confirmDelete = async () => {
       {/* Delete Modal */}
       {deleteModalOpen && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+          <div className="bg-[#123E35] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-white font-semibold text-lg mb-2">Konfirmo fshirjen</h3>
             <p className="text-white/60 text-sm mb-6">A je i sigurt që dëshiron të fshish këtë pronë? Ky veprim nuk mund të kthehet mbrapsht.</p>
             <div className="flex gap-3 justify-end">

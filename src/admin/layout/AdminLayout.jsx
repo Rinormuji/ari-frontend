@@ -7,7 +7,7 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f0f]">
+    <div className="flex min-h-screen bg-[#0A3028]">
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div

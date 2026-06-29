@@ -11,6 +11,7 @@ import AdminLayout from "./admin/layout/AdminLayout";
 // Pages
 import Home from "./pages/Home";
 import Properties from "./pages/Properties";
+import AllProperties from "./pages/AllProperties";
 import PropertyDetail from "./pages/PropertyDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -44,6 +45,7 @@ function App() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}><Home /></motion.div>} />
           <Route path="/properties" element={<Properties />} />
+          <Route path="/properties/all" element={<AllProperties />} />
           <Route path="/properties/:id" element={<PropertyDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />

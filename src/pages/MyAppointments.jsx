@@ -53,16 +53,16 @@ export default function MyAppointments() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-[#FFAE42] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#EFD391] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-black text-white">
+      <section className="bg-[#0F4638] text-white">
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <span className="inline-block text-[#FFAE42] text-xs font-semibold tracking-widest uppercase mb-4">Rezervimet</span>
+          <span className="inline-block text-[#EFD391] text-xs font-semibold tracking-widest uppercase mb-4">Rezervimet</span>
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">Takimet e Mia</h1>
           <p className="text-gray-400 text-base">Shikoni statusin e rezervimeve tuaja.</p>
         </div>
@@ -71,7 +71,7 @@ export default function MyAppointments() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-[#FFAE42] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#EFD391] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : appointments.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
@@ -80,7 +80,7 @@ export default function MyAppointments() {
             <p className="text-gray-400 text-sm mb-6">Rezervoni takimin tuaj të parë duke vizituar pronën.</p>
             <button
               onClick={() => navigate("/appointment")}
-              className="inline-flex items-center gap-2 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+              className="inline-flex items-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
             >
               <CalendarDays size={16} /> Rezervo Tani
             </button>
@@ -97,8 +97,8 @@ export default function MyAppointments() {
                 className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-sm transition-shadow"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FFAE42]/10 flex items-center justify-center shrink-0">
-                    <Building2 size={20} className="text-[#FFAE42]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EFD391]/10 flex items-center justify-center shrink-0">
+                    <Building2 size={20} className="text-[#EFD391]" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 text-sm">

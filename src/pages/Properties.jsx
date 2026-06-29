@@ -106,7 +106,7 @@ const Properties = () => {
     setCircleEnabled((s) => !s);
   };
 
-  // Lista e filtruar, pÃ«rdoret pÃ«r markerat dhe side list
+  // Lista e filtruar, përdoret për markerat dhe side list
   const filtered = useMemo(() => {
     let list = [...properties];
 
@@ -131,7 +131,7 @@ const Properties = () => {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex flex-col items-center gap-3 text-gray-500">
-        <div className="w-8 h-8 rounded-full border-2 border-[#FFAE42] border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-[#EFD391] border-t-transparent animate-spin" />
         <span className="text-sm">Duke ngarkuar pronat...</span>
       </div>
     </div>
@@ -144,14 +144,14 @@ const Properties = () => {
       <div className="bg-white border-b border-gray-200 shadow-sm py-3 px-4">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
           {/* City filter */}
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus-within:border-[#FFAE42]">
-            <MapPin size={15} className="text-[#FFAE42] shrink-0" />
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus-within:border-[#EFD391]">
+            <MapPin size={15} className="text-[#EFD391] shrink-0" />
             <select
               value={cityFilter}
               onChange={(e) => setCityFilter(e.target.value)}
               className="outline-none text-sm text-gray-700 bg-transparent"
             >
-              <option value="">TÃ« gjitha qytetet</option>
+              <option value="">Të gjitha qytetet</option>
               {cityOptions.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -161,7 +161,7 @@ const Properties = () => {
           {/* Radius toggle */}
           <button
             onClick={toggleCircle}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${circleEnabled ? "bg-[#FFAE42] text-black border-[#FFAE42]" : "bg-white text-gray-600 border-gray-200 hover:border-[#FFAE42]/50"}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${circleEnabled ? "bg-[#EFD391] text-black border-[#EFD391]" : "bg-white text-gray-600 border-gray-200 hover:border-[#EFD391]/50"}`}
           >
             <CircleIcon size={15} />
             Radius: {circleEnabled ? "ON" : "OFF"}
@@ -171,8 +171,8 @@ const Properties = () => {
           {circleEnabled && (
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <span className="text-xs text-gray-400 shrink-0">Rreze:</span>
-              <input type="range" min="0" max="50" step="1" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-28 accent-[#FFAE42]" />
-              <input type="number" min="0" max="50" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-14 border border-gray-200 rounded-lg px-2 py-1 text-sm outline-none focus:border-[#FFAE42]" />
+              <input type="range" min="0" max="50" step="1" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-28 accent-[#EFD391]" />
+              <input type="number" min="0" max="50" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-14 border border-gray-200 rounded-lg px-2 py-1 text-sm outline-none focus:border-[#EFD391]" />
               <span className="text-xs text-gray-400">km</span>
             </div>
           )}
@@ -193,7 +193,7 @@ const Properties = () => {
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <MapClickHandler circleEnabled={circleEnabled} onSetCenter={setCenterPoint} />
             {circleEnabled && centerPoint && (
-              <Circle center={[centerPoint.lat, centerPoint.lng]} radius={Number(radiusKm) * 1000} pathOptions={{ color: "#FFAE42", fillOpacity: 0.08 }} />
+              <Circle center={[centerPoint.lat, centerPoint.lng]} radius={Number(radiusKm) * 1000} pathOptions={{ color: "#EFD391", fillOpacity: 0.08 }} />
             )}
             {filtered.filter((p) => p.lat != null && p.lng != null).map((p) => (
               <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => navigate(`/properties/${p.id}`) }}>
@@ -202,8 +202,8 @@ const Properties = () => {
                     <img src={p.images?.[0] ?? banner} alt={p.title} className="w-14 h-14 object-cover rounded-lg shrink-0" />
                     <div className="overflow-hidden">
                       <p className="font-semibold text-xs leading-snug line-clamp-2">{p.title}</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} Â· {p.type} Â· {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
-                      <p className="text-[#FFAE42] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} â‚¬</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
+                      <p className="text-[#EFD391] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} €</p>
                     </div>
                   </div>
                 </Tooltip>
@@ -215,11 +215,11 @@ const Properties = () => {
         {/* Side list */}
         <aside className="lg:col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden" style={{ height: "70vh" }}>
           <div className="p-4 border-b border-gray-100">
-            <h3 className="font-bold text-gray-900 text-sm">Prona â€” {filtered.length}</h3>
+            <h3 className="font-bold text-gray-900 text-sm">Prona — {filtered.length}</h3>
             {circleEnabled ? (
-              <p className="text-xs text-gray-400 mt-0.5">Kliko nÃ« hartÃ« pÃ«r tÃ« vendosur qendrÃ«n.</p>
+              <p className="text-xs text-gray-400 mt-0.5">Kliko në hartë për të vendosur qendrën.</p>
             ) : (
-              <p className="text-xs text-gray-400 mt-0.5">Radius OFF: shfaq tÃ« gjitha pronat.</p>
+              <p className="text-xs text-gray-400 mt-0.5">Radius OFF: shfaq të gjitha pronat.</p>
             )}
           </div>
           <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
@@ -228,13 +228,13 @@ const Properties = () => {
                 <img src={p.images?.[0] ?? banner} alt="" className="w-14 h-12 object-cover rounded-xl shrink-0" />
                 <div className="overflow-hidden">
                   <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.title}</p>
-                  <p className="text-[#FFAE42] font-bold text-sm">{p.price?.toLocaleString()} â‚¬</p>
-                  <p className="text-xs text-gray-400">{p.city} Â· {p.area} mÂ²</p>
+                  <p className="text-[#EFD391] font-bold text-sm">{p.price?.toLocaleString()} €</p>
+                  <p className="text-xs text-gray-400">{p.city} · {p.area} m²</p>
                 </div>
               </button>
             ))}
             {filtered.length === 0 && (
-              <div className="p-6 text-center text-sm text-gray-400">Nuk u gjet pronÃ«.</div>
+              <div className="p-6 text-center text-sm text-gray-400">Nuk u gjet pronë.</div>
             )}
           </div>
         </aside>

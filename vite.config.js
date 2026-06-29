@@ -9,7 +9,7 @@ export default defineConfig({
     // Proxy vetëm për dev
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // backend lokal dev
+        target: 'http://localhost:3007', // backend lokal dev
         changeOrigin: true,
         secure: false,
       },

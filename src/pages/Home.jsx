@@ -89,22 +89,22 @@ const Home = () => {
     <div className="bg-gray-50 min-h-screen">
 
       {/* Hero Section */}
-      <section className="relative bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-black via-black to-gray-900 opacity-90" />
+      <section className="relative bg-[#0F4638] text-white overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-br from-[#0A3028] via-[#0F4638] to-[#184F41] opacity-95" />
         <div className="relative max-w-5xl mx-auto px-6 py-24 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-block text-[#FFAE42] text-xs font-semibold tracking-widest uppercase border border-[#FFAE42]/30 px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-[#EFD391] text-xs font-semibold tracking-widest uppercase border border-[#EFD391]/30 px-4 py-1.5 rounded-full mb-5">
               Agjencia Juaj e Besuar
             </span>
             <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-5">
               Gjeni Pronën Tuaj <br className="hidden sm:block" />
-              <span className="text-[#FFAE42]">të Ëndrrave</span>
+              <span className="text-[#EFD391]">të Ëndrrave</span>
             </h1>
             <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto mb-8">
               Shfletoni qindra prona në Gjilan dhe rajonin e Kosovës — apartamente, shtëpi, lokale dhe toka.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/properties" className="inline-flex items-center gap-2 px-7 py-3 bg-[#FFAE42] hover:bg-[#e09a35] text-black font-bold rounded-xl transition-colors text-sm">
+              <Link to="/properties" className="inline-flex items-center gap-2 px-7 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-bold rounded-xl transition-colors text-sm">
                 <Search size={16} /> Kërkim i Avancuar
               </Link>
               <button
@@ -123,7 +123,7 @@ const Home = () => {
               { icon: Search, label: "Shitje të suksesshme", value: "100+" },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex flex-col items-center gap-1">
-                <Icon size={18} className="text-[#FFAE42]" />
+                <Icon size={18} className="text-[#EFD391]" />
                 <span className="text-2xl font-bold text-white">{value}</span>
                 <span className="text-xs text-gray-500">{label}</span>
               </div>
@@ -144,7 +144,7 @@ const Home = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap gap-3 items-center justify-center">
               {/* City */}
               <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                <MapPin size={15} className="text-[#FFAE42] shrink-0" />
+                <MapPin size={15} className="text-[#EFD391] shrink-0" />
                 <select
                   value={filters.city}
                   onChange={(e) => handleFilterChange('city', e.target.value)}
@@ -156,7 +156,7 @@ const Home = () => {
               </div>
               {/* Type */}
               <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                <Building2 size={15} className="text-[#FFAE42] shrink-0" />
+                <Building2 size={15} className="text-[#EFD391] shrink-0" />
                 <select
                   value={filters.type}
                   onChange={(e) => handleFilterChange('type', e.target.value)}
@@ -168,7 +168,7 @@ const Home = () => {
               </div>
               {/* Status */}
               <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                <Filter size={15} className="text-[#FFAE42] shrink-0" />
+                <Filter size={15} className="text-[#EFD391] shrink-0" />
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -195,9 +195,9 @@ const Home = () => {
       {activeFilters.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 flex flex-wrap gap-2">
           {activeFilters.map(([key, val]) => (
-            <span key={key} className="inline-flex items-center gap-1.5 bg-[#FFAE42]/10 text-[#b87a20] border border-[#FFAE42]/30 text-xs font-medium px-3 py-1 rounded-full">
+            <span key={key} className="inline-flex items-center gap-1.5 bg-[#EFD391]/10 text-[#0F4638] border border-[#EFD391]/30 text-xs font-medium px-3 py-1 rounded-full">
               {key === 'city' ? val : key === 'type' ? typeLabels[val] : statusLabels[val]}
-              <button onClick={() => clearFilter(key)} className="hover:text-[#8a5a10]"><X size={11} /></button>
+              <button onClick={() => clearFilter(key)} className="hover:text-[#0A3028]"><X size={11} /></button>
             </span>
           ))}
         </div>
@@ -224,8 +224,8 @@ const Home = () => {
               )}
             </div>
             <Link
-              to="/properties"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#b87a20] hover:text-[#8a5a10] transition-colors"
+              to="/properties/all"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#0F4638] hover:text-[#0A3028] transition-colors"
             >
               Shiko të gjitha <ChevronRight size={15} />
             </Link>
@@ -273,7 +273,7 @@ const Home = () => {
                         onClick={() => handlePageChange(p)}
                         className={`min-w-9 h-9 rounded-xl text-sm font-semibold transition-colors ${
                           page === p
-                            ? 'bg-[#FFAE42] text-black shadow-sm'
+                            ? 'bg-[#EFD391] text-black shadow-sm'
                             : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
                         }`}
                       >
@@ -299,7 +299,7 @@ const Home = () => {
               {activeFilters.length > 0 && (
                 <button
                   onClick={() => { setFilters({ city: '', type: '', status: '' }); setPage(1) }}
-                  className="mt-4 text-sm text-[#b87a20] underline"
+                  className="mt-4 text-sm text-[#0F4638] underline"
                 >
                   Pastro filtrat
                 </button>

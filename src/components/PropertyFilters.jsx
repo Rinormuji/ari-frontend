@@ -40,7 +40,7 @@ const PropertyFilters = ({ onFilterChange }) => {
     onFilterChange(reset)
   }
 
-  const filterItem = "flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 shadow-sm focus-within:border-[#FFAE42] transition-colors";
+  const filterItem = "flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 shadow-sm focus-within:border-[#EFD391] transition-colors";
   const selectClass = "outline-none bg-transparent text-sm text-gray-700 cursor-pointer";
 
   return (
@@ -49,7 +49,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Vendi */}
         <div className={filterItem}>
-          <MapPin className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <MapPin className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="city" value={filters.city} onChange={handleChange} className={selectClass}>
             <option value="">Vendi</option>
             <option value="Prishtinë">Prishtinë</option>
@@ -64,7 +64,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Lagjia */}
         <div className={filterItem}>
-          <MapPin className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <MapPin className="w-4 h-4 text-[#EFD391] shrink-0" />
           <input
             type="text"
             name="neighborhood"
@@ -77,7 +77,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Lloji */}
         <div className={filterItem}>
-          <Home className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <Home className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="type" value={filters.type} onChange={handleChange} className={selectClass}>
             <option value="">Lloji</option>
             <option value="BANESA">Banesa</option>
@@ -89,7 +89,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Statusi */}
         <div className={filterItem}>
-          <ListFilter className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <ListFilter className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="status" value={filters.status} onChange={handleChange} className={selectClass}>
             <option value="">Të gjitha</option>
             <option value="FOR_SALE">Në shitje</option>
@@ -99,7 +99,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Dhoma */}
         <div className={filterItem}>
-          <Bed className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <Bed className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="rooms" value={filters.rooms} onChange={handleChange} className={selectClass}>
             <option value="">Dhoma</option>
             {[1, 2, 3, 4, 5].map((r) => (
@@ -110,7 +110,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Kati */}
         <div className={filterItem}>
-          <Building2 className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <Building2 className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="floor" value={filters.floor} onChange={handleChange} className={selectClass}>
             <option value="">Kati</option>
             <option value="0">Përdhese</option>
@@ -122,7 +122,7 @@ const PropertyFilters = ({ onFilterChange }) => {
 
         {/* Sipërfaqja */}
         <div className={filterItem}>
-          <Square className="w-4 h-4 text-[#FFAE42] shrink-0" />
+          <Square className="w-4 h-4 text-[#EFD391] shrink-0" />
           <input
             type="number"
             name="minArea"
