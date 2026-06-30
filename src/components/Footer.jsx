@@ -39,8 +39,8 @@ export default function Footer() {
           <a href="mailto:info@arirealestate.com" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
             <Mail size={14} /> info@arirealestate.com
           </a>
-          <a href="tel:+38348465726" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
-            <Phone size={14} /> +383 48 465 726
+          <a href="tel:+38345465726" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
+            <Phone size={14} /> +383 45 465 726
           </a>
           <a href="https://maps.app.goo.gl/ip4iUs994cqPUgjR6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
             <MapPin size={14} /> Gjilan, Kosovë

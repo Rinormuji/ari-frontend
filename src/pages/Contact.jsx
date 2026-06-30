@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Facebook, Instagram, Music } from "lucide-react";
 
 const cards = [
   { icon: Mail, title: "Email", value: "info@arirealestate.com", href: "mailto:info@arirealestate.com" },
-  { icon: Phone, title: "Telefoni", value: "+383 48 465 726", href: "tel:+38348465726" },
+  { icon: Phone, title: "Telefoni", value: "+383 45 465 726", href: "tel:5726" },
   { icon: MapPin, title: "Adresa", value: "Gjilan, Kosovë", href: "https://maps.app.goo.gl/ip4iUs994cqPUgjR6" },
 ];
 
