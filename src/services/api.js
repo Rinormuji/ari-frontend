@@ -68,9 +68,19 @@ export const propertyAPI = {
     return api.get('/properties', { params })
   },
 
+  // Get available filter options from existing properties
+  getFilterOptions: () => {
+    return api.get('/properties/filter-options')
+  },
+
   // Get single property by ID
   getProperty: (id) => {
     return api.get(`/properties/${id}`)
+  },
+
+  // Track a public property detail view
+  trackView: (id) => {
+    return api.post(`/properties/${id}/views`)
   },
 
   // Get property recommendations

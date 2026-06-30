@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
   { name: "Ballina", path: "/", icon: Home },
-  { name: "Kërko Prona", path: "/properties", icon: Search },
+  { name: "Kërko Prona", path: "/properties/all", icon: Search },
   { name: "Rreth Nesh", path: "/about", icon: Info },
   { name: "Kontakt", path: "/contact", icon: Phone },
 ];

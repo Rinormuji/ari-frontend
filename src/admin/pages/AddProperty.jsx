@@ -37,6 +37,7 @@ function AddProperty() {
     location: "",
     neighborhood: "",
     contactInfo: "",
+    priceType: "TOTAL",
     price: "",
     area: "",
     rooms: "",
@@ -60,7 +61,11 @@ function AddProperty() {
 
   const handleChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: inputType === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: inputType === "checkbox" ? checked : value,
+      ...(name === "priceType" && value === "NEGOTIABLE" ? { price: "" } : {}),
+    }));
   };
 
   const handleImages = (e) => {
@@ -91,7 +96,7 @@ function AddProperty() {
     if (!form.id) e.id = "ID është i detyrueshëm";
     if (!type) e.type = "Zgjidh llojin e pronës";
     if (!form.title) e.title = "Titulli është i detyrueshëm";
-    if (!form.price || form.price <= 0) e.price = "Çmimi duhet të jetë > 0";
+    if (form.priceType !== "NEGOTIABLE" && (!form.price || form.price <= 0)) e.price = "Çmimi duhet të jetë > 0";
     if (!form.area || form.area <= 0) e.area = "Sipërfaqja duhet të jetë > 0";
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) e.rooms = "Numri i dhomave duhet të jetë > 0";
     if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) e.floor = "Numri i kateve duhet të jetë > 0";
@@ -118,12 +123,19 @@ function AddProperty() {
         ? `${form.location}${form.neighborhood ? ", " + form.neighborhood : ""}`
         : form.neighborhood || "";
       const endpoints = { BANESA: "/banesa", SHTEPI: "/shtepi", LOKALE: "/lokale", TOKA: "/toka" };
-      await api.post(endpoints[type], { ...form, type, images: imagesBase64, location: fullLocation });
+      const payload = {
+        ...form,
+        type,
+        images: imagesBase64,
+        location: fullLocation,
+        price: form.priceType === "NEGOTIABLE" ? null : form.price,
+      };
+      await api.post(endpoints[type], payload);
 
       toast.success("Pronë u shtua me sukses!");
       setForm({
         id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: "",
-        price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
+        priceType: "TOTAL", price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
         hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
         bathrooms: "", latitude: "", longitude: "", images: [], status: "",
       });
@@ -192,10 +204,26 @@ function AddProperty() {
         </div>
 
         {/* Price + Area */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className={labelCls}>Çmimi (€) *</label>
-            <input type="number" name="price" placeholder="0" value={form.price} onChange={handleChange} className={inputCls} />
+            <label className={labelCls}>Mënyra e çmimit</label>
+            <select name="priceType" value={form.priceType} onChange={handleChange} className={inputCls}>
+              <option value="TOTAL">Çmimi total</option>
+              <option value="PER_M2">Çmimi për m²</option>
+              <option value="NEGOTIABLE">Me marrëveshje</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>{form.priceType === "PER_M2" ? "Çmimi për m² (€)" : "Çmimi (€)"} {form.priceType !== "NEGOTIABLE" ? "*" : ""}</label>
+            <input
+              type="number"
+              name="price"
+              placeholder={form.priceType === "NEGOTIABLE" ? "Me marrëveshje" : "0"}
+              value={form.price}
+              onChange={handleChange}
+              disabled={form.priceType === "NEGOTIABLE"}
+              className={`${inputCls} ${form.priceType === "NEGOTIABLE" ? "opacity-55 cursor-not-allowed" : ""}`}
+            />
             {errors.price && <p className={errorCls}>{errors.price}</p>}
           </div>
           <div>
@@ -204,6 +232,11 @@ function AddProperty() {
             {errors.area && <p className={errorCls}>{errors.area}</p>}
           </div>
         </div>
+        {form.priceType === "PER_M2" && form.price && form.area && (
+          <p className="text-xs text-white/40">
+            Totali i llogaritur: {(Number(form.price) * Number(form.area)).toLocaleString()} €
+          </p>
+        )}
 
         {/* Type-specific fields */}
         {type === "BANESA" && (

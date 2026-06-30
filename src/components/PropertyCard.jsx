@@ -13,8 +13,11 @@ import {
   Car,
   Trees,
   Warehouse,
+  Eye,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { formatPropertyViews } from "../utils/propertyViews";
+import { formatPropertyPrice } from "../utils/propertyPricing";
 
 const typeLabels = {
   BANESA: "Banesë",
@@ -31,12 +34,6 @@ const statusLabels = {
 const firstLocation = (property) => {
   const location = property.location || property.city || "";
   return location.split(",")[0]?.trim() || "Kosovë";
-};
-
-const formatMoney = (value) => {
-  const number = Number(value);
-  if (Number.isNaN(number)) return "Me marrëveshje";
-  return `${number.toLocaleString()} €`;
 };
 
 const PropertyCard = ({ property }) => {
@@ -147,14 +144,18 @@ const PropertyCard = ({ property }) => {
             )}
           </div>
 
-          <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-3">
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
             <span className="inline-flex items-center gap-1 text-sm font-bold text-[#0F4638]">
               <Euro className="h-4 w-4 text-[#D9BF7B]" />
-              {formatMoney(property.price)}
+              {formatPropertyPrice(property)}
             </span>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-600">
               <Ruler className="h-4 w-4 text-[#D9BF7B]" />
               {property.area || "-"} m²
+            </span>
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-600">
+              <Eye className="h-4 w-4 text-[#D9BF7B]" />
+              {formatPropertyViews(property)}
             </span>
           </div>
 

@@ -1,9 +1,11 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { LayoutGrid, Table2, Trash2, Pencil, Search, X } from "lucide-react";
+import { Eye, LayoutGrid, Table2, Trash2, Pencil, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { propertyAPI, api } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
+import { getPropertyViews } from "../../utils/propertyViews";
+import { formatPropertyPrice } from "../../utils/propertyPricing";
 
 // const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
@@ -95,6 +97,7 @@ const [deleting, setDeleting] = useState(false);
           status: p.status,
           area: (p.area !== undefined && p.area !== null) ? Number(p.area) : null,
           price: (p.price !== undefined && p.price !== null) ? Number(p.price) : null,
+          priceType: p.priceType || "TOTAL",
           rooms: p.rooms ?? (p.rooms === 0 ? 0 : null),
           floor: p.floor ?? null,
           bathrooms: p.bathrooms ?? null,
@@ -104,6 +107,7 @@ const [deleting, setDeleting] = useState(false);
           hasGarden: p.hasGarden ?? false,
           hasParking: p.hasParking ?? false,
           hasInfrastructure: p.hasInfrastructure ?? false,
+          views: getPropertyViews(p),
           images: Array.isArray(p.images) ? p.images : [],
           raw: p,
         }));
@@ -255,7 +259,7 @@ const confirmDelete = async () => {
           <table className="w-full text-sm min-w-175">
             <thead>
               <tr className="border-b border-white/10">
-                {["ID", "Titulli", "Qyteti", "Lloji", "Statusi", "Çmimi", "m²", ""].map((h) => (
+                {["ID", "Titulli", "Qyteti", "Lloji", "Statusi", "Çmimi", "m²", "Views", ""].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -276,8 +280,14 @@ const confirmDelete = async () => {
                       {p.status === "FOR_SALE" ? "Shitje" : "Qira"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-white/80">{p.price !== null ? Number(p.price).toLocaleString() + " €" : "—"}</td>
+                  <td className="px-4 py-3 text-white/80">{formatPropertyPrice(p)}</td>
                   <td className="px-4 py-3 text-white/60">{p.area !== null ? `${p.area} m²` : "—"}</td>
+                  <td className="px-4 py-3 text-white/60">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Eye size={14} className="text-[#EFD391]" />
+                      {p.views.toLocaleString()}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
@@ -310,9 +320,13 @@ const confirmDelete = async () => {
                 <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadge[p.type] || "bg-white/10 text-white/60"}`}>{typeLabel[p.type]}</span>
                 {p.rooms ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.rooms} dhoma</span> : null}
                 {p.area ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.area} m²</span> : null}
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">
+                  <Eye size={12} className="text-[#EFD391]" />
+                  {p.views.toLocaleString()} views
+                </span>
               </div>
               <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-                <span className="text-[#EFD391] font-semibold text-sm">{p.price !== null ? Number(p.price).toLocaleString() + " €" : "—"}</span>
+                <span className="text-[#EFD391] font-semibold text-sm">{formatPropertyPrice(p)}</span>
                 <div className="flex gap-2">
                   <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
                     <Pencil size={14} />

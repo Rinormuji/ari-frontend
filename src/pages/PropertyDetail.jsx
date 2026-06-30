@@ -3,11 +3,13 @@ import { useParams, Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { ChevronLeft, ChevronRight, X, CalendarCheck, MapPin, Euro, Ruler } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, CalendarCheck, MapPin, Euro, Ruler, Eye } from "lucide-react";
 import { propertyAPI } from "../services/api";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { formatPropertyViews } from "../utils/propertyViews";
+import { formatCalculatedTotal, formatPropertyPrice } from "../utils/propertyPricing";
 
 const PropertyDetailSoftApple = () => {
   const { id } = useParams();
@@ -64,7 +66,12 @@ L.Icon.Default.mergeOptions({
         // if (!res.ok) throw new Error("Failed to fetch property");
 
         // const data = await res.json();
-        setProperty(res.data);
+        try {
+          const viewRes = await propertyAPI.trackView(id);
+          setProperty(viewRes.data || res.data);
+        } catch {
+          setProperty(res.data);
+        }
       } catch (err) {
         toast.error("Gabim gjatë marrësjes së pronës!");
       } finally {
@@ -251,11 +258,17 @@ L.Icon.Default.mergeOptions({
                 {property.city && (
                   <span className="flex items-center gap-1"><MapPin size={13} />{property.city}</span>
                 )}
+                <span className="flex items-center gap-1"><Eye size={13} />{formatPropertyViews(property)} views</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{property.title}</h1>
-              <div className="flex items-center gap-4 mt-3">
-                <div className="flex items-center gap-1.5 text-2xl font-bold text-blue-600">
-                  <Euro size={20} />{property.price?.toLocaleString()} €
+              <div className="flex flex-wrap items-center gap-4 mt-3">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 text-2xl font-bold text-blue-600">
+                    <Euro size={20} />{formatPropertyPrice(property)}
+                  </div>
+                  {formatCalculatedTotal(property) && (
+                    <span className="text-xs font-semibold text-gray-400">{formatCalculatedTotal(property)}</span>
+                  )}
                 </div>
                 {property.area && (
                   <div className="flex items-center gap-1.5 text-gray-500 text-sm">
@@ -330,7 +343,7 @@ L.Icon.Default.mergeOptions({
                   </div>
                   <div className="p-3">
                     <p className="font-semibold text-gray-800 text-sm line-clamp-1">{p.title}</p>
-                    <p className="text-blue-600 font-bold text-sm mt-1">{p.price?.toLocaleString()} €</p>
+                    <p className="text-blue-600 font-bold text-sm mt-1">{formatPropertyPrice(p)}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{p.area} m² · {p.city}</p>
                   </div>
                 </Link>

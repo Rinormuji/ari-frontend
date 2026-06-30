@@ -104,7 +104,7 @@ const Home = () => {
               Shfletoni qindra prona në Gjilan dhe rajonin e Kosovës — apartamente, shtëpi, lokale dhe toka.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/properties" className="inline-flex items-center gap-2 px-7 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-bold rounded-xl transition-colors text-sm">
+              <Link to="/properties/all" className="inline-flex items-center gap-2 px-7 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-bold rounded-xl transition-colors text-sm">
                 <Search size={16} /> Kërkim i Avancuar
               </Link>
               <button

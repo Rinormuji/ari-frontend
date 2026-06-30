@@ -4,9 +4,11 @@ import "./index.css";
 import "./App.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 createRoot(document.getElementById("root")).render(
   <Router>              {/* 🔹 Router jashtë AuthProvider */}
+    <ScrollToTop />
     <AuthProvider>
       <App />
     </AuthProvider>

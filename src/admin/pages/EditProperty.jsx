@@ -60,6 +60,7 @@ function EditProperty() {
           location: city,
           neighborhood: neighborhood,
           rooms: found.rooms || "",
+          priceType: found.priceType || "TOTAL",
           floor: found.floor || "",
           // floors: found.floors || "",
           bathrooms: found.bathrooms || "",
@@ -93,6 +94,7 @@ function EditProperty() {
     setForm((prev) => ({
       ...prev,
       [name]: inputType === "checkbox" ? checked : value,
+      ...(name === "priceType" && value === "NEGOTIABLE" ? { price: "" } : {}),
     }));
   };
 
@@ -127,7 +129,7 @@ function EditProperty() {
   const validate = () => {
     const newErrors = {};
     if (!form.title) newErrors.title = "Titulli është i detyrueshëm";
-    if (!form.price || form.price <= 0) newErrors.price = "Çmimi duhet të jetë > 0";
+    if (form.priceType !== "NEGOTIABLE" && (!form.price || form.price <= 0)) newErrors.price = "Çmimi duhet të jetë > 0";
     if (!form.area || form.area <= 0) newErrors.area = "Sipërfaqja duhet të jetë > 0";
 
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave duhet të jetë > 0";
@@ -162,7 +164,13 @@ function EditProperty() {
       ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}`
       : form.neighborhood || '';
 
-    const payload = { ...form, location: fullLocation, images: imagesBase64, type };
+    const payload = {
+      ...form,
+      location: fullLocation,
+      images: imagesBase64,
+      type,
+      price: form.priceType === "NEGOTIABLE" ? null : form.price,
+    };
 
   await propertyAPI.updatePropertyByType(type, id, payload);
 
@@ -267,10 +275,26 @@ function EditProperty() {
         </div>
 
         {/* Price + Area */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className={labelCls}>Çmimi (€) *</label>
-            <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="Çmimi" className={inputCls} />
+            <label className={labelCls}>Mënyra e çmimit</label>
+            <select name="priceType" value={form.priceType || "TOTAL"} onChange={handleChange} className={inputCls}>
+              <option value="TOTAL">Çmimi total</option>
+              <option value="PER_M2">Çmimi për m²</option>
+              <option value="NEGOTIABLE">Me marrëveshje</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>{form.priceType === "PER_M2" ? "Çmimi për m² (€)" : "Çmimi (€)"} {form.priceType !== "NEGOTIABLE" ? "*" : ""}</label>
+            <input
+              type="number"
+              name="price"
+              value={form.price || ""}
+              onChange={handleChange}
+              placeholder={form.priceType === "NEGOTIABLE" ? "Me marrëveshje" : "Çmimi"}
+              disabled={form.priceType === "NEGOTIABLE"}
+              className={`${inputCls} ${form.priceType === "NEGOTIABLE" ? "opacity-55 cursor-not-allowed" : ""}`}
+            />
             {errors.price && <p className={errorCls}>{errors.price}</p>}
           </div>
           <div>
@@ -279,6 +303,11 @@ function EditProperty() {
             {errors.area && <p className={errorCls}>{errors.area}</p>}
           </div>
         </div>
+        {form.priceType === "PER_M2" && form.price && form.area && (
+          <p className="text-xs text-white/40">
+            Totali i llogaritur: {(Number(form.price) * Number(form.area)).toLocaleString()} €
+          </p>
+        )}
 
         {/* Type-specific fields */}
         {type === "BANESA" && (
