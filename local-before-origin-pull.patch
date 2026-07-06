@@ -1,0 +1,640 @@
+diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..64832c3
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,6 @@
++# Backend API Configuration
++# For development, use localhost
++VITE_API_URL=http://localhost:8080/api
++
++# For production, use your deployed backend URL
++# VITE_API_URL=https://api.yourdomain.com/api
+diff --git a/.gitignore b/.gitignore
+index a547bf3..436a9ba 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -12,6 +12,12 @@ dist
+ dist-ssr
+ *.local
+ 
++# Environment variables
++.env
++.env.*.local
++.env.production
++.env.development
++
+ # Editor directories and files
+ .vscode/*
+ !.vscode/extensions.json
+diff --git a/DEPLOYMENT.md b/DEPLOYMENT.md
+new file mode 100644
+index 0000000..31b8a95
+--- /dev/null
++++ b/DEPLOYMENT.md
+@@ -0,0 +1,229 @@
++# Ari Real Estate - Frontend Deployment Guide
++
++## Overview
++
++This is a React + Vite frontend application for the Ari Real Estate platform. The application provides a professional real estate management interface with admin, authentication, and property listing features.
++
++## Prerequisites
++
++- Node.js 18+ and npm 9+
++- A deployed/running backend instance of AriRealEstate
++- A web hosting platform (Vercel, Netlify, AWS, etc.)
++
++## Environment Configuration
++
++### Development Environment
++
++1. Copy the default configuration:
++```bash
++cp .env.example .env.development
++```
++
++2. For local development with default settings, the app connects to `http://localhost:8080/api`
++
++### Production Environment
++
++Before deploying to production, configure the environment variables:
++
++```bash
++# Create production environment file
++cp .env.example .env.production
++```
++
++Edit `.env.production` and update:
++```
++VITE_API_URL=https://your-backend-domain.com/api
++```
++
++Replace `your-backend-domain.com` with your actual backend URL.
++
++## Installation & Development
++
++```bash
++# Install dependencies
++npm install
++
++# Start development server (runs on http://localhost:5173)
++npm run dev
++
++# Lint code
++npm lint
++
++# Preview production build locally
++npm run preview
++```
++
++## Building for Production
++
++```bash
++# Build optimized production bundle
++npm run build
++
++# Output goes to ./dist directory
++```
++
++The build process automatically:
++- Removes console.log statements
++- Disables source maps
++- Minifies code with Terser
++- Optimizes bundle size
++
++## Deployment Options
++
++### Option 1: Vercel (Recommended)
++
++```bash
++# Install Vercel CLI
++npm i -g vercel
++
++# Deploy
++vercel
++```
++
++Add to `vercel.json`:
++```json
++{
++  "buildCommand": "npm run build",
++  "outputDirectory": "dist",
++  "env": {
++    "VITE_API_URL": "@api_url"
++  }
++}
++```
++
++### Option 2: Netlify
++
++1. Connect your GitHub repository
++2. Build command: `npm run build`
++3. Publish directory: `dist`
++4. Add environment variable in Netlify:
++   - Key: `VITE_API_URL`
++   - Value: `https://your-backend-domain.com/api`
++
++### Option 3: AWS S3 + CloudFront
++
++```bash
++# Build the app
++npm run build
++
++# Sync to S3
++aws s3 sync dist/ s3://your-bucket-name/
++
++# Invalidate CloudFront cache
++aws cloudfront create-invalidation --distribution-id YOUR_DIST_ID --paths "/*"
++```
++
++### Option 4: Traditional Server (Apache, Nginx)
++
++1. Build: `npm run build`
++2. Copy `dist` folder to your server
++3. Configure your web server for SPA routing:
++
++**Nginx:**
++```nginx
++server {
++    listen 80;
++    server_name your-domain.com;
++    root /var/www/ari-frontend/dist;
++    
++    location / {
++        try_files $uri $uri/ /index.html;
++    }
++    
++    location ~* \.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$ {
++        expires 30d;
++        add_header Cache-Control "public, immutable";
++    }
++}
++```
++
++**Apache (.htaccess):**
++```apache
++<IfModule mod_rewrite.c>
++  RewriteEngine On
++  RewriteBase /
++  RewriteRule ^index\.html$ - [L]
++  RewriteCond %{REQUEST_FILENAME} !-f
++  RewriteCond %{REQUEST_FILENAME} !-d
++  RewriteRule . /index.html [L]
++</IfModule>
++```
++
++## Backend Configuration
++
++Ensure your backend is configured with proper CORS settings for your frontend domain:
++
++### Backend Environment Variables
++
++```bash
++# In AriRealEstate .env
++CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
++FRONTEND_BASE_URL=https://your-frontend-domain.com
++```
++
++### For Development
++
++```bash
++CORS_ALLOWED_ORIGINS=http://localhost:5173
++```
++
++## Security Checklist
++
++- [ ] API URL uses HTTPS in production
++- [ ] Backend CORS is configured for your domain only
++- [ ] Environment variables are set via deployment platform, not committed to git
++- [ ] .env files are in .gitignore (already configured)
++- [ ] Security headers are enabled on backend
++- [ ] JWT secret is strong in production
++- [ ] Database credentials are managed securely
++- [ ] API docs are disabled in production (`API_DOCS_ENABLED=false`)
++
++## Performance Optimization
++
++The build already includes:
++- Code splitting with Vite
++- CSS minification via Vite
++- JavaScript minification via Terser
++- Console log removal in production
++- Source maps disabled for smaller builds
++
++Additional recommendations:
++- Enable gzip compression on your web server
++- Enable browser caching headers
++- Use a CDN for static assets
++- Monitor Core Web Vitals
++
++## Troubleshooting
++
++### "Cannot find module" errors
++- Clear `node_modules`: `rm -rf node_modules && npm install`
++
++### CORS errors
++- Verify `VITE_API_URL` matches backend's `CORS_ALLOWED_ORIGINS`
++- Check backend is running and accessible
++
++### Blank page in production
++- Check browser console for JavaScript errors
++- Verify all routes use HashRouter if not using a server with routing support
++- Ensure `dist` folder is properly deployed
++
++### Environment variables not loading
++- Restart dev server: `npm run dev`
++- Verify `.env` files follow Vite naming: `.env.development`, `.env.production`
++- Variables must start with `VITE_` to be exposed to the app
++
++## Additional Information
++
++- Frontend Framework: React 19+
++- Build Tool: Vite 7+
++- UI Components: Material-UI (MUI)
++- Styling: Tailwind CSS
++- HTTP Client: Axios
++- Routing: React Router v7+
++
++## Support
++
++For issues or questions, refer to:
++- [Vite Documentation](https://vite.dev)
++- [React Documentation](https://react.dev)
++- [Material-UI Documentation](https://mui.com)
+diff --git a/PRODUCTION_CHECKLIST.md b/PRODUCTION_CHECKLIST.md
+new file mode 100644
+index 0000000..c9b8de8
+--- /dev/null
++++ b/PRODUCTION_CHECKLIST.md
+@@ -0,0 +1,233 @@
++# Production Readiness Checklist
++
++Complete this checklist before deploying to production.
++
++## Backend Configuration
++
++- [ ] **Database URL**: Backend is configured with proper PostgreSQL database
++  - [ ] Database is backed up
++  - [ ] Credentials are strong and stored securely (via environment variables)
++  - [ ] Connection pooling is configured
++
++- [ ] **Environment Variables**: All required backend env vars are set
++  ```bash
++  DB_URL=postgresql://...
++  DB_USERNAME=...
++  DB_PASSWORD=...
++  JWT_SECRET=... (strong, random string)
++  FRONTEND_BASE_URL=https://yourdomain.com
++  CORS_ALLOWED_ORIGINS=https://yourdomain.com
++  ```
++
++- [ ] **CORS Configuration**: 
++  - [ ] `CORS_ALLOWED_ORIGINS` set to your frontend domain (not localhost)
++  - [ ] Verified with a test request from frontend
++
++- [ ] **Security Settings**:
++  - [ ] Running with profile: `spring.profiles.active=prod`
++  - [ ] API docs disabled: `API_DOCS_ENABLED=false`
++  - [ ] JWT secret is NOT the default development secret
++  - [ ] Error details hidden: `server.error.include-message=never`
++  - [ ] Production checks enabled: `PRODUCTION_CHECKS_ENABLED=true`
++
++- [ ] **SSL/TLS**: 
++  - [ ] Backend accessible via HTTPS
++  - [ ] Valid SSL certificate installed
++
++- [ ] **Logging**:
++  - [ ] Security logging level set appropriately (WARN or less)
++  - [ ] Log aggregation configured (optional but recommended)
++
++- [ ] **Rate Limiting**:
++  - [ ] Enabled: `RATE_LIMIT_ENABLED=true`
++  - [ ] Appropriate limits set for authentication endpoints
++
++- [ ] **Email Configuration**:
++  - [ ] Email service configured (Gmail, SendGrid, custom SMTP)
++  - [ ] Credentials set via environment variables
++  - [ ] Sender email address verified with provider
++
++## Frontend Configuration
++
++- [ ] **Environment Variables**:
++  - [ ] `.env.production` created with production API URL
++  ```bash
++  VITE_API_URL=https://api.yourdomain.com/api
++  ```
++
++- [ ] **Build Verification**:
++  ```bash
++  npm run build  # Should complete without errors
++  npm run preview  # Should work without localhost references
++  ```
++
++- [ ] **No Hardcoded Values**:
++  - [ ] No hardcoded `localhost` addresses
++  - [ ] No development-only URLs in code
++  - [ ] All environment-specific config uses env variables
++
++- [ ] **Console & Debugging**:
++  - [ ] No `console.log()` statements in production bundles
++  - [ ] DebugInfo component won't display in production
++  - [ ] Source maps disabled
++
++- [ ] **Performance**:
++  - [ ] Bundle size is reasonable (check with `npm run preview`)
++  - [ ] Page loads quickly
++  - [ ] No memory leaks in components
++  - [ ] Images are optimized
++
++- [ ] **Security**:
++  - [ ] `.env` files in `.gitignore`
++  - [ ] No sensitive data in version control
++  - [ ] No hardcoded API keys or tokens
++  - [ ] HTTPS enforced in production URL
++
++## Deployment
++
++- [ ] **Platform Setup**:
++  - [ ] Hosting account created (Vercel, Netlify, AWS, etc.)
++  - [ ] Domain name registered and configured
++  - [ ] SSL certificate provisioned
++
++- [ ] **Frontend Deployment**:
++  - [ ] Build command configured: `npm run build`
++  - [ ] Output/publish directory: `dist`
++  - [ ] Environment variable `VITE_API_URL` configured on platform
++  - [ ] Deployment triggers set up for automatic deploys (optional)
++
++- [ ] **SPA Routing Configuration**:
++  - [ ] Web server configured to serve `index.html` for all routes
++  - [ ] Tested navigation to nested routes (e.g., `/admin/properties`)
++
++- [ ] **DNS & Domain**:
++  - [ ] Domain DNS points to hosting provider
++  - [ ] SSL certificate valid and auto-renewing
++  - [ ] Tested from multiple locations globally
++
++## Testing
++
++- [ ] **User Registration & Login**:
++  - [ ] Can register new account
++  - [ ] Can login with credentials
++  - [ ] Can logout
++  - [ ] Can reset password
++
++- [ ] **Property Features**:
++  - [ ] Can view property list
++  - [ ] Can view property details with map
++  - [ ] Can book appointments
++  - [ ] Search and filters work
++
++- [ ] **Admin Features**:
++  - [ ] Can access admin panel (must be admin user)
++  - [ ] Can create property
++  - [ ] Can edit property
++  - [ ] Can delete property
++  - [ ] Can view appointments
++  - [ ] Can manage users
++
++- [ ] **Cross-Browser Testing**:
++  - [ ] Chrome/Edge
++  - [ ] Firefox
++  - [ ] Safari
++  - [ ] Mobile browsers (iOS Safari, Chrome Mobile)
++
++- [ ] **API Communication**:
++  - [ ] All API calls work (check Network tab in DevTools)
++  - [ ] No CORS errors
++  - [ ] Authentication tokens work correctly
++  - [ ] Redirects to login on 401
++
++- [ ] **Error Scenarios**:
++  - [ ] No 404 errors for valid routes
++  - [ ] Error messages are user-friendly
++  - [ ] Missing images/assets handled gracefully
++
++## Monitoring & Maintenance
++
++- [ ] **Monitoring Setup**:
++  - [ ] Error tracking configured (Sentry, Rollbar, etc.) - Optional
++  - [ ] Analytics configured (Google Analytics, Plausible, etc.) - Optional
++  - [ ] Uptime monitoring enabled
++
++- [ ] **Backup & Recovery**:
++  - [ ] Database backups configured (daily)
++  - [ ] Backup tested by restoring
++  - [ ] Recovery procedure documented
++
++- [ ] **Updates & Security**:
++  - [ ] Dependency updates scheduled (monthly)
++  - [ ] Security patches applied promptly
++  - [ ] SSL certificate renewal automated
++
++- [ ] **Documentation**:
++  - [ ] Deployment procedure documented in DEPLOYMENT.md
++  - [ ] API documentation available
++  - [ ] Runbook created for common issues
++
++## Performance Optimization
++
++- [ ] **Frontend Performance**:
++  - [ ] Lighthouse score: A (90+)
++  - [ ] Core Web Vitals: Good
++  - [ ] First Contentful Paint < 2s
++  - [ ] Largest Contentful Paint < 2.5s
++
++- [ ] **Backend Performance**:
++  - [ ] API response time < 200ms for most endpoints
++  - [ ] Database queries optimized (indexes created)
++  - [ ] Connection pooling configured
++
++- [ ] **Caching Strategy**:
++  - [ ] Browser caching enabled for static assets
++  - [ ] CDN configured (optional but recommended)
++  - [ ] API response caching where appropriate
++
++## Security Audit
++
++- [ ] **Authentication & Authorization**:
++  - [ ] JWT tokens properly validated
++  - [ ] Admin routes protected
++  - [ ] No hardcoded credentials anywhere
++  - [ ] Password hashing strong (bcrypt/Argon2)
++
++- [ ] **Data Protection**:
++  - [ ] HTTPS enforced (all traffic encrypted)
++  - [ ] Sensitive data not logged
++  - [ ] PII handled securely
++  - [ ] Database encrypted at rest (if required)
++
++- [ ] **Input Validation**:
++  - [ ] Frontend validates input
++  - [ ] Backend validates/sanitizes input
++  - [ ] Protection against SQL injection
++  - [ ] Protection against XSS
++
++- [ ] **API Security**:
++  - [ ] CORS properly configured
++  - [ ] Rate limiting enabled
++  - [ ] Request size limits set
++  - [ ] API authentication required
++
++## Post-Launch
++
++- [ ] Monitor error rates and uptime
++- [ ] Collect user feedback
++- [ ] Monitor performance metrics
++- [ ] Plan for scale (load testing, horizontal scaling)
++- [ ] Regular security audits
++- [ ] Keep dependency versions updated
++
++---
++
++## Sign-Off
++
++- [ ] Development team sign-off
++- [ ] QA team sign-off  
++- [ ] Product/Business owner approval
++- [ ] Security review completed
++
++**Launched on**: _______________  
++**By**: _______________  
++**Version**: 0.0.1
+diff --git a/README.md b/README.md
+index 1a4f2dac7d9e42b0e15b9588a2839c614bd1e622..68d87124b0835ad1c953d1da54cdb3a5c490cd23 100644
+GIT binary patch
+literal 6960
+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
+
+literal 1189
+zcmb_b!ET%|5ao>2e;8?{DyRY9bE>jR)k^IpyJ`=pQj8hEiLotvSdzc*nCym4(%yOj
+z*$gx9y?Ji~w<s0CC-|ue^L#((2!x|Ik`R1w2i;->38S`plm;Tw<bfRYNXLI?7ap|j
+zLEEJX%$f%H`r{U)Z6Uf5;b!+;TY@kdj8&d*rx4JRdAbCe9k{O3N^@^-re0f~77*k?
+zY9kwiS9xAS{rSM~?xT1vDMJGN`(hyS@k)rECr(YJ+$fH9=~bQ=i^jM{j8a?SrFxJ(
+zzHU~)6q#s!EgLjz=O!KRW2K!a;KBu{-J@DR^Pvi{fO$Zh8nj7-IyhrmH`_9ySc}uC
+zYVjcYiA5Ess-l378-I~83EBmW!@n4paXuUVA6Tb`C+53f+Z8L{Gco4;4qCq19QVF;
+zqt^yQat*$@1GbTM1ZdL^TW}WWm9-jFk_F@CgQf_2<gHLDV}al!G?O+hcnmy$lvc5C
+zVDCV-tT0`&3lZw2Ve8a1vY8}lXIK1-K^CzM%3#HEF4-UpV!<vWY1rfZQ^Ag8PB)L9
+z{hEAC%;xA=<!q<>DJ+F~{;h*2H!c2Tm}s0&^)lt8om6TD(tD%TQhy0ELO>qM09&?4
+zD&9YN+^L{FJ?Dh@T*^6F-n?YwBwGdB0o4Pzi567#e)kg2mFwSqASfWdF}z|KI2Xx?
+z;uP}dES1DAPP^82QGDUTbOtx4uro63Sp_`DpW<ELB?56FRANjN?p9>)zHyF<6cJW2
+gB-QRwQI&5p$Yd5Wot0U~Z<pDOGUR8QeaQ0c4@xSfJOBUy
+
+diff --git a/index.html b/index.html
+index c0b50d4..2820965 100644
+--- a/index.html
++++ b/index.html
+@@ -4,7 +4,12 @@
+     <meta charset="UTF-8" />
+     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <title>ari-frontend</title>
++    <meta name="description" content="Ari Real Estate - Find and manage properties professionally." />
++    <meta name="theme-color" content="#ffffff" />
++    <meta property="og:type" content="website" />
++    <meta property="og:title" content="Ari Real Estate Platform" />
++    <meta property="og:description" content="Professional real estate management and listing platform." />
++    <title>Ari Real Estate - Property Management Platform</title>
+   </head>
+   <body>
+     <div id="root"></div>
+diff --git a/src/services/api.js b/src/services/api.js
+index d1ffa7f..c05feba 100644
+--- a/src/services/api.js
++++ b/src/services/api.js
+@@ -1,6 +1,6 @@
+ import axios from 'axios'
+ 
+-const API_BASE_URL = 'http://localhost:8080/api'
++const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+ 
+ // Create axios instance with default config
+ const api = axios.create({
+diff --git a/vite.config.js b/vite.config.js
+index 10a000b..baa0bb4 100644
+--- a/vite.config.js
++++ b/vite.config.js
+@@ -6,7 +6,21 @@ export default defineConfig({
+   plugins: [react()],
+   server: {
+     proxy: {
+-      '/api': 'http://localhost:8080',
++      '/api': {
++        target: 'http://localhost:8080',
++        changeOrigin: true,
++        rewrite: (path) => path
++      }
++    }
++  },
++  build: {
++    outDir: 'dist',
++    sourcemap: false,
++    minify: 'terser',
++    terserOptions: {
++      compress: {
++        drop_console: true
++      }
+     }
+   }
+ })

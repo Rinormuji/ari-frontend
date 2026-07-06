@@ -14,6 +14,7 @@ import "leaflet/dist/leaflet.css";
 
 import banner from "../assets/images/banner.jpg";
 import { propertyAPI } from '../services/api';
+import { paths } from '../routes/paths';
 
 /* Marker icon */
 const propertyIcon = new L.Icon({
@@ -106,7 +107,7 @@ const Properties = () => {
     setCircleEnabled((s) => !s);
   };
 
-  // Lista e filtruar, përdoret për markerat dhe side list
+  // Lista e filtruar, pÃ«rdoret pÃ«r markerat dhe side list
   const filtered = useMemo(() => {
     let list = [...properties];
 
@@ -151,7 +152,7 @@ const Properties = () => {
               onChange={(e) => setCityFilter(e.target.value)}
               className="outline-none text-sm text-gray-700 bg-transparent"
             >
-              <option value="">Të gjitha qytetet</option>
+              <option value="">TÃ« gjitha qytetet</option>
               {cityOptions.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -196,14 +197,14 @@ const Properties = () => {
               <Circle center={[centerPoint.lat, centerPoint.lng]} radius={Number(radiusKm) * 1000} pathOptions={{ color: "#EFD391", fillOpacity: 0.08 }} />
             )}
             {filtered.filter((p) => p.lat != null && p.lng != null).map((p) => (
-              <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => navigate(`/properties/${p.id}`) }}>
+              <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => navigate(paths.propertyDetail(p.id)) }}>
                 <Tooltip direction="top" offset={[0, -12]} opacity={1} interactive>
                   <div className="flex gap-2 items-start w-52">
                     <img src={p.images?.[0] ?? banner} alt={p.title} className="w-14 h-14 object-cover rounded-lg shrink-0" />
                     <div className="overflow-hidden">
                       <p className="font-semibold text-xs leading-snug line-clamp-2">{p.title}</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
-                      <p className="text-[#EFD391] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} €</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} Â· {p.type} Â· {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
+                      <p className="text-[#EFD391] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} â‚¬</p>
                     </div>
                   </div>
                 </Tooltip>
@@ -215,26 +216,26 @@ const Properties = () => {
         {/* Side list */}
         <aside className="lg:col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden" style={{ height: "70vh" }}>
           <div className="p-4 border-b border-gray-100">
-            <h3 className="font-bold text-gray-900 text-sm">Prona — {filtered.length}</h3>
+            <h3 className="font-bold text-gray-900 text-sm">Prona â€” {filtered.length}</h3>
             {circleEnabled ? (
-              <p className="text-xs text-gray-400 mt-0.5">Kliko në hartë për të vendosur qendrën.</p>
+              <p className="text-xs text-gray-400 mt-0.5">Kliko nÃ« hartÃ« pÃ«r tÃ« vendosur qendrÃ«n.</p>
             ) : (
-              <p className="text-xs text-gray-400 mt-0.5">Radius OFF: shfaq të gjitha pronat.</p>
+              <p className="text-xs text-gray-400 mt-0.5">Radius OFF: shfaq tÃ« gjitha pronat.</p>
             )}
           </div>
           <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
             {filtered.map((p) => (
-              <button key={p.id} onClick={() => navigate(`/properties/${p.id}`)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+              <button key={p.id} onClick={() => navigate(paths.propertyDetail(p.id))} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
                 <img src={p.images?.[0] ?? banner} alt="" className="w-14 h-12 object-cover rounded-xl shrink-0" />
                 <div className="overflow-hidden">
                   <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.title}</p>
-                  <p className="text-[#EFD391] font-bold text-sm">{p.price?.toLocaleString()} €</p>
-                  <p className="text-xs text-gray-400">{p.city} · {p.area} m²</p>
+                  <p className="text-[#EFD391] font-bold text-sm">{p.price?.toLocaleString()} â‚¬</p>
+                  <p className="text-xs text-gray-400">{p.city} Â· {p.area} mÂ²</p>
                 </div>
               </button>
             ))}
             {filtered.length === 0 && (
-              <div className="p-6 text-center text-sm text-gray-400">Nuk u gjet pronë.</div>
+              <div className="p-6 text-center text-sm text-gray-400">Nuk u gjet pronÃ«.</div>
             )}
           </div>
         </aside>

@@ -190,6 +190,12 @@ export const usersAPI = {
   // PUT /api/users/:id/toggle-status
   toggleStatus: (id) => api.put(`/users/${id}/toggle-status`),
 
+  // PUT /api/users/:id/status?status=ACTIVE|BLOCKED|PENDING
+  updateStatus: (id, status) => api.put(`/users/${id}/status`, null, { params: { status } }),
+
+  // PUT /api/users/:id/enabled?enabled=true|false
+  updateEnabled: (id, enabled) => api.put(`/users/${id}/enabled`, null, { params: { enabled } }),
+
   // DELETE /api/users/:id
   deleteUser: (id) => api.delete(`/users/${id}`),
 
@@ -243,6 +249,18 @@ export const appointmentAPI = {
 
   // Admin: get all appointments
   getAll: (params = {}) => api.get('/appointments', { params }),
+
+  // Admin: create appointment for any user
+  createAdmin: (data) => api.post('/appointments/admin', data),
+
+  // Admin: update appointment
+  update: (id, data) => api.put(`/appointments/${id}`, data),
+
+  // Admin: update status directly
+  updateStatus: (id, status) => api.put(`/appointments/${id}/status`, null, { params: { status } }),
+
+  // Admin: delete appointment
+  delete: (id) => api.delete(`/appointments/${id}`),
 
   // Admin: approve
   approve: (id) => api.put(`/appointments/${id}/approve`),

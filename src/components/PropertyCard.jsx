@@ -1,35 +1,24 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Bed,
+  Building2,
   CalendarDays,
+  Car,
   ChevronLeft,
   ChevronRight,
-  Euro,
+  Eye,
+  Layers,
   MapPin,
   Ruler,
-  Building2,
-  Bed,
-  Layers,
-  Car,
   Trees,
   Warehouse,
-  Eye,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { formatPropertyViews } from "../utils/propertyViews";
+import { paths } from "../routes/paths";
+import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyPrice } from "../utils/propertyPricing";
-
-const typeLabels = {
-  BANESA: "Banesë",
-  SHTEPI: "Shtëpi",
-  LOKALE: "Lokal",
-  TOKA: "Tokë",
-};
-
-const statusLabels = {
-  FOR_SALE: "Në shitje",
-  FOR_RENT: "Me qira",
-};
+import { formatPropertyViews } from "../utils/propertyViews";
 
 const firstLocation = (property) => {
   const location = property.location || property.city || "";
@@ -61,12 +50,8 @@ const PropertyCard = ({ property }) => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!isAuthenticated) {
-      navigate(`/login?redirect=${encodeURIComponent(`/appointment?propertyId=${property.id}`)}`);
-      return;
-    }
-
-    navigate(`/appointment?propertyId=${property.id}`);
+    const redirect = paths.appointmentForProperty(property.id);
+    navigate(isAuthenticated ? redirect : paths.loginWithRedirect(redirect));
   };
 
   const nextImage = (event) => {
@@ -82,7 +67,7 @@ const PropertyCard = ({ property }) => {
   };
 
   return (
-    <Link to={`/properties/${property.id}`} className="group block h-full">
+    <Link to={paths.propertyDetail(property.id)} className="group block h-full">
       <article className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div className="relative h-52 shrink-0 overflow-hidden bg-[#edf1ee]">
           <img
@@ -118,7 +103,7 @@ const PropertyCard = ({ property }) => {
             <span className="inline-flex min-w-0 items-center gap-1.5">
               <Building2 className="h-3.5 w-3.5 shrink-0 text-[#D9BF7B]" />
               <span className="truncate">
-                {typeLabels[property.type] || property.type}, {statusLabels[property.status] || property.status}
+                {getTypeLabel(property.type)}, {getStatusLabel(property.status)}
               </span>
             </span>
             <span className="inline-flex min-w-0 items-center gap-1.5">
@@ -146,7 +131,6 @@ const PropertyCard = ({ property }) => {
 
           <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
             <span className="inline-flex items-center gap-1 text-sm font-bold text-[#0F4638]">
-              <Euro className="h-4 w-4 text-[#D9BF7B]" />
               {formatPropertyPrice(property)}
             </span>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-600">

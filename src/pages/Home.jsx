@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Filter, Search, Building2, MapPin, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react'
+import { Filter, Search, Building2, MapPin, ChevronRight, SlidersHorizontal, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { propertyAPI } from '../services/api'
 import PropertyCard from '../components/PropertyCard'
+import { paths } from '../routes/paths'
 
 const CITIES = ["Prishtinë", "Prizren", "Pejë", "Gjakovë", "Ferizaj", "Gjilan", "Mitrovicë"]
-const PAGE_SIZE = 12
+const PAGE_SIZE = 4
 
 const typeLabels = { BANESA: "Banesë", SHTEPI: "Shtëpi", LOKALE: "Lokal", TOKA: "Tokë" }
 const statusLabels = { FOR_SALE: "Në shitje", FOR_RENT: "Me qira" }
@@ -14,18 +15,15 @@ const statusLabels = { FOR_SALE: "Në shitje", FOR_RENT: "Me qira" }
 const Home = () => {
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const [totalElements, setTotalElements] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({ city: '', type: '', status: '' })
-  const gridRef = useRef(null)
 
-  const fetchProperties = async (currentPage, currentFilters) => {
+  const fetchProperties = async (currentFilters) => {
     setLoading(true)
     try {
       const params = {
-        page: currentPage - 1,
+        page: 0,
         size: PAGE_SIZE,
         sort: 'id,desc',
       }
@@ -38,11 +36,9 @@ const Home = () => {
 
       if (data && data.content) {
         setProperties(data.content)
-        setTotalPages(data.totalPages || 1)
         setTotalElements(data.totalElements || 0)
       } else if (Array.isArray(data)) {
-        setProperties(data)
-        setTotalPages(1)
+        setProperties(data.slice(0, PAGE_SIZE))
         setTotalElements(data.length)
       }
     } catch (err) {
@@ -53,37 +49,17 @@ const Home = () => {
   }
 
   useEffect(() => {
-    fetchProperties(page, filters)
-  }, [page, filters])
+    fetchProperties(filters)
+  }, [filters])
 
   const handleFilterChange = (key, value) => {
     const updated = { ...filters, [key]: value }
     setFilters(updated)
-    setPage(1)
   }
 
   const clearFilter = (key) => handleFilterChange(key, '')
 
-  const handlePageChange = (newPage) => {
-    setPage(newPage)
-    gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
   const activeFilters = Object.entries(filters).filter(([, v]) => v)
-
-  // Smart pagination: show at most 7 page buttons with ellipsis
-  const getPaginationPages = () => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
-    const pages = []
-    pages.push(1)
-    if (page > 3) pages.push('...')
-    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
-      pages.push(i)
-    }
-    if (page < totalPages - 2) pages.push('...')
-    pages.push(totalPages)
-    return pages
-  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -104,7 +80,7 @@ const Home = () => {
               Shfletoni qindra prona në Gjilan dhe rajonin e Kosovës — apartamente, shtëpi, lokale dhe toka.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/properties/all" className="inline-flex items-center gap-2 px-7 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-bold rounded-xl transition-colors text-sm">
+              <Link to={paths.properties} className="inline-flex items-center gap-2 px-7 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-bold rounded-xl transition-colors text-sm">
                 <Search size={16} /> Kërkim i Avancuar
               </Link>
               <button
@@ -180,7 +156,7 @@ const Home = () => {
               </div>
               {activeFilters.length > 0 && (
                 <button
-                  onClick={() => { setFilters({ city: '', type: '', status: '' }); setPage(1) }}
+                  onClick={() => setFilters({ city: '', type: '', status: '' })}
                   className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm text-red-500 border border-red-200 hover:bg-red-50 transition-colors"
                 >
                   <X size={14} /> Pastro
@@ -204,7 +180,7 @@ const Home = () => {
       )}
 
       {/* Property grid section */}
-      <section className="py-10 pb-20" ref={gridRef}>
+      <section className="py-10 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Section header */}
@@ -217,14 +193,9 @@ const Home = () => {
                     : 'Pronat e Disponueshme'
                 )}
               </h2>
-              {!loading && totalPages > 1 && (
-                <p className="text-sm text-gray-400 mt-0.5">
-                  Faqja {page} nga {totalPages} — {totalElements} prona gjithsej
-                </p>
-              )}
             </div>
             <Link
-              to="/properties/all"
+              to={paths.properties}
               className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[#0F4638] hover:text-[#0A3028] transition-colors"
             >
               Shiko të gjitha <ChevronRight size={15} />
@@ -252,45 +223,6 @@ const Home = () => {
                   </motion.div>
                 ))}
               </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-1.5 mt-12">
-                  <button
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={page <= 1}
-                    className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronLeft size={16} /> Pas
-                  </button>
-
-                  {getPaginationPages().map((p, i) =>
-                    p === '...' ? (
-                      <span key={`ellipsis-${i}`} className="px-1 text-gray-400 text-sm select-none">…</span>
-                    ) : (
-                      <button
-                        key={p}
-                        onClick={() => handlePageChange(p)}
-                        className={`min-w-9 h-9 rounded-xl text-sm font-semibold transition-colors ${
-                          page === p
-                            ? 'bg-[#EFD391] text-black shadow-sm'
-                            : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    )
-                  )}
-
-                  <button
-                    onClick={() => handlePageChange(page + 1)}
-                    disabled={page >= totalPages}
-                    className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Para <ChevronRight size={16} />
-                  </button>
-                </div>
-              )}
             </>
           ) : (
             <div className="text-center py-20">
@@ -298,7 +230,7 @@ const Home = () => {
               <p className="text-gray-500 text-lg font-medium">Nuk u gjet asnjë pronë.</p>
               {activeFilters.length > 0 && (
                 <button
-                  onClick={() => { setFilters({ city: '', type: '', status: '' }); setPage(1) }}
+                  onClick={() => setFilters({ city: '', type: '', status: '' })}
                   className="mt-4 text-sm text-[#0F4638] underline"
                 >
                   Pastro filtrat

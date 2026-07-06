@@ -6,7 +6,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { ArrowLeft, Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
 import { useToast } from "../context/ToastContext";
-import logo2 from "../assets/images/ari-logo.jpg";
+import logoMark from "../assets/images/ari-mark.svg";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -77,7 +77,7 @@ const Register = () => {
     <div className="min-h-screen flex bg-[#0F4638]">
       {/* Left panel */}
       <div className="hidden lg:flex flex-col justify-between w-2/5 bg-[#0B332B] border-r border-white/5 p-12">
-        <img src={logo2} alt="Ari Real Estate" className="h-14 w-auto" />
+        <img src={logoMark} alt="Ari Real Estate" className="h-20 w-20" />
         <div>
           <h2 className="text-3xl font-bold text-white leading-snug mb-4">Krijo llogarinë<br/>tënde sot</h2>
           <p className="text-gray-400 text-sm leading-relaxed">Bashkohuni me komunitetin tonë dhe gjeni pronën e ëndrrave tuaja.</p>
@@ -94,7 +94,7 @@ const Register = () => {
           className="w-full max-w-md"
         >
           {/* Mobile logo */}
-          <img src={logo2} alt="Ari Real Estate" className="h-12 mx-auto mb-8 lg:hidden" />
+          <img src={logoMark} alt="Ari Real Estate" className="mx-auto mb-8 h-24 w-24" />
 
           <h1 className="text-2xl font-bold text-white mb-1">Regjistrohu</h1>
           <p className="text-sm text-white/40 mb-8">Hap llogarinë tënde falas</p>

@@ -1,14 +1,13 @@
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { motion } from "framer-motion";
 import AdminRoute from "./routes/AdminRoute";
 import { ToastProvider } from "./context/ToastContext";
+import { paths } from "./routes/paths";
 
-// Layouts
 import PublicLayout from "./layouts/PublicLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import AdminLayout from "./admin/layout/AdminLayout";
 
-// Pages
 import Home from "./pages/Home";
 import Properties from "./pages/Properties";
 import AllProperties from "./pages/AllProperties";
@@ -18,13 +17,12 @@ import Contact from "./pages/Contact";
 import Appointment from "./pages/Appointment";
 import MyAppointments from "./pages/MyAppointments";
 import Profile from "./pages/Profile";
-
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Verify from "./pages/Verify";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import OAuth2RedirectHandler from "./components/OAuth2RedirectHandler"
+import OAuth2RedirectHandler from "./components/OAuth2RedirectHandler";
 
 import Dashboard from "./admin/pages/Dashboard";
 import PropertiesAdmin from "./admin/pages/PropertiesAdmin";
@@ -33,144 +31,57 @@ import EditProperty from "./admin/pages/EditProperty";
 import Users from "./admin/pages/Users";
 import AppointmentsAdmin from "./admin/pages/AppointmentsAdmin";
 
-// Optional debug
-import DebugInfo from "./components/DebugInfo";
+const fadeIn = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { duration: 0.5 },
+};
 
 function App() {
-  
   return (
     <ToastProvider>
       <Routes>
-        {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}><Home /></motion.div>} />
-          <Route path="/properties" element={<Properties />} />
-          <Route path="/properties/all" element={<AllProperties />} />
-          <Route path="/properties/:id" element={<PropertyDetail />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/appointment" element={<Appointment />} />
-          <Route path="/my-appointments" element={<MyAppointments />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path={paths.home}
+            element={(
+              <motion.div {...fadeIn}>
+                <Home />
+              </motion.div>
+            )}
+          />
+          <Route path={paths.propertiesMap} element={<Properties />} />
+          <Route path={paths.properties} element={<AllProperties />} />
+          <Route path={paths.propertyDetail()} element={<PropertyDetail />} />
+          <Route path={paths.about} element={<About />} />
+          <Route path={paths.contact} element={<Contact />} />
+          <Route path={paths.appointment} element={<Appointment />} />
+          <Route path={paths.myAppointments} element={<MyAppointments />} />
+          <Route path={paths.profile} element={<Profile />} />
         </Route>
 
-        {/* AUTH ROUTES */}
         <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+          <Route path={paths.login} element={<Login />} />
+          <Route path={paths.register} element={<Register />} />
+          <Route path={paths.verify} element={<Verify />} />
+          <Route path={paths.forgotPassword} element={<ForgotPassword />} />
+          <Route path={paths.resetPassword} element={<ResetPassword />} />
+          <Route path={paths.oauthRedirect} element={<OAuth2RedirectHandler />} />
         </Route>
 
-        {/* ADMIN ROUTES */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<Dashboard />} />
-            <Route path="/admin/properties" element={<PropertiesAdmin />} />
-            <Route path="/admin/properties/add" element={<AddProperty />} />
-            <Route path="/admin/properties/edit/:id" element={<EditProperty />} />
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/appointments" element={<AppointmentsAdmin />} />
+            <Route path={paths.admin} element={<Dashboard />} />
+            <Route path={paths.adminProperties} element={<PropertiesAdmin />} />
+            <Route path={paths.adminPropertyAdd} element={<AddProperty />} />
+            <Route path={paths.adminPropertyEdit()} element={<EditProperty />} />
+            <Route path={paths.adminUsers} element={<Users />} />
+            <Route path={paths.adminAppointments} element={<AppointmentsAdmin />} />
           </Route>
         </Route>
       </Routes>
-
-
     </ToastProvider>
   );
 }
 
 export default App;
-
-
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import { motion } from "framer-motion";
-
-// import AdminRoute from "./routes/AdminRoute";
-// import { AuthProvider } from "./context/AuthContext";
-
-// // Layouts
-// import PublicLayout from "./layouts/PublicLayout";
-// import AuthLayout from "./layouts/AuthLayout";
-// import AdminLayout from "./admin/layout/AdminLayout";
-
-// // Pages
-// import Home from "./pages/Home";
-// import Properties from "./pages/Properties";
-// import PropertyDetail from "./pages/PropertyDetail";
-// import About from "./pages/About";
-// import Contact from "./pages/Contact";
-// import Appointment from "./pages/Appointment";
-// import Profile from "./pages/Profile";
-
-// import Login from "./pages/Login";
-// import Register from "./pages/Register";
-// import Verify from "./pages/Verify";
-// import ForgotPassword from "./pages/ForgotPassword";
-// import ResetPassword from "./pages/ResetPassword";
-// import OAuth2RedirectHandler from "./components/OAuth2RedirectHandler"
-
-// import Dashboard from "./admin/pages/Dashboard";
-// import PropertiesAdmin from "./admin/pages/PropertiesAdmin";
-// import AddProperty from "./admin/pages/AddProperty";
-// import EditProperty from "./admin/pages/EditProperty";
-// import Users from "./admin/pages/Users";
-// import AppointmentsAdmin from "./admin/pages/AppointmentsAdmin";
-
-// // Optional debug
-// import DebugInfo from "./components/DebugInfo";
-
-// function App() {
-//   return (
-//     <AuthProvider>
-//     <Router>
-//       <Routes>
-
-//         {/* ==================== PUBLIC ROUTES ==================== */}
-        // <Route element={<PublicLayout />}>
-        //   <Route path="/" element={<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}><Home /></motion.div>} />
-        //   <Route path="/properties" element={<Properties />} />
-        //   <Route path="/properties/:id" element={<PropertyDetail />} />
-        //   <Route path="/about" element={<About />} />
-        //   <Route path="/contact" element={<Contact />} />
-        //   <Route path="/appointment" element={<Appointment />} />
-          
-        //   <Route path="/profile" element={<Profile />} />
-        // </Route>
-
-      
-
-//         {/* ==================== AUTH ROUTES ==================== */}
-        // <Route element={<AuthLayout />}>
-        //   <Route path="/login" element={<Login />} />
-        //   <Route path="/register" element={<Register />} />
-        //   <Route path="/verify" element={<Verify />} />
-        //   <Route path="/forgot-password" element={<ForgotPassword />} />
-        //   <Route path="/reset-password" element={<ResetPassword />} />
-        //   <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-        // </Route>
-
-
-//         {/* ==================== ADMIN ROUTES ==================== */}
-      //   <Route element={<AdminRoute />}>
-      //     <Route element={<AdminLayout />}>
-      //     <Route path="/admin" element={<Dashboard />} />
-      //     <Route path="/admin/properties" element={<PropertiesAdmin />} />
-      //     <Route path="/admin/properties/add" element={<AddProperty />} />
-      //     <Route path="/admin/properties/edit/:id" element={<EditProperty />} />
-      //     <Route path="/admin/users" element={<Users />} />
-      //     <Route path="/admin/appointments" element={<AppointmentsAdmin />} />
-      //   </Route>
-      // </Route>
-
-//       </Routes>
-
-//       <DebugInfo />
-//     </Router>
-//     </AuthProvider>
-//   );
-// }
-
-// export default App;

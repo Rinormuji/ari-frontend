@@ -1,14 +1,31 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User, UserPlus, LogOut, Home, Search, Info, Phone, ChevronDown, LayoutDashboard, CalendarDays, Shield } from "lucide-react";
-import logo2 from "../assets/images/ari-logo.jpg";
+import {
+  CalendarDays,
+  ChevronDown,
+  Home,
+  Info,
+  LayoutDashboard,
+  LogOut,
+  Map,
+  Menu,
+  Phone,
+  Search,
+  Shield,
+  User,
+  UserPlus,
+  X,
+} from "lucide-react";
+import logoMark from "../assets/images/ari-mark.svg";
 import { useAuth } from "../context/AuthContext";
+import { paths } from "../routes/paths";
 
 const navLinks = [
-  { name: "Ballina", path: "/", icon: Home },
-  { name: "Kërko Prona", path: "/properties/all", icon: Search },
-  { name: "Rreth Nesh", path: "/about", icon: Info },
-  { name: "Kontakt", path: "/contact", icon: Phone },
+  { name: "Ballina", path: paths.home, icon: Home },
+  { name: "Kërko Prona", path: paths.properties, icon: Search },
+  { name: "Harta", path: paths.propertiesMap, icon: Map },
+  { name: "Rreth Nesh", path: paths.about, icon: Info },
+  { name: "Kontakt", path: paths.contact, icon: Phone },
 ];
 
 const Navbar = () => {
@@ -19,7 +36,7 @@ const Navbar = () => {
   const { user, logout, loading, isAdmin, isSuperAdmin, isAuthenticated } = useAuth();
   const dropdownRef = useRef(null);
 
-  const onAdminPages = location.pathname.startsWith("/admin");
+  const onAdminPages = location.pathname.startsWith(paths.admin);
   const userIsAdmin = !loading && isAuthenticated && isAdmin();
 
   useEffect(() => {
@@ -29,11 +46,12 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -49,76 +67,69 @@ const Navbar = () => {
     setDropdownOpen(false);
   };
 
-  return (
-    <nav
-      className={`sticky top-0 z-60 border-b border-white/10 transition-all duration-300 ${
-        scrolled ? "bg-[#0F4638]/95 backdrop-blur-md" : "bg-[#0F4638]"
-      }`}
+  const renderNavLink = ({ name, path, icon: Icon }, mobile = false) => (
+    <Link
+      key={name}
+      to={path}
+      onClick={mobile ? () => setMenuOpen(false) : undefined}
+      className={
+        mobile
+          ? `flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
+              location.pathname === path ? "bg-[#EFD391]/20 text-[#EFD391]" : "text-[#EFD391] hover:bg-[#EFD391]/10"
+            }`
+          : `flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+              location.pathname === path ? "bg-[#EFD391]/20 text-[#EFD391]" : "text-[#EFD391] hover:bg-[#EFD391]/10"
+            }`
+      }
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-6">
+      <Icon size={mobile ? 18 : 15} />
+      {name}
+    </Link>
+  );
 
-        {/* LOGO */}
-        <Link to="/" className="shrink-0">
-          <img src={logo2} alt="Ari Real Estate" className="h-14 w-auto transition-transform duration-300 hover:scale-105" />
+  return (
+    <nav className={`sticky top-0 z-60 border-b border-white/10 transition-all duration-300 ${scrolled ? "bg-[#0F4638]/95 backdrop-blur-md" : "bg-[#0F4638]"}`}>
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6">
+        <Link to={paths.home} className="flex h-14 w-14 shrink-0 items-center justify-center bg-[#0B3F35] transition-transform duration-300 hover:scale-105">
+          <img src={logoMark} alt="Ari Real Estate" className="h-9 w-9" />
         </Link>
 
-        {/* DESKTOP LINKS — hide on admin pages */}
         {!onAdminPages && (
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map(({ name, path, icon: Icon }) => (
-              <Link
-                key={name}
-                to={path}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  location.pathname === path
-                    ? "bg-[#EFD391]/20 text-[#EFD391]"
-                    : "text-[#EFD391] hover:bg-[#EFD391]/10"
-                }`}
-              >
-                <Icon size={15} />
-                {name}
-              </Link>
-            ))}
+          <div className="hidden items-center gap-1 lg:flex">
+            {navLinks.map((link) => renderNavLink(link))}
           </div>
         )}
 
-        {/* RIGHT */}
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="ml-auto flex items-center gap-3">
           {!loading && (
             <>
-              {/* Admin/Home toggle button */}
               {isAuthenticated && userIsAdmin && (
                 onAdminPages ? (
-                  <Link
-                    to="/"
-                    className="hidden lg:flex items-center gap-2 bg-[#EFD391]/10 border border-[#EFD391]/30 text-[#EFD391] text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#EFD391]/20 transition-colors"
-                  >
+                  <Link to={paths.home} className="hidden items-center gap-2 rounded-xl border border-[#EFD391]/30 bg-[#EFD391]/10 px-4 py-2 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 lg:flex">
                     <Home size={15} /> Ballina
                   </Link>
                 ) : (
-                  <Link
-                    to="/admin"
-                    className="hidden lg:flex items-center gap-2 bg-[#EFD391]/10 border border-[#EFD391]/30 text-[#EFD391] text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#EFD391]/20 transition-colors"
-                  >
+                  <Link to={paths.admin} className="hidden items-center gap-2 rounded-xl border border-[#EFD391]/30 bg-[#EFD391]/10 px-4 py-2 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 lg:flex">
                     <LayoutDashboard size={15} /> Dashboard
                   </Link>
                 )
               )}
 
               {!isAuthenticated ? (
-                <div className="hidden lg:flex items-center gap-3">
-                  <Link to="/login" className="inline-flex items-center gap-1.5 text-[#EFD391] font-semibold text-sm hover:opacity-80 transition-opacity">
+                <div className="hidden items-center gap-3 lg:flex">
+                  <Link to={paths.login} className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#EFD391] transition-opacity hover:opacity-80">
                     <User size={15} /> Kyçu
                   </Link>
-                  <Link to="/register" className="inline-flex items-center gap-1.5 bg-[#EFD391] text-black font-semibold text-sm px-4 py-2 rounded-xl hover:bg-[#D9BF7B] transition-colors">
+                  <Link to={paths.register} className="inline-flex items-center gap-1.5 rounded-xl bg-[#EFD391] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#D9BF7B]">
                     <UserPlus size={15} /> Regjistrohu
                   </Link>
                 </div>
               ) : (
-                <div className="hidden lg:block relative" ref={dropdownRef}>
+                <div className="relative hidden lg:block" ref={dropdownRef}>
                   <button
-                    onClick={() => setDropdownOpen((o) => !o)}
-                    className="flex items-center gap-2 bg-[#123E35] border border-white/10 px-3 py-2 rounded-full text-[#EFD391] text-sm font-semibold hover:border-[#EFD391]/40 transition-colors"
+                    type="button"
+                    onClick={() => setDropdownOpen((open) => !open)}
+                    className="flex items-center gap-2 rounded-full border border-white/10 bg-[#123E35] px-3 py-2 text-sm font-semibold text-[#EFD391] transition-colors hover:border-[#EFD391]/40"
                   >
                     {isSuperAdmin() ? <Shield size={15} /> : <User size={15} />}
                     <span>{user?.username}</span>
@@ -126,24 +137,24 @@ const Navbar = () => {
                   </button>
 
                   {dropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 bg-[#123E35] border border-white/10 rounded-2xl p-1 min-w-48 shadow-2xl">
+                    <div className="absolute right-0 top-full mt-2 min-w-48 rounded-2xl border border-white/10 bg-[#123E35] p-1 shadow-2xl">
                       {!userIsAdmin && (
                         <>
-                          <Link to="/profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[#EFD391] text-sm font-semibold hover:bg-[#EFD391]/10 transition-colors">
+                          <Link to={paths.profile} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
                             <User size={14} /> Profili
                           </Link>
-                          <Link to="/my-appointments" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[#EFD391] text-sm font-semibold hover:bg-[#EFD391]/10 transition-colors">
+                          <Link to={paths.myAppointments} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
                             <CalendarDays size={14} /> Takimet e Mia
                           </Link>
                         </>
                       )}
                       {userIsAdmin && (
-                        <Link to="/profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[#EFD391] text-sm font-semibold hover:bg-[#EFD391]/10 transition-colors">
+                        <Link to={paths.profile} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
                           <User size={14} /> Profili
                         </Link>
                       )}
-                      <div className="h-px bg-white/10 mx-2 my-1" />
-                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-red-400 text-sm font-semibold hover:bg-red-500/10 transition-colors">
+                      <div className="mx-2 my-1 h-px bg-white/10" />
+                      <button type="button" onClick={handleLogout} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/10">
                         <LogOut size={14} /> Dil
                       </button>
                     </div>
@@ -153,62 +164,51 @@ const Navbar = () => {
             </>
           )}
 
-          {/* Mobile hamburger */}
-          <button className="lg:hidden text-[#EFD391] p-1" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+          <button type="button" className="p-1 text-[#EFD391] lg:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle menu">
             {menuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </div>
 
-      {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="lg:hidden bg-[#0F4638] border-t border-white/10 px-4 py-3">
+        <div className="border-t border-white/10 bg-[#0F4638] px-4 py-3 lg:hidden">
           <div className="flex flex-col gap-1">
-            {!onAdminPages && navLinks.map(({ name, path, icon: Icon }) => (
-              <Link key={name} to={path} onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-colors ${
-                  location.pathname === path ? "bg-[#EFD391]/20 text-[#EFD391]" : "text-[#EFD391] hover:bg-[#EFD391]/10"
-                }`}
-              >
-                <Icon size={18} /> {name}
-              </Link>
-            ))}
+            {!onAdminPages && navLinks.map((link) => renderNavLink(link, true))}
 
-            {/* Admin/Home toggle mobile */}
             {isAuthenticated && userIsAdmin && (
               onAdminPages ? (
-                <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                <Link to={paths.home} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                   <Home size={18} /> Ballina
                 </Link>
               ) : (
-                <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                <Link to={paths.admin} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                   <LayoutDashboard size={18} /> Dashboard
                 </Link>
               )
             )}
 
-            <div className="h-px bg-white/10 my-2" />
+            <div className="my-2 h-px bg-white/10" />
 
             {!loading && !isAuthenticated ? (
               <>
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                <Link to={paths.login} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                   <User size={18} /> Kyçu
                 </Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                <Link to={paths.register} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                   <User size={18} /> Regjistrohu
                 </Link>
               </>
             ) : !loading && isAuthenticated && (
               <>
-                <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
-                  <User size={18} /> Profili — {user?.username}
+                <Link to={paths.profile} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                  <User size={18} /> Profili - {user?.username}
                 </Link>
                 {!userIsAdmin && (
-                  <Link to="/my-appointments" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                  <Link to={paths.myAppointments} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                     <CalendarDays size={18} /> Takimet e Mia
                   </Link>
                 )}
-                <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full">
+                <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10">
                   <LogOut size={18} /> Dil
                 </button>
               </>
@@ -221,5 +221,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-

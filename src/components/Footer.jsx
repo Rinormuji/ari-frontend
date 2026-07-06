@@ -1,66 +1,70 @@
-import logo2 from '../assets/images/ari-logo.jpg';
-import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Music, Mail, Phone, MapPin } from 'lucide-react';
-import BackToTopButton from './BackToTopButton';
+import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { SiTiktok } from "react-icons/si";
+import { Link } from "react-router-dom";
+import logoMark from "../assets/images/ari-mark.svg";
+import { paths } from "../routes/paths";
+import { contactInfo } from "../utils/contactInfo";
+import BackToTopButton from "./BackToTopButton";
 
 export default function Footer() {
+  const links = [
+    { label: "Ballina", to: paths.home },
+    { label: "Kërko Prona", to: paths.properties },
+    { label: "Harta", to: paths.propertiesMap },
+    { label: "Rreth Nesh", to: paths.about },
+    { label: "Kontakti", to: paths.contact },
+  ];
+
   return (
-    <footer className="bg-[#0F4638] border-t border-[#EFD391]/20 text-[#E8E1D2]/75">
+    <footer className="border-t border-[#EFD391]/20 bg-[#0F4638] text-[#E8E1D2]/75">
       <BackToTopButton />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 sm:grid-cols-3 gap-10">
-
-        {/* Logo */}
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:grid-cols-3 sm:px-6">
         <div className="flex flex-col gap-3">
-          <img src={logo2} alt="Ari Real Estate" className="h-14 w-auto" />
+          <Link to={paths.home} className="flex h-16 w-16 items-center justify-center rounded-lg bg-[#0B3F35]">
+            <img src={logoMark} alt="Ari Real Estate" className="h-11 w-11" />
+          </Link>
           <p className="text-sm leading-relaxed text-[#E8E1D2]/60">
             Platforma juaj për gjetjen e pronës ideale në Kosovë.
           </p>
         </div>
 
-        {/* Links */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-[#EFD391] font-semibold text-sm uppercase tracking-wider mb-1">Navigimi</h4>
-          {[
-            { label: "Ballina", to: "/" },
-            { label: "Kërko Prona", to: "/properties" },
-            { label: "Rreth Nesh", to: "/about" },
-            { label: "Kontakti", to: "/contact" },
-          ].map(({ label, to }) => (
-            <Link key={to} to={to} className="text-sm hover:text-[#EFD391] transition-colors">
+          <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#EFD391]">Navigimi</h4>
+          {links.map(({ label, to }) => (
+            <Link key={to} to={to} className="text-sm transition-colors hover:text-[#EFD391]">
               {label}
             </Link>
           ))}
         </div>
 
-        {/* Contact */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-[#EFD391] font-semibold text-sm uppercase tracking-wider mb-1">Kontakti</h4>
-          <a href="mailto:info@arirealestate.com" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
-            <Mail size={14} /> info@arirealestate.com
+          <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#EFD391]">Kontakti</h4>
+          <a href={`mailto:${contactInfo.email}`} className="flex items-center gap-2 break-words text-sm transition-colors hover:text-[#EFD391]">
+            <Mail size={14} /> {contactInfo.email}
           </a>
-          <a href="tel:+38345465726" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
-            <Phone size={14} /> +383 45 465 726
+          <a href={contactInfo.phoneHref} className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
+            <Phone size={14} /> {contactInfo.phone}
           </a>
-          <a href="https://maps.app.goo.gl/ip4iUs994cqPUgjR6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm hover:text-[#EFD391] transition-colors">
-            <MapPin size={14} /> Gjilan, Kosovë
+          <a href={contactInfo.addressHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
+            <MapPin size={14} /> {contactInfo.address}
           </a>
 
-          <div className="flex items-center gap-4 mt-2">
-            <a href="https://www.facebook.com/p/Ari-Real-Estate-61554838910212/" target="_blank" rel="noopener noreferrer" className="text-[#E8E1D2]/70 hover:text-[#EFD391] transition-colors">
+          <div className="mt-2 flex items-center gap-4">
+            <a href={contactInfo.facebook} target="_blank" rel="noopener noreferrer" className="text-[#E8E1D2]/70 transition-colors hover:text-[#EFD391]" aria-label="Facebook">
               <Facebook size={20} />
             </a>
-            <a href="https://www.instagram.com/ari_realestate.ks/" target="_blank" rel="noopener noreferrer" className="text-[#E8E1D2]/70 hover:text-[#EFD391] transition-colors">
+            <a href={contactInfo.instagram} target="_blank" rel="noopener noreferrer" className="text-[#E8E1D2]/70 transition-colors hover:text-[#EFD391]" aria-label="Instagram">
               <Instagram size={20} />
             </a>
-            <a href="https://www.tiktok.com/@ari_realestate1" target="_blank" rel="noopener noreferrer" className="text-[#E8E1D2]/70 hover:text-[#EFD391] transition-colors">
-              <Music size={20} />
+            <a href={contactInfo.tiktok} target="_blank" rel="noopener noreferrer" className="text-[#E8E1D2]/70 transition-colors hover:text-[#EFD391]" aria-label="TikTok">
+              <SiTiktok size={19} />
             </a>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-[#EFD391]/20 text-center text-xs text-[#E8E1D2]/50 py-5">
+      <div className="border-t border-[#EFD391]/20 py-5 text-center text-xs text-[#E8E1D2]/50">
         © {new Date().getFullYear()} Ari Real Estate. All rights reserved.
       </div>
     </footer>

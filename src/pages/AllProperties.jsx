@@ -314,26 +314,7 @@ const AllProperties = () => {
     <main className="min-h-screen bg-[#f6f7f4]">
       <section className="border-b border-[#0F4638]/10 bg-white">
         <form onSubmit={applyFilters} className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#0F4638]/55">Ari Real Estate</p>
-              <h1 className="mt-1 text-2xl font-bold text-[#071f1a]">Kërko prona</h1>
-            </div>
-            <ModernSelect
-              icon={ListFilter}
-              value={sort}
-              options={sortOptions}
-              placeholder="Renditja"
-              allowEmpty={false}
-              onChange={(value) => {
-                setSort(value);
-                setPage(1);
-              }}
-              className="w-full sm:w-64"
-            />
-          </div>
-
-          <div className="grid gap-3 lg:grid-cols-[1.4fr_180px_180px_160px]">
+          <div className="grid gap-3 lg:grid-cols-[1.4fr_180px_180px_180px_160px]">
             <label className="flex h-12 items-center gap-2 rounded-lg border border-[#0F4638]/10 bg-[#f9faf8] px-3 text-sm text-[#0F4638] transition hover:border-[#D9BF7B] hover:bg-[#f2f5ef] focus-within:border-[#D9BF7B] focus-within:bg-white focus-within:ring-3 focus-within:ring-[#EFD391]/20">
               <Search size={17} className="text-[#D9BF7B]" />
               <input
@@ -359,13 +340,23 @@ const AllProperties = () => {
               placeholder="Lloji"
               onChange={(value) => updateDraft("type", value)}
             />
+            <ModernSelect
+              icon={ListFilter}
+              value={sort}
+              options={sortOptions}
+              placeholder="Renditja"
+              allowEmpty={false}
+              onChange={(value) => {
+                setSort(value);
+                setPage(1);
+              }}
+            />
 
             <button
               type="submit"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#EFD391] px-5 text-sm font-bold text-black transition hover:bg-[#D9BF7B]"
             >
-              <Search size={16} /> Kërko
-            </button>
+              <Search size={16} /> Kërko</button>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -420,7 +411,7 @@ const AllProperties = () => {
                       value={draftFilters[key]}
                       onChange={(event) => updateDraft(key, event.target.value)}
                       placeholder={label}
-                      className="w-full bg-transparent outline-none placeholder:text-[#0F4638]/35"
+                      className="w-full bg-transparent text-[#0F4638] caret-[#0F4638] outline-none placeholder:text-[#0F4638]/35"
                     />
                     {suffix ? <span className="text-xs font-semibold text-[#0F4638]/45">{suffix}</span> : null}
                   </label>
