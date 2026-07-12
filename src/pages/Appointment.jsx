@@ -119,10 +119,10 @@ export default function Appointment() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* Book button */}
         {!showForm && (
-          <div className="flex justify-end mb-6">
+          <div className="mb-6 flex justify-stretch sm:justify-end">
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
+              className="inline-flex w-full items-center justify-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm sm:w-auto"
             >
               <Plus size={16} /> Rezervo Takim
             </button>
@@ -136,7 +136,7 @@ export default function Appointment() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8"
           >
-            <div className="flex items-center justify-between mb-5">
+            <div className="mb-5 flex items-start justify-between gap-3">
               <h2 className="text-lg font-bold text-gray-900">Rezervo Takim të Ri</h2>
               <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-700 transition-colors">
                 <X size={20} />
@@ -163,7 +163,7 @@ export default function Appointment() {
               </div>
 
               {/* Date + time row */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Data *</label>
                   <input
@@ -189,18 +189,18 @@ export default function Appointment() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition-colors"
+                  className="w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl text-sm transition-colors sm:flex-1"
                 >
                   {submitting ? "Duke dërguar..." : "Dërgo Kërkesën"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-5 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-sm transition-colors"
+                  className="w-full px-5 py-3 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-sm transition-colors sm:w-auto"
                 >
                   Anulo
                 </button>
@@ -217,7 +217,7 @@ export default function Appointment() {
             <CalendarDays size={40} className="text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-700 mb-2">Nuk keni takime akoma</h3>
             <p className="text-gray-400 text-sm mb-6">Rezervoni takimin tuaj të parë duke klikuar butonin mësipërm.</p>
-            <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors">
+            <button onClick={() => setShowForm(true)} className="inline-flex w-full items-center justify-center gap-2 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors sm:w-auto">
               <Plus size={16} /> Rezervo Tani
             </button>
           </div>

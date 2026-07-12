@@ -143,14 +143,14 @@ const Properties = () => {
 
       {/* Filter bar */}
       <div className="bg-white border-b border-gray-200 shadow-sm py-3 px-4">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {/* City filter */}
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus-within:border-[#EFD391]">
+          <div className="flex w-full items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus-within:border-[#EFD391] sm:w-auto">
             <MapPin size={15} className="text-[#EFD391] shrink-0" />
             <select
               value={cityFilter}
               onChange={(e) => setCityFilter(e.target.value)}
-              className="outline-none text-sm text-gray-700 bg-transparent"
+              className="min-w-0 flex-1 outline-none text-sm text-gray-700 bg-transparent sm:flex-none"
             >
               <option value="">Të gjitha qytetet</option>
               {cityOptions.map((c) => (
@@ -162,7 +162,7 @@ const Properties = () => {
           {/* Radius toggle */}
           <button
             onClick={toggleCircle}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${circleEnabled ? "bg-[#EFD391] text-black border-[#EFD391]" : "bg-white text-gray-600 border-gray-200 hover:border-[#EFD391]/50"}`}
+            className={`flex w-full items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all sm:w-auto ${circleEnabled ? "bg-[#EFD391] text-black border-[#EFD391]" : "bg-white text-gray-600 border-gray-200 hover:border-[#EFD391]/50"}`}
           >
             <CircleIcon size={15} />
             Radius: {circleEnabled ? "ON" : "OFF"}
@@ -170,22 +170,22 @@ const Properties = () => {
 
           {/* Radius slider */}
           {circleEnabled && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex w-full flex-wrap items-center gap-2 text-sm text-gray-600 sm:w-auto">
               <span className="text-xs text-gray-400 shrink-0">Rreze:</span>
-              <input type="range" min="0" max="50" step="1" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-28 accent-[#EFD391]" />
+              <input type="range" min="0" max="50" step="1" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="min-w-0 flex-1 accent-[#EFD391] sm:w-28 sm:flex-none" />
               <input type="number" min="0" max="50" value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} className="w-14 border border-gray-200 rounded-lg px-2 py-1 text-sm outline-none focus:border-[#EFD391]" />
               <span className="text-xs text-gray-400">km</span>
             </div>
           )}
 
-          <span className="ml-auto text-xs text-gray-400">{filtered.length} prona</span>
+          <span className="text-xs text-gray-400 sm:ml-auto">{filtered.length} prona</span>
         </div>
       </div>
 
       {/* Map + Side list */}
       <div className="max-w-6xl mx-auto px-4 pt-4 grid grid-cols-1 lg:grid-cols-3 gap-4 z-30">
         {/* Map */}
-        <div className="lg:col-span-2 z-30 rounded-2xl overflow-hidden shadow-sm border border-gray-200" style={{ height: "70vh" }}>
+        <div className="z-30 h-[55vh] min-h-[360px] overflow-hidden rounded-2xl border border-gray-200 shadow-sm lg:col-span-2 lg:h-[70vh]">
           <MapContainer
             center={[centerPoint.lat ?? defaultCenter.lat, centerPoint.lng ?? defaultCenter.lng]}
             zoom={10}
@@ -214,7 +214,7 @@ const Properties = () => {
         </div>
 
         {/* Side list */}
-        <aside className="lg:col-span-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden" style={{ height: "70vh" }}>
+        <aside className="flex max-h-[70vh] min-h-[360px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-1 lg:h-[70vh] lg:max-h-none">
           <div className="p-4 border-b border-gray-100">
             <h3 className="font-bold text-gray-900 text-sm">Prona — {filtered.length}</h3>
             {circleEnabled ? (

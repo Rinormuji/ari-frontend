@@ -1,12 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import { propertyAPI } from "../../services/api";
 import MapPicker from "../components/MapPicker";
 import { useToast } from "../../context/ToastContext";
-
-const CITIES = ["Prishtinë", "Prizren", "Pejë", "Gjakovë", "Ferizaj", "Gjilan", "Mitrovicë"];
+import { paths } from "../../routes/paths";
+import { cityAPI } from "../../services/api";
 
 const inputCls =
   "w-full bg-[#123E35] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#EFD391]/60 transition-colors";
@@ -31,11 +31,13 @@ const CheckField = ({ name, checked, onChange, label }) => (
 
 function EditProperty() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const toast = useToast();
   const [type, setType] = useState("");
   const [form, setForm] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
   const [errors, setErrors] = useState({});
+  const [cities, setCities] = useState([]);
   
   
 
@@ -85,6 +87,25 @@ function EditProperty() {
 
     fetchProperty();
   }, [id]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCities = async () => {
+      try {
+        const res = await cityAPI.getAll();
+        if (!cancelled) setCities(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+        toast.error("Gabim gjatë ngarkimit të komunave.");
+      }
+    };
+
+    fetchCities();
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
 
   if (!form) return <div className="text-center mt-20 text-white">Loading...</div>;
 
@@ -265,7 +286,7 @@ function EditProperty() {
             <label className={labelCls}>Qyteti</label>
             <select name="location" value={form.location} onChange={handleChange} className={inputCls}>
               <option value="" disabled>Zgjidh qytetin</option>
-              {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              {Array.from(new Set([form.location, ...cities].filter(Boolean))).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
@@ -313,7 +334,7 @@ function EditProperty() {
         {type === "BANESA" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
             <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Banesës</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
                 <label className={labelCls}>Dhomat *</label>
                 <input type="number" name="rooms" value={form.rooms} onChange={handleChange} placeholder="0" className={inputCls} />
@@ -338,7 +359,7 @@ function EditProperty() {
         {type === "SHTEPI" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
             <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Shtëpisë</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className={labelCls}>Katet *</label>
                 <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
@@ -359,7 +380,7 @@ function EditProperty() {
         {type === "LOKALE" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
             <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Lokalit</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className={labelCls}>Kati</label>
                 <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
@@ -417,7 +438,7 @@ function EditProperty() {
                     <Draggable key={idx} draggableId={`img-${idx}`} index={idx}>
                       {(drag) => (
                         <div
-                          className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group"
+                          className="relative h-24 w-24 max-w-full rounded-lg overflow-hidden border border-white/20 group"
                           ref={drag.innerRef}
                           {...drag.draggableProps}
                           {...drag.dragHandleProps}
@@ -438,7 +459,7 @@ function EditProperty() {
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                  <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-[#EFD391]/50 transition-colors text-white/40 hover:text-[#EFD391]/70">
+                  <label className="flex h-24 w-24 max-w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/20 text-white/40 transition-colors hover:border-[#EFD391]/50 hover:text-[#EFD391]/70">
                     <ImagePlus size={22} />
                     <span className="text-xs mt-1">Shto</span>
                     <input type="file" multiple className="hidden" onChange={handleImages} accept="image/*" />
@@ -450,12 +471,21 @@ function EditProperty() {
           <p className="text-xs text-white/30 mt-1">Tërhiq për të rirendosur • Kliko × për të fshirë</p>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold py-3 rounded-lg transition-colors text-sm"
-        >
-          Ruaj Ndryshimet
-        </button>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => navigate(paths.adminProperties)}
+            className="w-full rounded-lg border border-white/10 px-4 py-3 text-sm font-semibold text-white/65 transition-colors hover:bg-white/5 hover:text-white sm:w-40"
+          >
+            Anulo
+          </button>
+          <button
+            type="submit"
+            className="w-full bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold py-3 rounded-lg transition-colors text-sm"
+          >
+            Ruaj Ndryshimet
+          </button>
+        </div>
       </form>
     </div>
   );

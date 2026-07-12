@@ -1,10 +1,10 @@
 import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import { Link } from "react-router-dom";
-import logoMark from "../assets/images/ari-mark.svg";
 import { paths } from "../routes/paths";
 import { contactInfo } from "../utils/contactInfo";
 import BackToTopButton from "./BackToTopButton";
+import BrandLogo from "./BrandLogo";
 
 export default function Footer() {
   const links = [
@@ -21,8 +21,8 @@ export default function Footer() {
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:grid-cols-3 sm:px-6">
         <div className="flex flex-col gap-3">
-          <Link to={paths.home} className="flex h-16 w-16 items-center justify-center rounded-lg bg-[#0B3F35]">
-            <img src={logoMark} alt="Ari Real Estate" className="h-11 w-11" />
+          <Link to={paths.home} aria-label="Ari Real Estate">
+            <BrandLogo size="lg" />
           </Link>
           <p className="text-sm leading-relaxed text-[#E8E1D2]/60">
             Platforma juaj për gjetjen e pronës ideale në Kosovë.

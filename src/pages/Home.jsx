@@ -1,25 +1,19 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Filter, Search, Building2, MapPin, ChevronRight, SlidersHorizontal, X } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Search, Building2, MapPin, ChevronRight, SlidersHorizontal } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { propertyAPI } from '../services/api'
 import PropertyCard from '../components/PropertyCard'
 import { paths } from '../routes/paths'
 
-const CITIES = ["Prishtinë", "Prizren", "Pejë", "Gjakovë", "Ferizaj", "Gjilan", "Mitrovicë"]
 const PAGE_SIZE = 4
-
-const typeLabels = { BANESA: "Banesë", SHTEPI: "Shtëpi", LOKALE: "Lokal", TOKA: "Tokë" }
-const statusLabels = { FOR_SALE: "Në shitje", FOR_RENT: "Me qira" }
 
 const Home = () => {
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalElements, setTotalElements] = useState(0)
-  const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState({ city: '', type: '', status: '' })
 
-  const fetchProperties = async (currentFilters) => {
+  const fetchProperties = async () => {
     setLoading(true)
     try {
       const params = {
@@ -27,9 +21,6 @@ const Home = () => {
         size: PAGE_SIZE,
         sort: 'id,desc',
       }
-      if (currentFilters.city) params.location = currentFilters.city
-      if (currentFilters.type) params.type = currentFilters.type
-      if (currentFilters.status) params.status = currentFilters.status
 
       const res = await propertyAPI.getProperties(params)
       const data = res.data
@@ -49,17 +40,8 @@ const Home = () => {
   }
 
   useEffect(() => {
-    fetchProperties(filters)
-  }, [filters])
-
-  const handleFilterChange = (key, value) => {
-    const updated = { ...filters, [key]: value }
-    setFilters(updated)
-  }
-
-  const clearFilter = (key) => handleFilterChange(key, '')
-
-  const activeFilters = Object.entries(filters).filter(([, v]) => v)
+    fetchProperties()
+  }, [])
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -83,12 +65,12 @@ const Home = () => {
               <Link to={paths.properties} className="inline-flex items-center gap-2 px-7 py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-bold rounded-xl transition-colors text-sm">
                 <Search size={16} /> Kërkim i Avancuar
               </Link>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="inline-flex items-center gap-2 px-7 py-3 border border-white/20 text-white hover:bg-white/10 rounded-xl transition-colors text-sm font-medium"
+              <Link
+                to={paths.properties}
+                className="inline-flex items-center gap-2 px-7 py-3 border border-[#EFD391]/35 bg-white/5 text-[#EFD391] hover:bg-[#EFD391]/10 rounded-xl transition-colors text-sm font-semibold"
               >
-                <SlidersHorizontal size={16} /> {showFilters ? "Mbyll Filtrat" : "Filtro Pronat"}
-              </button>
+                <SlidersHorizontal size={16} /> Filtro Pronat
+              </Link>
             </div>
           </motion.div>
           {/* Stats row */}
@@ -108,77 +90,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Quick filter bar */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="border-b border-gray-200 bg-white shadow-sm overflow-hidden"
-          >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap gap-3 items-center justify-center">
-              {/* City */}
-              <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                <MapPin size={15} className="text-[#EFD391] shrink-0" />
-                <select
-                  value={filters.city}
-                  onChange={(e) => handleFilterChange('city', e.target.value)}
-                  className="outline-none bg-transparent text-gray-700 text-sm cursor-pointer"
-                >
-                  <option value="">Të gjitha qytetet</option>
-                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              {/* Type */}
-              <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                <Building2 size={15} className="text-[#EFD391] shrink-0" />
-                <select
-                  value={filters.type}
-                  onChange={(e) => handleFilterChange('type', e.target.value)}
-                  className="outline-none bg-transparent text-gray-700 text-sm cursor-pointer"
-                >
-                  <option value="">Të gjitha llojet</option>
-                  {Object.entries(typeLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-              </div>
-              {/* Status */}
-              <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
-                <Filter size={15} className="text-[#EFD391] shrink-0" />
-                <select
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="outline-none bg-transparent text-gray-700 text-sm cursor-pointer"
-                >
-                  <option value="">Shitje & Qira</option>
-                  {Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-              </div>
-              {activeFilters.length > 0 && (
-                <button
-                  onClick={() => setFilters({ city: '', type: '', status: '' })}
-                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm text-red-500 border border-red-200 hover:bg-red-50 transition-colors"
-                >
-                  <X size={14} /> Pastro
-                </button>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Active filter chips */}
-      {activeFilters.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 flex flex-wrap gap-2">
-          {activeFilters.map(([key, val]) => (
-            <span key={key} className="inline-flex items-center gap-1.5 bg-[#EFD391]/10 text-[#0F4638] border border-[#EFD391]/30 text-xs font-medium px-3 py-1 rounded-full">
-              {key === 'city' ? val : key === 'type' ? typeLabels[val] : statusLabels[val]}
-              <button onClick={() => clearFilter(key)} className="hover:text-[#0A3028]"><X size={11} /></button>
-            </span>
-          ))}
-        </div>
-      )}
-
       {/* Property grid section */}
       <section className="py-10 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -187,11 +98,7 @@ const Home = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900">
-                {loading ? 'Duke ngarkuar...' : (
-                  activeFilters.length > 0
-                    ? `${totalElements} prona të gjetura`
-                    : 'Pronat e Disponueshme'
-                )}
+                {loading ? 'Duke ngarkuar...' : 'Pronat e Disponueshme'}
               </h2>
             </div>
             <Link
@@ -228,14 +135,6 @@ const Home = () => {
             <div className="text-center py-20">
               <Building2 size={40} className="mx-auto text-gray-300 mb-3" />
               <p className="text-gray-500 text-lg font-medium">Nuk u gjet asnjë pronë.</p>
-              {activeFilters.length > 0 && (
-                <button
-                  onClick={() => setFilters({ city: '', type: '', status: '' })}
-                  className="mt-4 text-sm text-[#0F4638] underline"
-                >
-                  Pastro filtrat
-                </button>
-              )}
             </div>
           )}
         </div>

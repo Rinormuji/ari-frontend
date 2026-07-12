@@ -422,7 +422,7 @@ export default function AppointmentsAdmin() {
                   <option value="REJECTED">Refuzuar</option>
                 </select>
               </label>
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:justify-end">
                 <button type="button" onClick={closeForm} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:text-white">Anulo</button>
                 <button type="submit" disabled={saving} className="rounded-lg bg-[#EFD391] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#D9BF7B] disabled:opacity-60">
                   {saving ? "Duke ruajtur..." : "Ruaj"}
@@ -443,13 +443,13 @@ export default function AppointmentsAdmin() {
               ["Përdoruesi", detailsAppointment.user],
               ["Data", formatDate(detailsAppointment.date)],
             ].map(([label, value]) => (
-              <div key={label} className="mb-2 flex gap-2">
-                <span className="w-24 shrink-0 text-sm text-white/40">{label}:</span>
-                <span className="text-sm text-white">{value}</span>
+              <div key={label} className="mb-2 flex flex-col gap-1 sm:flex-row sm:gap-2">
+                <span className="shrink-0 text-sm text-white/40 sm:w-24">{label}:</span>
+                <span className="break-words text-sm text-white">{value}</span>
               </div>
             ))}
-            <div className="mb-4 flex gap-2">
-              <span className="w-24 shrink-0 text-sm text-white/40">Statusi:</span>
+            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:gap-2">
+              <span className="shrink-0 text-sm text-white/40 sm:w-24">Statusi:</span>
               <StatusBadge status={detailsAppointment.status} />
             </div>
             <div className="flex justify-end">
@@ -464,7 +464,7 @@ export default function AppointmentsAdmin() {
           <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#123E35] p-6 shadow-2xl">
             <h3 className="mb-2 text-lg font-semibold text-white">Fshirje takimi</h3>
             <p className="mb-6 text-sm text-white/60">A dëshironi të fshini takimin për <b className="text-white">{deleteTarget.propertyName}</b>?</p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
               <button onClick={() => setDeleteTarget(null)} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:text-white">Anulo</button>
               <button onClick={deleteAppointment} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600">Fshij</button>
             </div>

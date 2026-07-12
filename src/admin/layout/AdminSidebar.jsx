@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { X, LayoutDashboard, Building2, PlusSquare, Users, CalendarCheck } from "lucide-react";
-import logo from '../../assets/images/ari-mark.svg';
+import BrandLogo from "../../components/BrandLogo";
 
 const navItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
@@ -24,8 +24,8 @@ function AdminSidebar({ open, onClose }) {
     >
       {/* Header */}
       <div className="flex items-center justify-between p-5 border-b border-white/10">
-        <Link to="/" onClick={onClose}>
-          <img src={logo} alt="Ari Real Estate" className="h-10 w-10" />
+        <Link to="/" onClick={onClose} aria-label="Ari Real Estate">
+          <BrandLogo size="sm" />
         </Link>
         <button onClick={onClose} className="lg:hidden text-white/60 hover:text-white">
           <X size={20} />

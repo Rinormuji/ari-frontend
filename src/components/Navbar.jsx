@@ -16,7 +16,7 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
-import logoMark from "../assets/images/ari-mark.svg";
+import BrandLogo from "./BrandLogo";
 import { useAuth } from "../context/AuthContext";
 import { paths } from "../routes/paths";
 
@@ -90,8 +90,13 @@ const Navbar = () => {
   return (
     <nav className={`sticky top-0 z-60 border-b border-white/10 transition-all duration-300 ${scrolled ? "bg-[#0F4638]/95 backdrop-blur-md" : "bg-[#0F4638]"}`}>
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6">
-        <Link to={paths.home} className="flex h-14 w-14 shrink-0 items-center justify-center bg-[#0B3F35] transition-transform duration-300 hover:scale-105">
-          <img src={logoMark} alt="Ari Real Estate" className="h-9 w-9" />
+        <Link to={paths.home} className="shrink-0" aria-label="Ari Real Estate">
+          <span className="hidden sm:inline-flex">
+            <BrandLogo />
+          </span>
+          <span className="inline-flex sm:hidden">
+            <BrandLogo showText={false} />
+          </span>
         </Link>
 
         {!onAdminPages && (

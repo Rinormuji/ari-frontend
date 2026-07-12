@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { User, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { authAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
-import logoMark from '../assets/images/ari-mark.svg'
+import BrandLogo from '../components/BrandLogo'
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' })
@@ -52,7 +52,7 @@ const Login = () => {
     <div className="min-h-screen flex bg-[#0F4638]">
       {/* Left — decorative panel */}
       <div className="hidden lg:flex flex-col justify-between w-2/5 bg-[#0B332B] border-r border-white/5 p-12">
-        <img src={logoMark} alt="Ari Real Estate" className="h-20 w-20" />
+        <BrandLogo size="lg" />
         <div>
           <h2 className="text-3xl font-bold text-white leading-snug mb-4">Mirë se vini<br/>në Ari Real Estate</h2>
           <p className="text-gray-400 text-sm leading-relaxed">Eksploroni qindra prona, rezervoni takime dhe gjeni shtëpinë tuaj të ëndrrave.</p>
@@ -69,7 +69,7 @@ const Login = () => {
           className="w-full max-w-sm"
         >
           {/* Mobile logo */}
-          <img src={logoMark} alt="Ari Real Estate" className="mx-auto mb-8 h-24 w-24" />
+          <BrandLogo size="xl" stacked className="mb-8 flex lg:hidden" />
 
           <h1 className="text-2xl font-bold text-white mb-1">Kyçu</h1>
           <p className="text-sm text-white/40 mb-8">Hyni në llogarinë tuaj</p>

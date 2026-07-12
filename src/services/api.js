@@ -150,6 +150,9 @@ export const adminAPI = {
   getStats: () => api.get("/users/stats"),
 };
 
+export const cityAPI = {
+  getAll: () => api.get('/cities'),
+};
 
 // Shtepi API functions
 export const shtepiAPI = {

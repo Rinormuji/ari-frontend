@@ -195,9 +195,9 @@ const confirmDelete = async () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-xl font-bold text-white">Menaxhimi i Pronave</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           {/* Search */}
-          <div className="flex items-center bg-[#123E35] border border-white/10 rounded-lg px-3 py-2 gap-2 flex-1 sm:w-72">
+          <div className="flex w-full items-center bg-[#123E35] border border-white/10 rounded-lg px-3 py-2 gap-2 sm:w-72">
             <Search size={14} className="text-white/40 shrink-0" />
             <input
               value={search}
@@ -218,28 +218,28 @@ const confirmDelete = async () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap">
         {[
           { value: typeFilter, onChange: setTypeFilter, options: [["", "Të gjitha llojet"], ["BANESA","Banesa"], ["SHTEPI","Shtëpi"], ["LOKALE","Lokale"], ["TOKA","Tokë"]] },
           { value: statusFilter, onChange: setStatusFilter, options: [["","Të gjitha statuset"],["FOR_SALE","Në shitje"],["FOR_RENT","Me qira"]] },
         ].map((f, i) => (
           <select key={i} value={f.value} onChange={(e) => f.onChange(e.target.value)}
-            className="bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40">
+            className="w-full bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40 lg:w-auto">
             {f.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         ))}
         <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-          className="bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40">
+          className="w-full bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40 lg:w-auto">
           <option value="">Të gjitha qytetet</option>
           {cityOptions.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         <input placeholder="Min €" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number"
-          className="w-24 bg-[#123E35] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#EFD391]/40" />
+          className="w-full bg-[#123E35] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#EFD391]/40 lg:w-24" />
         <input placeholder="Max €" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number"
-          className="w-24 bg-[#123E35] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#EFD391]/40" />
+          className="w-full bg-[#123E35] border border-white/10 text-white text-sm rounded-lg px-3 py-2 placeholder-white/30 focus:outline-none focus:border-[#EFD391]/40 lg:w-24" />
         {(typeFilter || statusFilter || cityFilter || minPrice || maxPrice || search) && (
           <button onClick={() => { setTypeFilter(""); setStatusFilter(""); setCityFilter(""); setMinPrice(""); setMaxPrice(""); setMinArea(""); setMaxArea(""); setSearch(""); }}
-            className="flex items-center gap-1 text-sm text-white/50 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors">
+            className="flex w-full items-center justify-center gap-1 text-sm text-white/50 hover:text-white border border-white/10 rounded-lg px-3 py-2 transition-colors lg:w-auto">
             <X size={13} /> Pastro
           </button>
         )}
