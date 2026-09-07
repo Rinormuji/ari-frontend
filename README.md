@@ -20,7 +20,8 @@ Në development, kërkesat `/api` kalojnë te `http://localhost:3007` përmes pr
 
 | Variabla | Përshkrimi |
 | --- | --- |
-| `VITE_API_BASE_URL` | Origjina e backend-it pa `/api`, p.sh. `https://ari-api.epuna.net` |
+| `VITE_API_BASE_URL` | Origjina e backend-it pa `/api`, p.sh. `https://api.domaini-final.com` |
+| `VITE_SITE_URL` | Origjina finale e frontend-it, p.sh. `https://www.domaini-final.com` |
 
 Kur variabla është bosh, frontend-i përdor `/api` në të njëjtën origjinë. Vlerat `VITE_*` janë publike dhe përfshihen në bundle; mos vendosni sekrete në to.
 
@@ -51,17 +52,17 @@ Projekti konfigurohet nga `vercel.json`:
 - SPA fallback për React Router;
 - security headers dhe cache afatgjatë për asetet e versionuara.
 
-Deployment-i ndalet automatikisht nëse `VITE_API_BASE_URL` mungon në Vercel. Vendoseni me një backend URL funksionale dhe verifikoni që backend-i lejon origin-in e frontend-it me credentials/cookie `HttpOnly`.
+Deployment-i ndalet automatikisht nëse `VITE_API_BASE_URL` ose `VITE_SITE_URL` mungon në Vercel. Gjatë build-it, `VITE_SITE_URL` përdoret për `robots.txt` dhe `sitemap.xml`.
 
 ### Production dhe domain
 
-Domain-i kanonik është `www.arirealestate.com`. Konfigurimi ridrejton automatikisht `arirealestate.com` te varianti `www`.
+Repo-ja nuk hardkodon domain. Përdorni `www` si domain kanonik dhe `api` si subdomain të backend-it, p.sh. `www.domaini-final.com` dhe `api.domaini-final.com`.
 
 1. Importoni repository-n në Vercel dhe lini framework-un `Vite`.
-2. Shtoni `VITE_API_BASE_URL` në Production, Preview dhe Development. Vlera duhet të jetë origjina HTTPS e backend-it pa `/api`.
-3. Në Vercel, shtoni `www.arirealestate.com` si production domain dhe `arirealestate.com` si redirect domain.
+2. Shtoni `VITE_API_BASE_URL` dhe `VITE_SITE_URL` në Production, Preview dhe Development. API URL duhet të jetë origjina HTTPS pa `/api`.
+3. Në Vercel, shtoni `www.domaini-final.com` si production domain dhe domain-in pa `www` si redirect domain.
 4. Te DNS provider-i, vendosni rekordet që Vercel shfaq në ekranin Domains. Mos kopjoni vlera DNS nga dokumente të vjetra; target-i mund të ndryshojë.
-5. Në backend lejoni origin-in `https://www.arirealestate.com`, aktivizoni credentials dhe përdorni cookie `Secure`, `HttpOnly` dhe një `SameSite` të përshtatshëm për topologjinë e domain-it.
+5. Në backend vendosni `APP_FRONTEND_URL=https://www.domaini-final.com` dhe `APP_CORS_ALLOWED_ORIGINS=https://www.domaini-final.com`.
 6. Pas deploy-it kontrolloni `/`, `/properties`, një URL të thellë të pronës, login/logout dhe panelin admin.
 
 GitHub Actions ekzekuton `npm run check` për çdo pull request dhe push në `main`. Vercel duhet të mbetet deployment provider; GitHub workflow është quality gate dhe nuk ruan token deploy-i.

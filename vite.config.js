@@ -5,8 +5,16 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
 
-  if (globalThis.process?.env?.VERCEL && !env.VITE_API_BASE_URL) {
-    throw new Error("VITE_API_BASE_URL must be configured in Vercel before deployment.");
+  if (globalThis.process?.env?.VERCEL) {
+    const missing = ["VITE_API_BASE_URL", "VITE_SITE_URL"].filter(
+      (key) => !env[key],
+    );
+
+    if (missing.length > 0) {
+      throw new Error(
+        `${missing.join(", ")} must be configured in Vercel before deployment.`,
+      );
+    }
   }
 
   return {

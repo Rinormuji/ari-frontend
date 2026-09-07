@@ -4,16 +4,6 @@
   "buildCommand": "npm run check",
   "outputDirectory": "dist",
   "framework": "vite",
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        { "type": "host", "value": "arirealestate.com" }
-      ],
-      "destination": "https://www.arirealestate.com/:path*",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/assets/(.*)",
