@@ -14,7 +14,7 @@ import {
   Trees,
   Warehouse,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContextValue";
 import { paths } from "../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyPrice } from "../utils/propertyPricing";

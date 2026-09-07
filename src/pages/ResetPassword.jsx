@@ -36,7 +36,7 @@ const ResetPassword = () => {
       await api.post(`/auth/reset-password`, null, { params: { token, newPassword } });
       setMessage('Fjalëkalimi u ndryshua me sukses!');
       setTimeout(() => navigate('/login'), 2000);
-    } catch (err) {
+    } catch {
       setError('Token i pavlefshëm ose skaduar.');
     } finally {
       setLoading(false);

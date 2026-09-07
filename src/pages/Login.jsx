@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { User, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { authAPI } from '../services/api'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/authContextValue'
+import { getSafeRedirect } from '../routes/paths'
 import BrandLogo from '../components/BrandLogo'
 
 const Login = () => {
@@ -30,10 +31,10 @@ const Login = () => {
         try {
           const meRes = await authAPI.me()
           userData = meRes.data ?? userData
-        } catch (_) {
-          // Login succeeded; use token response as the source of truth for navigation.
+        } catch {
+          // The cookie was accepted but the profile endpoint did not return details.
         }
-        const redirect = searchParams.get('redirect')
+        const redirect = getSafeRedirect(searchParams.get('redirect'))
         login(userData, redirect)
       } else {
         setError('Gabim në përgjigjen e serverit')

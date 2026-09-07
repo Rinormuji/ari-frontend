@@ -1,8 +1,9 @@
 import axios from 'axios'
+import { paths } from '../routes/paths'
 
 
-const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || ''}/api`
-
+const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "")
+const API_BASE_URL = `${API_ORIGIN}/api`
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,13 +14,8 @@ const api = axios.create({
   },
 })
 
-// Request interceptor — attach JWT from localStorage
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('jwt')
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
-    }
     if (import.meta.env.DEV) {
       console.log(`API Request → ${config.method?.toUpperCase()} ${config.url}`)
     }
@@ -51,8 +47,8 @@ api.interceptors.response.use(
       const isPublicPropertyRead =
         error.config?.method?.toLowerCase() === 'get' && url.includes('/properties')
       if (!url.includes('/auth/me') && !url.includes('/auth/login') && !isPublicPropertyRead) {
-        localStorage.removeItem('jwt')
-        window.location.href = '/login'
+        const currentLocation = `${window.location.pathname}${window.location.search}`
+        window.location.href = paths.loginWithRedirect(currentLocation)
       }
     }
 
@@ -216,9 +212,6 @@ export const authAPI = {
       console.log('Auth: login request sent')
     }
     const response = await api.post('/auth/login', credentials)
-    if (response.data?.token) {
-      localStorage.setItem('jwt', response.data.token)
-    }
     return response
   },
 
@@ -233,7 +226,6 @@ export const authAPI = {
     if (import.meta.env.DEV) {
       console.log('Auth: logout')
     }
-    localStorage.removeItem('jwt')
     return api.post('/auth/logout')
   },
 

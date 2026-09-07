@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Ban, Eye, Pencil, Search, ShieldCheck, Trash2, UserPlus } from "lucide-react";
 import { usersAPI } from "../../services/api";
-import { useAuth } from "../../context/AuthContext";
-import { useToast } from "../../context/ToastContext";
+import { useAuth } from "../../context/authContextValue";
+import { useToast } from "../../context/toastContextValue";
 
 const PAGE_SIZE = 10;
 
@@ -39,11 +39,8 @@ export default function UsersAdmin() {
   const [regLoading, setRegLoading] = useState(false);
   const [regError, setRegError] = useState("");
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page, search]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await usersAPI.getUsers({ page: page - 1, size: PAGE_SIZE, search });
@@ -58,7 +55,11 @@ export default function UsersAdmin() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search, toast]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const openRegisterForm = (role = "USER") => {
     setRegForm({ ...initialRegForm, role: superAdmin ? role : "USER" });
@@ -126,32 +127,6 @@ export default function UsersAdmin() {
     }
   };
 
-  const handleUpdateEmail = async () => {
-    if (!selectedUser) return;
-    try {
-      await usersAPI.updateEmail(selectedUser.id, selectedUser.email);
-      toast.success("Email-i u perditesua.");
-      closeModal();
-      fetchUsers();
-    } catch (err) {
-      console.error("Gabim gjate perditesimit te email-it:", err);
-      toast.error("Email-i nuk mund te perditesohet.");
-    }
-  };
-
-  const handleUpdateRoles = async () => {
-    if (!superAdmin || !selectedUser) return;
-    try {
-      await usersAPI.updateRoles(selectedUser.id, selectedUser.roles || ["USER"]);
-      toast.success("Roli u perditesua.");
-      closeModal();
-      fetchUsers();
-    } catch (err) {
-      console.error("Gabim gjate update te roleve:", err);
-      toast.error("Roli nuk mund te perditesohet.");
-    }
-  };
-
   const handleUpdateStatus = async (status = selectedUser?.status) => {
     if (!selectedUser || !status) return;
     try {
@@ -162,19 +137,6 @@ export default function UsersAdmin() {
     } catch (err) {
       console.error("Gabim gjate update te statusit:", err);
       toast.error("Statusi nuk mund te perditesohet.");
-    }
-  };
-
-  const handleUpdateEnabled = async (enabled = selectedUser?.enabled) => {
-    if (!selectedUser) return;
-    try {
-      await usersAPI.updateEnabled(selectedUser.id, !!enabled);
-      toast.success(enabled ? "Perdoruesi u aktivizua." : "Perdoruesi u deaktivizua.");
-      closeModal();
-      fetchUsers();
-    } catch (err) {
-      console.error("Gabim gjate update te aktivizimit:", err);
-      toast.error("Aktivizimi nuk mund te perditesohet.");
     }
   };
 

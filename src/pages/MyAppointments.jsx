@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CalendarDays, Building2, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
 import { appointmentAPI } from "../services/api";
-import { useAuth } from "../context/AuthContext";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../context/toastContextValue";
 
 const STATUS = {
   PENDING:  { label: "Në pritje",  cls: "bg-yellow-100 text-yellow-700 border-yellow-200", icon: Clock },
@@ -23,22 +22,13 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function MyAppointments() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      navigate("/login?redirect=/my-appointments", { replace: true });
-      return;
-    }
-    fetchAppointments();
-  }, [isAuthenticated, authLoading]);
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     setLoading(true);
     try {
       const res = await appointmentAPI.getMy();
@@ -48,15 +38,11 @@ export default function MyAppointments() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-[#EFD391] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { propertyAPI } from '../services/api'
 import PropertyCard from '../components/PropertyCard'
 import { paths } from '../routes/paths'
+import DataLoadError from '../components/DataLoadError'
 
 const PAGE_SIZE = 4
 
@@ -12,9 +13,11 @@ const Home = () => {
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalElements, setTotalElements] = useState(0)
+  const [loadError, setLoadError] = useState(false)
 
   const fetchProperties = async () => {
     setLoading(true)
+    setLoadError(false)
     try {
       const params = {
         page: 0,
@@ -32,8 +35,8 @@ const Home = () => {
         setProperties(data.slice(0, PAGE_SIZE))
         setTotalElements(data.length)
       }
-    } catch (err) {
-      console.error('Error fetching properties:', err)
+    } catch {
+      setLoadError(true)
     } finally {
       setLoading(false)
     }
@@ -110,7 +113,9 @@ const Home = () => {
           </div>
 
           {/* Grid */}
-          {loading ? (
+          {loadError ? (
+            <DataLoadError onRetry={fetchProperties} />
+          ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(PAGE_SIZE)].map((_, i) => (
                 <div key={i} className="h-72 bg-gray-200 rounded-2xl shadow-sm animate-pulse" />

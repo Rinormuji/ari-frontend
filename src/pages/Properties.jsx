@@ -9,19 +9,15 @@ import {
   Circle,
   useMapEvents,
 } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import banner from "../assets/images/banner.jpg";
 import { propertyAPI } from '../services/api';
 import { paths } from '../routes/paths';
+import { propertyMapIcon } from '../utils/leafletIcons';
+import DataLoadError from '../components/DataLoadError';
 
-/* Marker icon */
-const propertyIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-  iconSize: [34, 34],
-  iconAnchor: [17, 34],
-});
+const propertyIcon = propertyMapIcon;
 
 /* Haversine distance */
 function haversineKm(lat1, lon1, lat2, lon2) {
@@ -53,6 +49,8 @@ const Properties = () => {
 
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [cityFilter, setCityFilter] = useState("");
   const [circleEnabled, setCircleEnabled] = useState(false);
   const [centerPoint, setCenterPoint] = useState(defaultCenter);
@@ -68,6 +66,7 @@ const Properties = () => {
     const fetchProperties = async () => {
       setLoading(true);
       try {
+        setLoadError(false);
         const res = await propertyAPI.getProperties({ page: 0, size: 1000 });
         const content = res.data.content || [];
 
@@ -91,8 +90,8 @@ const Properties = () => {
         });
 
         setProperties(mapped);
-      } catch (err) {
-        console.error("Error fetching properties:", err);
+      } catch {
+        setLoadError(true);
         setProperties([]);
       } finally {
         setLoading(false);
@@ -100,7 +99,7 @@ const Properties = () => {
     };
 
     fetchProperties();
-  }, []);
+  }, [reloadKey]);
 
   const toggleCircle = () => {
     if (!circleEnabled && !centerPoint) setCenterPoint(defaultCenter);
@@ -135,6 +134,12 @@ const Properties = () => {
         <div className="w-8 h-8 rounded-full border-2 border-[#EFD391] border-t-transparent animate-spin" />
         <span className="text-sm">Duke ngarkuar pronat...</span>
       </div>
+    </div>
+  );
+
+  if (loadError) return (
+    <div className="min-h-[70vh] bg-gray-50 px-4 py-20">
+      <DataLoadError onRetry={() => setReloadKey((key) => key + 1)} />
     </div>
   );
 

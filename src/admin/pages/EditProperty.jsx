@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import { propertyAPI } from "../../services/api";
 import MapPicker from "../components/MapPicker";
-import { useToast } from "../../context/ToastContext";
+import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { cityAPI } from "../../services/api";
 
@@ -86,7 +86,7 @@ function EditProperty() {
     };
 
     fetchProperty();
-  }, [id]);
+  }, [id, toast]);
 
   useEffect(() => {
     let cancelled = false;

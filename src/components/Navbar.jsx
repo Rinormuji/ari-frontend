@@ -17,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import BrandLogo from "./BrandLogo";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContextValue";
 import { paths } from "../routes/paths";
 
 const navLinks = [

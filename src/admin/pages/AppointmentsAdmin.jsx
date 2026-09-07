@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CalendarPlus,
   Check,
@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { appointmentAPI, propertyAPI, usersAPI } from "../../services/api";
-import { useToast } from "../../context/ToastContext";
+import { useToast } from "../../context/toastContextValue";
 
 const PAGE_SIZE = 12;
 
@@ -70,7 +70,7 @@ export default function AppointmentsAdmin() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -98,7 +98,7 @@ export default function AppointmentsAdmin() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, page]);
 
   const fetchFormOptions = async () => {
     try {
@@ -118,7 +118,7 @@ export default function AppointmentsAdmin() {
 
   useEffect(() => {
     fetchAppointments();
-  }, [page, debouncedSearch]);
+  }, [fetchAppointments]);
 
   useEffect(() => {
     fetchFormOptions();

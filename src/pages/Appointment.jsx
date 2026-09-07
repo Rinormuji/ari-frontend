@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useCallback, useState, useEffect } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CalendarDays, Building2, CheckCircle, XCircle, Clock, AlertCircle, ArrowLeft, Plus, X } from "lucide-react";
 import { appointmentAPI, propertyAPI } from "../services/api";
-import { useAuth } from "../context/AuthContext";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../context/toastContextValue";
 
 const STATUS = {
   PENDING:  { label: "Në pritje",  cls: "bg-yellow-100 text-yellow-700 border-yellow-200", icon: Clock },
@@ -23,9 +22,7 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function Appointment() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const toast = useToast();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preselectedPropertyId = searchParams.get("propertyId");
 
@@ -41,18 +38,8 @@ export default function Appointment() {
     time: "10:00",
   });
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      const redirect = preselectedPropertyId ? `/appointment?propertyId=${preselectedPropertyId}` : "/appointment";
-      navigate(`/login?redirect=${encodeURIComponent(redirect)}`, { replace: true });
-      return;
-    }
-    fetchData();
-    if (preselectedPropertyId) setShowForm(true);
-  }, [isAuthenticated, authLoading]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoadingData(true);
     try {
       const [apptRes, propRes] = await Promise.all([
@@ -70,7 +57,12 @@ export default function Appointment() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchData();
+    if (preselectedPropertyId) setShowForm(true);
+  }, [fetchData, preselectedPropertyId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,14 +88,6 @@ export default function Appointment() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-2 border-[#EFD391] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">

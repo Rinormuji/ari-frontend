@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { propertyAPI } from "../services/api";
 import PropertyCard from "../components/PropertyCard";
+import DataLoadError from "../components/DataLoadError";
 
 const PAGE_SIZE = 12;
 
@@ -188,6 +189,8 @@ const AllProperties = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState(defaultFilterOptions);
 
@@ -231,6 +234,7 @@ const AllProperties = () => {
 
     const fetchProperties = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const res = await propertyAPI.getProperties(buildParams(filters, page, sort));
         const data = res.data;
@@ -250,8 +254,8 @@ const AllProperties = () => {
           setTotalPages(1);
           setTotalElements(0);
         }
-      } catch (error) {
-        console.error("Error fetching properties:", error);
+      } catch {
+        setLoadError(true);
         if (!cancelled) {
           setProperties([]);
           setTotalPages(1);
@@ -266,7 +270,7 @@ const AllProperties = () => {
     return () => {
       cancelled = true;
     };
-  }, [filters, page, sort]);
+  }, [filters, page, reloadKey, sort]);
 
   useEffect(() => {
     let cancelled = false;
@@ -275,8 +279,8 @@ const AllProperties = () => {
       try {
         const res = await propertyAPI.getFilterOptions();
         if (!cancelled) setFilterOptions({ ...defaultFilterOptions, ...res.data });
-      } catch (error) {
-        console.error("Error fetching filter options:", error);
+      } catch {
+        // Keep the default filter options while the API is unavailable.
       }
     };
 
@@ -469,7 +473,9 @@ const AllProperties = () => {
           )}
         </div>
 
-        {loading ? (
+        {loadError ? (
+          <DataLoadError onRetry={() => setReloadKey((key) => key + 1)} />
+        ) : loading ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: PAGE_SIZE }).map((_, index) => (
               <div key={index} className="h-[430px] animate-pulse rounded-xl bg-white shadow-sm" />

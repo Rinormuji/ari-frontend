@@ -1,8 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authAPI } from '../services/api'
-
-export const AuthContext = createContext()
+import { AuthContext } from './authContextValue'
 
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
@@ -18,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const response = await authAPI.me()
         setAuthState({ user: response.data, isAuthenticated: true })
-      } catch (err) {
+      } catch {
         // 401 means no valid cookie — not an error, just not logged in
         setAuthState({ user: null, isAuthenticated: false })
       } finally {
@@ -29,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     initializeUser()
   }, [])
 
-  const login = (userData, redirect = null) => {
+  const login = useCallback((userData, redirect = null) => {
     setAuthState({ user: userData, isAuthenticated: true })
 
     if (redirect) {
@@ -39,26 +38,28 @@ export const AuthProvider = ({ children }) => {
     } else {
       navigate('/')
     }
-  }
+  }, [navigate])
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await authAPI.logout()
-    } catch (_) {
+    } catch {
       // ignore errors; cookie cleared server-side
     }
     setAuthState({ user: null, isAuthenticated: false })
     navigate('/login')
-  }
+  }, [navigate])
 
-  const isAdmin = () =>
+  const isAdmin = useCallback(() =>
     !!(authState.user?.roles?.includes('ADMIN') ||
-    authState.user?.roles?.includes('SUPER_ADMIN'))
+    authState.user?.roles?.includes('SUPER_ADMIN')), [authState.user])
 
-  const isSuperAdmin = () => !!(authState.user?.roles?.includes('SUPER_ADMIN'))
+  const isSuperAdmin = useCallback(
+    () => !!authState.user?.roles?.includes('SUPER_ADMIN'),
+    [authState.user],
+  )
 
-  return (
-    <AuthContext.Provider value={{
+  const value = useMemo(() => ({
       user: authState.user,
       isAuthenticated: authState.isAuthenticated,
       loading,
@@ -66,10 +67,11 @@ export const AuthProvider = ({ children }) => {
       logout,
       isAdmin,
       isSuperAdmin
-    }}>
+    }), [authState, isAdmin, isSuperAdmin, loading, login, logout])
+
+  return (
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )
 }
-
-export const useAuth = () => useContext(AuthContext)

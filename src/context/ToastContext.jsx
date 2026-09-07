@@ -1,9 +1,6 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
-
-const ToastContext = createContext(null);
-
-let _id = 0;
+import { ToastContext } from "./toastContextValue";
 
 const ICONS = {
   success: <CheckCircle size={17} className="shrink-0 text-green-400" />,
@@ -21,9 +18,10 @@ const BORDER = {
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+  const nextId = useRef(0);
 
-  const toast = useCallback((message, type = "info", duration = 3500) => {
-    const id = ++_id;
+  const addToast = useCallback((message, type = "info", duration = 3500) => {
+    const id = ++nextId.current;
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -31,13 +29,17 @@ export function ToastProvider({ children }) {
     return id;
   }, []);
 
-  const remove = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
+  const remove = useCallback(
+    (id) => setToasts((prev) => prev.filter((toast) => toast.id !== id)),
+    [],
+  );
 
-  // Convenience helpers
-  toast.success = (msg, dur) => toast(msg, "success", dur);
-  toast.error = (msg, dur) => toast(msg, "error", dur);
-  toast.info = (msg, dur) => toast(msg, "info", dur);
-  toast.warning = (msg, dur) => toast(msg, "warning", dur);
+  const toast = useMemo(() => Object.assign(addToast, {
+    success: (message, duration) => addToast(message, "success", duration),
+    error: (message, duration) => addToast(message, "error", duration),
+    info: (message, duration) => addToast(message, "info", duration),
+    warning: (message, duration) => addToast(message, "warning", duration),
+  }), [addToast]);
 
   return (
     <ToastContext.Provider value={toast}>
@@ -53,7 +55,9 @@ export function ToastProvider({ children }) {
             {ICONS[t.type] || ICONS.info}
             <span className="flex-1 leading-snug">{t.message}</span>
             <button
+              type="button"
               onClick={() => remove(t.id)}
+              aria-label="Mbyll njoftimin"
               className="text-white/40 hover:text-white transition-colors shrink-0 mt-0.5"
             >
               <X size={14} />
@@ -63,10 +67,4 @@ export function ToastProvider({ children }) {
       </div>
     </ToastContext.Provider>
   );
-}
-
-export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error("useToast must be used inside <ToastProvider>");
-  return ctx;
 }

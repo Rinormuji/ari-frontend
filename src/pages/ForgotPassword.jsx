@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     try {
       await api.post(`/auth/forgot-password`, null, { params: { email } });
       setMessage('Nëse email-i ekziston, linku për reset është dërguar!');
-    } catch (err) {
+    } catch {
       setMessage('Gabim gjatë kërkesës, provo përsëri.');
     } finally {
       setLoading(false);

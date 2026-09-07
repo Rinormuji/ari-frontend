@@ -1,16 +1,9 @@
-import L from "leaflet";
+import { configureLeafletIcons as applyLeafletIconConfig } from "../../utils/leafletIcons";
 import { getStatusLabel } from "../../utils/propertyLabels";
 
 export const placeholderImage = "/placeholder.jpg";
 
-export const configureLeafletIcons = () => {
-  delete L.Icon.Default.prototype._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  });
-};
+export const configureLeafletIcons = applyLeafletIconConfig;
 
 export const getPropertyImages = (property) =>
   property?.images?.length ? property.images : [placeholderImage];

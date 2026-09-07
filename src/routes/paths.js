@@ -1,3 +1,7 @@
+export const getSafeRedirect = (value) =>
+  typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
+    ? value
+    : null;
 export const paths = {
   home: "/",
   propertiesMap: "/properties",

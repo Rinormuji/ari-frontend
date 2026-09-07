@@ -1,18 +1,28 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), tailwindcss(),],
-  server: {
-    // Proxy vetëm për dev
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3007', // backend lokal dev
-        changeOrigin: true,
-        secure: false,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, ".", "");
+
+  if (globalThis.process?.env?.VERCEL && !env.VITE_API_BASE_URL) {
+    throw new Error("VITE_API_BASE_URL must be configured in Vercel before deployment.");
+  }
+
+  return {
+    plugins: [react(), tailwindcss()],
+    test: {
+      environment: "jsdom",
+      setupFiles: "./src/test/setup.js",
+    },
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://localhost:3007",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
-  },
-})
+  };
+});

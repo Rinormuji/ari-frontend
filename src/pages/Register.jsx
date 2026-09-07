@@ -5,7 +5,7 @@ import { authAPI } from "../services/api";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { ArrowLeft, Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../context/toastContextValue";
 import BrandLogo from "../components/BrandLogo";
 
 const Register = () => {
