@@ -31,7 +31,17 @@ Kur variabla është bosh, frontend-i përdor `/api` në të njëjtën origjinë
 npm run check
 ```
 
-Komanda ekzekuton lint-in, testet dhe build-in e prodhimit. Deployment-i në Vercel përdor të njëjtën komandë dhe dështon nëse ndonjë hap nuk kalon.
+Kontrolli që përdoret para deploy-it real:
+
+```bash
+VITE_SITE_URL=https://www.domaini-juaj.com \
+VITE_API_BASE_URL=https://api.domaini-juaj.com \
+npm run deploy:check
+```
+
+Ky kontroll refuzon HTTP, localhost, URL me path dhe domain placeholder.
+
+`npm run check` ekzekuton lint-in, testet dhe build-in e prodhimit. Vercel shton validimin e URL-ve përmes `npm run deploy:check` dhe dështon nëse ndonjë hap nuk kalon.
 
 Komandat individuale:
 
@@ -47,7 +57,7 @@ npm run preview
 Projekti konfigurohet nga `vercel.json`:
 
 - instalim deterministik me `npm ci`;
-- quality gate me `npm run check`;
+- quality gate production me `npm run deploy:check`;
 - output në `dist`;
 - SPA fallback për React Router;
 - security headers dhe cache afatgjatë për asetet e versionuara.
