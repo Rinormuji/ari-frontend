@@ -81,7 +81,7 @@ const Home = () => {
             {[
               { icon: Building2, label: "Prona aktive", value: `${totalElements || ''}+` },
               { icon: MapPin, label: "Qytete", value: "3+" },
-              // { icon: Search, label: "Shitje të suksesshme", value: "100+" },
+              
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex flex-col items-center gap-1">
                 <Icon size={18} className="text-[#EFD391]" />
