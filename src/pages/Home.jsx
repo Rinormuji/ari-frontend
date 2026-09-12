@@ -80,8 +80,8 @@ const Home = () => {
           <div className="flex flex-wrap justify-center gap-8 mt-14 pt-10 border-t border-white/10">
             {[
               { icon: Building2, label: "Prona aktive", value: `${totalElements || ''}+` },
-              { icon: MapPin, label: "Qytete", value: "7+" },
-              { icon: Search, label: "Shitje të suksesshme", value: "100+" },
+              { icon: MapPin, label: "Qytete", value: "3+" },
+              // { icon: Search, label: "Shitje të suksesshme", value: "100+" },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex flex-col items-center gap-1">
                 <Icon size={18} className="text-[#EFD391]" />

@@ -34,14 +34,16 @@ const Register = () => {
     const e = {};
     if (!formData.name.trim()) e.name = "Shkruani emrin";
     if (!formData.surname.trim()) e.surname = "Shkruani mbiemrin";
-    if (!formData.username.trim()) e.username = "Shkruani username";
-    if (!formData.email.trim()) e.email = "Shkruani email";
+    if (!formData.username.trim()) e.username = "Shkruani emrin e përdoruesit.";
+    else if (!/^[A-Za-z0-9._-]{3,30}$/.test(formData.username)) e.username = "Përdorni 3–30 shkronja, numra, pikë, vizë ose nënvizë.";
+    if (!formData.email.trim()) e.email = "Shkruani adresën e emailit.";
     if (!formData.phone.trim()) e.phone = "Shkruani numrin e telefonit";
-    else if (formData.phone.length < 8) e.phone = "Numri i telefonit eshte i shkurter";
-    if (!formData.password) e.password = "Shkruani password";
-    else if (formData.password.length < 6) e.password = "Minimumi 6 karaktere";
-    if (!formData.confirmPassword) e.confirmPassword = "Konfirmoni password-in";
-    else if (formData.password !== formData.confirmPassword) e.confirmPassword = "Password-et nuk perputhen";
+    else if (formData.phone.length < 8) e.phone = "Shkruani një numër telefoni të vlefshëm.";
+    if (!formData.password) e.password = "Shkruani fjalëkalimin.";
+    else if (formData.password.length < 8) e.password = "Fjalëkalimi duhet të ketë së paku 8 karaktere.";
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) e.password = "Përdorni së paku një shkronjë të madhe, një të vogël dhe një numër.";
+    if (!formData.confirmPassword) e.confirmPassword = "Konfirmoni fjalëkalimin.";
+    else if (formData.password !== formData.confirmPassword) e.confirmPassword = "Fjalëkalimet nuk përputhen.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -57,13 +59,16 @@ const Register = () => {
         phoneNumber: formData.phone, password: formData.password,
         confirmPassword: formData.confirmPassword,
       });
-      toast.success("Regjistrimi u krye! Kontrolloni email-in per verifikim.");
+      toast.success("Regjistrimi u krye me sukses. Kontrolloni emailin për verifikim.");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      const msg = err.response?.data?.message || "Ka ndodhur nje gabim ne server";
-      if (msg.toLowerCase().includes("username")) setErrors((p) => ({ ...p, username: msg }));
+      const msg = err.response?.data?.message ||
+        (err.response
+          ? "Kërkesa nuk mund të përfundohet. Ju lutemi, provoni përsëri."
+          : "Nuk mund të lidhemi me serverin. Kontrolloni lidhjen dhe provoni përsëri.");
+      if (msg.toLowerCase().includes("emër përdoruesi")) setErrors((p) => ({ ...p, username: msg }));
       else if (msg.toLowerCase().includes("email")) setErrors((p) => ({ ...p, email: msg }));
-      else if (msg.toLowerCase().includes("phone")) setErrors((p) => ({ ...p, phone: msg }));
+      else if (msg.toLowerCase().includes("telefon")) setErrors((p) => ({ ...p, phone: msg }));
       else toast.error(msg);
     } finally {
       setLoading(false);
@@ -97,7 +102,7 @@ const Register = () => {
           <BrandLogo size="xl" stacked className="mb-8 flex lg:hidden" />
 
           <h1 className="text-2xl font-bold text-white mb-1">Regjistrohu</h1>
-          <p className="text-sm text-white/40 mb-8">Hap llogarinë tënde falas</p>
+          <p className="text-sm text-white/40 mb-8">Hap llogarinë tënde</p>
 
           {/* Custom phone-input overrides */}
           <style>{`

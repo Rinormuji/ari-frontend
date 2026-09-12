@@ -242,6 +242,8 @@ export const appointmentAPI = {
   // User: get own appointments
   getMy: () => api.get('/appointments/my'),
 
+  getBookedSlots: () => api.get('/appointments/booked-slots'),
+
   // Admin: get all appointments
   getAll: (params = {}) => api.get('/appointments', { params }),
 

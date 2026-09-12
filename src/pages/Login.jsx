@@ -37,10 +37,13 @@ const Login = () => {
         const redirect = getSafeRedirect(searchParams.get('redirect'))
         login(userData, redirect)
       } else {
-        setError('Gabim në përgjigjen e serverit')
+        setError('Përgjigjja e serverit nuk ishte e vlefshme. Ju lutemi, provoni përsëri.')
       }
     } catch (err) {
-      const message = err.response?.data?.message || 'Username ose fjalëkalim i gabuar.'
+      const message = err.response?.data?.message ||
+        (err.response
+          ? 'Kërkesa nuk mund të përfundohet. Ju lutemi, provoni përsëri.'
+          : 'Nuk mund të lidhemi me serverin. Kontrolloni lidhjen dhe provoni përsëri.')
       setError(message)
     } finally {
       setLoading(false)
@@ -81,7 +84,7 @@ const Login = () => {
               <input
                 type="text"
                 name="username"
-                placeholder="Username"
+                placeholder="Emaili ose emri i përdoruesit"
                 value={formData.username}
                 onChange={handleChange}
                 className={`${input} pl-10`}

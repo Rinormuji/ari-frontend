@@ -27,7 +27,13 @@ const ResetPassword = () => {
     setError('');
 
     if (newPassword !== confirmPassword) {
-      setError('Fjalëkalimet nuk përputhen!');
+      setError('Fjalëkalimi dhe konfirmimi i tij nuk përputhen.');
+      setLoading(false);
+      return;
+    }
+
+    if (newPassword.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      setError('Fjalëkalimi duhet të ketë së paku 8 karaktere, një shkronjë të madhe, një të vogël dhe një numër.');
       setLoading(false);
       return;
     }
@@ -36,8 +42,8 @@ const ResetPassword = () => {
       await api.post(`/auth/reset-password`, null, { params: { token, newPassword } });
       setMessage('Fjalëkalimi u ndryshua me sukses!');
       setTimeout(() => navigate('/login'), 2000);
-    } catch {
-      setError('Token i pavlefshëm ose skaduar.');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Lidhja është e pavlefshme ose ka skaduar. Kërkoni një lidhje të re.');
     } finally {
       setLoading(false);
     }

@@ -21,6 +21,8 @@ const StatusBadge = ({ status }) => {
   );
 };
 
+const TIME_SLOTS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+
 export default function Appointment() {
   const toast = useToast();
   const [searchParams] = useSearchParams();
@@ -31,6 +33,7 @@ export default function Appointment() {
   const [loadingData, setLoadingData] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   const [form, setForm] = useState({
     propertyId: preselectedPropertyId || "",
@@ -64,16 +67,46 @@ export default function Appointment() {
     if (preselectedPropertyId) setShowForm(true);
   }, [fetchData, preselectedPropertyId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!form.propertyId) {
+      setBookedSlots([]);
+      return undefined;
+    }
+    appointmentAPI.getBookedSlots()
+      .then((response) => {
+        if (!cancelled) setBookedSlots(Array.isArray(response.data) ? response.data : []);
+      })
+      .catch(() => {
+        if (!cancelled) setBookedSlots([]);
+      });
+    return () => { cancelled = true; };
+  }, [form.propertyId]);
+
+  const isBooked = (time) => bookedSlots.some((slot) => slot.slice(0, 16) === `${form.date}T${time}`);
+
+  useEffect(() => {
+    const slotIsBooked = (time) => bookedSlots.some(
+      (slot) => slot.slice(0, 16) === `${form.date}T${time}`
+    );
+    if (form.date && slotIsBooked(form.time)) {
+      const availableTime = TIME_SLOTS.find((time) => !slotIsBooked(time));
+      if (availableTime) setForm((current) => ({ ...current, time: availableTime }));
+    }
+  }, [bookedSlots, form.date, form.time]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.propertyId) return toast.error("Zgjidh pronën.");
     if (!form.date) return toast.error("Zgjidh datën.");
 
+    if (isBooked(form.time)) return toast.error("Kjo orë është rezervuar. Zgjidhni një orar tjetër.");
+
     const dateTime = `${form.date}T${form.time}:00`;
     setSubmitting(true);
     try {
       await appointmentAPI.create(Number(form.propertyId), dateTime);
-      toast.success("Takimi u rezervua me sukses! Do të merrni konfirmim brenda pak.");
+      toast.success("Takimi u kërkua me sukses! Do të merrni konfirmim brenda pak kohe.");
       setShowForm(false);
       setForm({ propertyId: preselectedPropertyId || "", date: "", time: "10:00" });
       fetchData();
@@ -166,8 +199,10 @@ export default function Appointment() {
                     onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition bg-white"
                   >
-                    {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"].map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                    {TIME_SLOTS.map((t) => (
+                      <option key={t} value={t} disabled={isBooked(t)}>
+                        {t}{isBooked(t) ? " (e rezervuar)" : ""}
+                      </option>
                     ))}
                   </select>
                 </div>

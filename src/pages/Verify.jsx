@@ -13,9 +13,9 @@ const Verify = () => {
     if (token) {
       api.get(`/auth/verify?token=${token}`)
         .then((res) => { setMessage(res.data); setStatus("success"); })
-        .catch((err) => { setMessage(err.response?.data || "Verifikimi dështoi."); setStatus("error"); });
+        .catch((err) => { setMessage(err.response?.data?.message || "Lidhja e verifikimit është e pavlefshme ose është përdorur më parë."); setStatus("error"); });
     } else {
-      setMessage("Token i pavlefshëm.");
+      setMessage("Lidhja e verifikimit është e pavlefshme.");
       setStatus("error");
     }
   }, [searchParams]);

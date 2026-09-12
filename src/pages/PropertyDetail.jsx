@@ -12,7 +12,7 @@ import {
   Ruler,
   X,
 } from "lucide-react";
-import api, { propertyAPI } from "../services/api";
+import { appointmentAPI, propertyAPI } from "../services/api";
 import { useAuth } from "../context/authContextValue";
 import { useToast } from "../context/toastContextValue";
 import { paths } from "../routes/paths";
@@ -29,6 +29,8 @@ import {
 } from "./property-detail/propertyDetailUtils";
 
 configureLeafletIcons();
+
+const TIME_SLOTS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
 const LoadingState = () => (
   <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -50,7 +52,7 @@ const ContactCard = ({ contactInfo }) => {
 
   return (
     <div className="rounded-xl border border-[#EFD391]/45 bg-[#fff9ea] p-4 shadow-sm">
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0F4638] text-[#EFD391]">
           <PhoneCall size={18} />
         </div>
@@ -81,7 +83,9 @@ const PropertyDetail = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [appointmentModal, setAppointmentModal] = useState(false);
-  const [appointmentDate, setAppointmentDate] = useState("");
+  const [appointmentDay, setAppointmentDay] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState("10:00");
+  const [bookedSlots, setBookedSlots] = useState([]);
   const [sendingAppointment, setSendingAppointment] = useState(false);
 
   const images = useMemo(() => getPropertyImages(property), [property]);
@@ -154,12 +158,45 @@ const PropertyDetail = () => {
     setAppointmentModal(true);
   };
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!appointmentModal || !property?.id) return undefined;
+    appointmentAPI.getBookedSlots()
+      .then((response) => {
+        if (!cancelled) setBookedSlots(Array.isArray(response.data) ? response.data : []);
+      })
+      .catch(() => {
+        if (!cancelled) setBookedSlots([]);
+      });
+    return () => { cancelled = true; };
+  }, [appointmentModal, property?.id]);
+
+  const isBooked = (time) => bookedSlots.some(
+    (slot) => slot.slice(0, 16) === `${appointmentDay}T${time}`
+  );
+
+  useEffect(() => {
+    const slotIsBooked = (time) => bookedSlots.some(
+      (slot) => slot.slice(0, 16) === `${appointmentDay}T${time}`
+    );
+    if (appointmentDay && slotIsBooked(appointmentTime)) {
+      const availableTime = TIME_SLOTS.find((time) => !slotIsBooked(time));
+      if (availableTime) setAppointmentTime(availableTime);
+    }
+  }, [appointmentDay, appointmentTime, bookedSlots]);
+
   const sendAppointmentRequest = async () => {
-    if (!appointmentDate) {
+    if (!appointmentDay) {
       toast.error("Zgjidhni një datë.");
       return;
     }
 
+    if (isBooked(appointmentTime)) {
+      toast.error("Kjo orë është rezervuar. Zgjidhni një orar tjetër.");
+      return;
+    }
+
+    const appointmentDate = `${appointmentDay}T${appointmentTime}:00`;
     const selectedDate = new Date(appointmentDate);
     const minAllowed = new Date(Date.now() + 3 * 60 * 60 * 1000);
     if (selectedDate < minAllowed) {
@@ -169,15 +206,13 @@ const PropertyDetail = () => {
 
     setSendingAppointment(true);
     try {
-      await api.post("/appointments", {
-        propertyId: property.id,
-        date: appointmentDate,
-      });
+      await appointmentAPI.create(property.id, appointmentDate);
       toast.success("Kërkesa u dërgua me sukses.");
       setAppointmentModal(false);
-      setAppointmentDate("");
-    } catch {
-      toast.error("Gabim gjatë dërgimit të kërkesës.");
+      setAppointmentDay("");
+      setAppointmentTime("10:00");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gabim gjatë dërgimit të kërkesës.");
     } finally {
       setSendingAppointment(false);
     }
@@ -311,13 +346,32 @@ const PropertyDetail = () => {
                 <X size={20} />
               </button>
             </div>
-            <input
-              type="datetime-local"
-              value={appointmentDate}
-              onChange={(event) => setAppointmentDate(event.target.value)}
-              min={new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-              className="mb-4 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#EFD391] focus:ring-2 focus:ring-[#EFD391]/40"
-            />
+            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Data</label>
+                <input
+                  type="date"
+                  value={appointmentDay}
+                  onChange={(event) => setAppointmentDay(event.target.value)}
+                  min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#EFD391] focus:ring-2 focus:ring-[#EFD391]/40"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Ora</label>
+                <select
+                  value={appointmentTime}
+                  onChange={(event) => setAppointmentTime(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#EFD391] focus:ring-2 focus:ring-[#EFD391]/40"
+                >
+                  {TIME_SLOTS.map((time) => (
+                    <option key={time} value={time} disabled={isBooked(time)}>
+                      {time}{isBooked(time) ? " (e rezervuar)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <button type="button" onClick={() => setAppointmentModal(false)} className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
                 Anulo
