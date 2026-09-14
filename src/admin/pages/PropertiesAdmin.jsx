@@ -1,7 +1,8 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { Eye, LayoutGrid, Table2, Trash2, Pencil, Search, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { paths } from "../../routes/paths";
 import { propertyAPI, api } from "../../services/api";
 import { useToast } from "../../context/toastContextValue";
 import { getPropertyViews } from "../../utils/propertyViews";
@@ -289,13 +290,16 @@ const confirmDelete = async () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
                       <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
                         <Trash2 size={14} />
                       </button>
+                      <Link to={paths.propertyDetail(p.id)} className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
+                        <Eye size={15} /> Shih detajet
+                      </Link>
                     </div>
                   </td>
                 </tr>
@@ -336,6 +340,9 @@ const confirmDelete = async () => {
                   </button>
                 </div>
               </div>
+              <Link to={paths.propertyDetail(p.id)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
+                <Eye size={15} /> Shih detajet
+              </Link>
             </div>
           ))}
         </div>

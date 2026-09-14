@@ -89,13 +89,13 @@ const Navbar = () => {
 
   return (
     <nav className={`sticky top-0 z-60 border-b border-white/10 transition-all duration-300 ${scrolled ? "bg-[#0F4638]/95 backdrop-blur-md" : "bg-[#0F4638]"}`}>
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-3 px-4 sm:h-20 sm:gap-6 sm:px-6">
         <Link to={paths.home} className="shrink-0" aria-label="Ari Real Estate">
           <span className="hidden sm:inline-flex">
             <BrandLogo />
           </span>
           <span className="inline-flex sm:hidden">
-            <BrandLogo showText={false} />
+            <BrandLogo size="sm" />
           </span>
         </Link>
 
@@ -169,14 +169,14 @@ const Navbar = () => {
             </>
           )}
 
-          <button type="button" className="p-1 text-[#EFD391] lg:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle menu">
+          <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[#EFD391] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391] lg:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Mbyll menunë" : "Hap menunë"} aria-expanded={menuOpen} aria-controls="mobile-navigation">
             {menuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </div>
 
       {menuOpen && (
-        <div className="border-t border-white/10 bg-[#0F4638] px-4 py-3 lg:hidden">
+        <div id="mobile-navigation" className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t border-white/10 bg-[#0F4638] px-4 py-3 sm:max-h-[calc(100dvh-5rem)] lg:hidden">
           <div className="flex flex-col gap-1">
             {!onAdminPages && navLinks.map((link) => renderNavLink(link, true))}
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Building2, MapPin, ChevronRight, SlidersHorizontal } from 'lucide-react'
+import { Search, Building2, MapPin, Eye, ChevronRight, SlidersHorizontal } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { propertyAPI } from '../services/api'
 import PropertyCard from '../components/PropertyCard'
@@ -14,6 +14,16 @@ const Home = () => {
   const [loading, setLoading] = useState(true)
   const [totalElements, setTotalElements] = useState(0)
   const [loadError, setLoadError] = useState(false)
+  const [totalViews, setTotalViews] = useState(null)
+
+  const fetchTotalViews = async () => {
+    try {
+      const { data } = await propertyAPI.getTotalViews()
+      setTotalViews(data.totalViews)
+    } catch {
+      setTotalViews(null)
+    }
+  }
 
   const fetchProperties = async () => {
     setLoading(true)
@@ -44,6 +54,7 @@ const Home = () => {
 
   useEffect(() => {
     fetchProperties()
+    fetchTotalViews()
   }, [])
 
   return (
@@ -77,12 +88,11 @@ const Home = () => {
             </div>
           </motion.div>
           {/* Stats row */}
-          <div className="flex flex-wrap justify-center gap-8 mt-14 pt-10 border-t border-white/10">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-14 pt-10 border-t border-white/10">
             {[
               { icon: Building2, label: "Prona aktive", value: `${totalElements || ''}+` },
               { icon: MapPin, label: "Qytete", value: "3+" },
-              
-              
+              { icon: Eye, label: "Shikime gjithsej", value: totalViews == null ? '—' : totalViews.toLocaleString('sq-AL') },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex flex-col items-center gap-1">
                 <Icon size={18} className="text-[#EFD391]" />
