@@ -19,6 +19,7 @@ import { paths } from "../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyViews } from "../utils/propertyViews";
 import { formatCalculatedTotal, formatPropertyPrice } from "../utils/propertyPricing";
+import { extractContactPhones } from "../utils/propertyContact";
 import ImageGallery from "./property-detail/ImageGallery";
 import RecommendedProperties from "./property-detail/RecommendedProperties";
 import {
@@ -58,7 +59,7 @@ const ContactCard = ({ contactInfo }) => {
         </div>
         <div className="min-w-0 flex-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-[#0F4638]/55">Kontakt</span>
-          <p className="mt-1 break-words text-base font-bold leading-snug text-[#0F4638]">{contactInfo}</p>
+          <p className="mt-1 whitespace-pre-line break-words text-base font-bold leading-snug text-[#0F4638]">{contactInfo}</p>
         </div>
       </div>
     </div>
@@ -281,7 +282,7 @@ const PropertyDetail = () => {
               </div>
             )}
 
-            <ContactCard contactInfo={property.contactInfo} />
+            <ContactCard contactInfo={extractContactPhones(property.contactInfo)} />
 
             <button
               type="button"

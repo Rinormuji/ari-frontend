@@ -16,11 +16,11 @@ const RecommendedProperties = ({ properties }) => {
             to={paths.propertyDetail(property.id)}
             className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md"
           >
-            <div className="h-36 overflow-hidden">
+            <div className="aspect-square overflow-hidden bg-[#edf1ee]">
               <img
                 src={property.images?.[0] || placeholderImage}
                 alt={property.title || ""}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="h-full w-full object-contain"
               />
             </div>
             <div className="p-3">

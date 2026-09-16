@@ -59,6 +59,7 @@ api.interceptors.response.use(
 
 // Property API functions
 export const propertyAPI = {
+  getTotalViews: () => api.get('/properties/total-views'),
   // Get all properties with pagination and filters
   getProperties: (params = {}) => {
     return api.get('/properties', { params })

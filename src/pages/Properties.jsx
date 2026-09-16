@@ -205,7 +205,7 @@ const Properties = () => {
               <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => navigate(paths.propertyDetail(p.id)) }}>
                 <Tooltip direction="top" offset={[0, -12]} opacity={1} interactive>
                   <div className="flex gap-2 items-start w-52">
-                    <img src={p.images?.[0] ?? banner} alt={p.title} className="w-14 h-14 object-cover rounded-lg shrink-0" />
+                    <img src={p.images?.[0] ?? banner} alt={p.title} className="w-14 h-14 object-contain bg-gray-100 rounded-lg shrink-0" />
                     <div className="overflow-hidden">
                       <p className="font-semibold text-xs leading-snug line-clamp-2">{p.title}</p>
                       <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
@@ -231,7 +231,7 @@ const Properties = () => {
           <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
             {filtered.map((p) => (
               <button key={p.id} onClick={() => navigate(paths.propertyDetail(p.id))} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
-                <img src={p.images?.[0] ?? banner} alt="" className="w-14 h-12 object-cover rounded-xl shrink-0" />
+                <img src={p.images?.[0] ?? banner} alt="" className="w-14 h-14 object-contain bg-gray-100 rounded-xl shrink-0" />
                 <div className="overflow-hidden">
                   <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.title}</p>
                   <p className="text-[#EFD391] font-bold text-sm">{p.price?.toLocaleString()} €</p>
