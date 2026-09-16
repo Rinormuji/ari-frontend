@@ -11,13 +11,13 @@ const ImageGallery = ({
 }) => (
   <div>
     <div
-      className="relative aspect-4/3 cursor-pointer overflow-hidden rounded-2xl bg-gray-200"
+      className="relative aspect-square cursor-pointer overflow-hidden rounded-2xl bg-gray-200"
       onClick={onOpen}
     >
       <img
         src={images[currentIndex]}
         alt={title || "Foto e pronës"}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain"
       />
 
       {images.length > 1 && (
@@ -59,12 +59,12 @@ const ImageGallery = ({
             key={`${image}-${index}`}
             type="button"
             onClick={() => onSelect(index)}
-            className={`h-16 w-24 shrink-0 overflow-hidden rounded-xl transition-all ${
+            className={`h-20 w-20 shrink-0 bg-gray-100 overflow-hidden rounded-xl transition-all ${
               index === currentIndex ? "ring-2 ring-[#EFD391] opacity-100" : "opacity-60 hover:opacity-80"
             }`}
             aria-label={`Shfaq foton ${index + 1}`}
           >
-            <img src={image} alt="" className="h-full w-full object-cover" />
+            <img src={image} alt="" className="h-full w-full object-contain" />
           </button>
         ))}
       </div>

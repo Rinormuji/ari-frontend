@@ -4,6 +4,8 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import { propertyAPI } from "../../services/api";
 import MapPicker from "../components/MapPicker";
+import { extractContactPhones } from "../../utils/propertyContact";
+import PropertyContactField from "../components/PropertyContactField";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { cityAPI } from "../../services/api";
@@ -36,6 +38,7 @@ function EditProperty() {
   const [type, setType] = useState("");
   const [form, setForm] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
+  const [imagesChanged, setImagesChanged] = useState(false);
   const [errors, setErrors] = useState({});
   const [cities, setCities] = useState([]);
   
@@ -59,6 +62,7 @@ function EditProperty() {
         }
         setForm({
           ...found,
+          contactInfo: extractContactPhones(found.contactInfo),
           location: city,
           neighborhood: neighborhood,
           rooms: found.rooms || "",
@@ -75,9 +79,8 @@ function EditProperty() {
           images: found.images || [],
         });
 
-        if (found.images && found.images.length > 0) {
-          setPreviewImages(found.images);
-        }
+        setPreviewImages(found.images || []);
+        setImagesChanged(false);
         }
       } catch (err) {
         console.error(err);
@@ -121,6 +124,7 @@ function EditProperty() {
 
   // HANDLE IMAGES
   const handleImages = (e) => {
+    setImagesChanged(true);
     const files = Array.from(e.target.files);
     const previews = files.map((f) => URL.createObjectURL(f));
     setPreviewImages((prev) => [...prev, ...previews]);
@@ -128,12 +132,14 @@ function EditProperty() {
   };
 
   const removeImage = (idx) => {
+    setImagesChanged(true);
     setPreviewImages((prev) => prev.filter((_, i) => i !== idx));
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
   };
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
+    setImagesChanged(true);
 
     const items = Array.from(previewImages);
     const [reordered] = items.splice(result.source.index, 1);
@@ -156,6 +162,7 @@ function EditProperty() {
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave duhet të jetë > 0";
     if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) newErrors.floor = "Numri i kateve duhet të jetë > 0";
 
+    if ((form.contactInfo ?? "").length > 255) newErrors.contactInfo = "Kontakti duhet të ketë deri në 255 karaktere.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -188,7 +195,7 @@ function EditProperty() {
     const payload = {
       ...form,
       location: fullLocation,
-      images: imagesBase64,
+      images: imagesChanged ? imagesBase64 : undefined,
       type,
       price: form.priceType === "NEGOTIABLE" ? null : form.price,
     };
@@ -408,8 +415,8 @@ function EditProperty() {
             </select>
           </div>
           <div>
-            <label className={labelCls}>Kontakt</label>
-            <input type="text" name="contactInfo" value={form.contactInfo} onChange={handleChange} placeholder="Kontakt" className={inputCls} />
+            <PropertyContactField value={form.contactInfo} onChange={handleChange} />
+            {errors.contactInfo && <p className={errorCls}>{errors.contactInfo}</p>}
           </div>
         </div>
 
@@ -443,7 +450,7 @@ function EditProperty() {
                           {...drag.draggableProps}
                           {...drag.dragHandleProps}
                         >
-                          <img src={src} alt="" className="w-full h-full object-cover" />
+                          <img src={src} alt={`Foto ekzistuese ${idx + 1}`} className="w-full h-full object-contain" />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                             <GripVertical size={18} className="text-white" />
                           </div>

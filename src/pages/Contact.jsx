@@ -13,8 +13,7 @@ const cards = [
   {
     icon: Phone,
     title: "Telefoni",
-    value: contactInfo.phone,
-    href: contactInfo.phoneHref,
+    links: contactInfo.phones,
   },
   {
     icon: MapPin,
@@ -37,20 +36,19 @@ const Contact = () => {
 
       <section className="mx-auto max-w-4xl px-6 py-16">
         <div className="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {cards.map(({ icon: Icon, title, value, href }) => (
-            <a
+          {cards.map(({ icon: Icon, title, value, href, links }) => (
+            <div
               key={title}
-              href={href}
-              target={href.startsWith("http") ? "_blank" : undefined}
-              rel="noopener noreferrer"
               className="group flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all hover:border-[#EFD391]/30 hover:shadow-md"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFD391]/10">
                 <Icon size={20} className="text-[#EFD391]" />
               </div>
               <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-              <p className="break-words text-sm text-gray-500 transition-colors group-hover:text-[#A98836]">{value}</p>
-            </a>
+              {(links ?? [{ value, href }]).map((link) => (
+                <a key={link.href} href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="break-words text-sm text-gray-500 transition-colors hover:text-[#A98836]">{link.value}</a>
+              ))}
+            </div>
           ))}
         </div>
 

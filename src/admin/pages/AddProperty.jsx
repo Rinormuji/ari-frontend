@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import api, { cityAPI } from "../../services/api";
 import MapPicker from "../components/MapPicker";
+import PropertyContactField from "../components/PropertyContactField";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 
@@ -29,6 +30,7 @@ const CheckField = ({ name, checked, onChange, label }) => (
 
 function AddProperty() {
   const toast = useToast();
+  const [contactReset, setContactReset] = useState(0);
   const navigate = useNavigate();
   const [type, setType] = useState("");
   const [form, setForm] = useState({
@@ -80,7 +82,7 @@ function AddProperty() {
     };
   }, [toast]);
 
-  const handleChange = (e) => {
+const handleChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
     setForm((prev) => ({
       ...prev,
@@ -121,6 +123,7 @@ function AddProperty() {
     if (!form.area || form.area <= 0) e.area = "Sipërfaqja duhet të jetë > 0";
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) e.rooms = "Numri i dhomave duhet të jetë > 0";
     if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) e.floor = "Numri i kateve duhet të jetë > 0";
+    if ((form.contactInfo ?? "").length > 255) e.contactInfo = "Kontakti duhet të ketë deri në 255 karaktere.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -160,6 +163,7 @@ function AddProperty() {
         hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
         bathrooms: "", latitude: "", longitude: "", images: [], status: "",
       });
+      setContactReset((previous) => previous + 1);
       setPreviewImages([]);
       setErrors({});
       setType("");
@@ -337,8 +341,8 @@ function AddProperty() {
             </select>
           </div>
           <div>
-            <label className={labelCls}>Kontakt</label>
-            <input type="text" name="contactInfo" placeholder="+383..." value={form.contactInfo} onChange={handleChange} className={inputCls} />
+            <PropertyContactField key={contactReset} autoFillCurrent value={form.contactInfo} onChange={handleChange} />
+            {errors.contactInfo && <p className={errorCls}>{errors.contactInfo}</p>}
           </div>
         </div>
 
