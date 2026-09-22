@@ -43,9 +43,11 @@ export default function Footer() {
           <a href={`mailto:${contactInfo.email}`} className="flex items-center gap-2 break-words text-sm transition-colors hover:text-[#EFD391]">
             <Mail size={14} /> {contactInfo.email}
           </a>
-          <a href={contactInfo.phoneHref} className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
-            <Phone size={14} /> {contactInfo.phone}
-          </a>
+          {contactInfo.phones.map(({ value, href }) => (
+            <a key={href} href={href} className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
+              <Phone size={14} /> {value}
+            </a>
+          ))}
           <a href={contactInfo.addressHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
             <MapPin size={14} /> {contactInfo.address}
           </a>

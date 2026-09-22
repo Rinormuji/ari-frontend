@@ -19,6 +19,7 @@ import { paths } from "../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyViews } from "../utils/propertyViews";
 import { formatCalculatedTotal, formatPropertyPrice } from "../utils/propertyPricing";
+import { extractContactPhones, formatPropertyPhone } from "../utils/propertyContact";
 import ImageGallery from "./property-detail/ImageGallery";
 import RecommendedProperties from "./property-detail/RecommendedProperties";
 import {
@@ -49,16 +50,28 @@ const EmptyState = () => (
 
 const ContactCard = ({ contactInfo }) => {
   if (!contactInfo) return null;
+  const phones = contactInfo.split("\n").filter(Boolean);
 
   return (
     <div className="rounded-xl border border-[#EFD391]/45 bg-[#fff9ea] p-4 shadow-sm">
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0F4638] text-[#EFD391]">
           <PhoneCall size={18} />
         </div>
         <div className="min-w-0 flex-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-[#0F4638]/55">Kontakt</span>
-          <p className="mt-1 break-words text-base font-bold leading-snug text-[#0F4638]">{contactInfo}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {phones.map((phone) => (
+              <a
+                key={phone}
+                href={`tel:${phone.replace(/[^+\d]/g, "")}`}
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#0F4638]/15 bg-white/70 px-3 py-2 text-sm font-bold tracking-wide text-[#0F4638] transition hover:border-[#0F4638]/35 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F4638]"
+                aria-label={`Telefono ${formatPropertyPhone(phone)}`}
+              >
+                {formatPropertyPhone(phone)}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -281,7 +294,7 @@ const PropertyDetail = () => {
               </div>
             )}
 
-            <ContactCard contactInfo={property.contactInfo} />
+            <ContactCard contactInfo={extractContactPhones(property.contactInfo)} />
 
             <button
               type="button"

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { paths } from "../../routes/paths";
 import {
   CalendarPlus,
   Check,
@@ -34,6 +36,19 @@ const StatusBadge = ({ status }) => {
   return <span className={`rounded-full px-2 py-1 text-xs font-medium ${cfg.cls}`}>{cfg.label}</span>;
 };
 
+const RequesterDetails = ({ appointment }) => (
+  <div className="min-w-0 space-y-1 text-xs">
+    <p className="font-semibold text-white">{appointment.fullName || appointment.user}</p>
+    <p className="text-white/60">@{appointment.user}</p>
+    {appointment.email ? (
+      <a href={`mailto:${appointment.email}`} className="block break-all text-[#EFD391] hover:underline">{appointment.email}</a>
+    ) : <p className="text-white/40">Emaili mungon</p>}
+    {appointment.phone ? (
+      <a href={`tel:${appointment.phone.replace(/[^+\d]/g, "")}`} className="block text-[#EFD391] hover:underline">{appointment.phone}</a>
+    ) : <p className="text-white/40">Telefoni mungon</p>}
+  </div>
+);
+
 const toDateTimeInput = (value) => {
   if (!value || value === "-") return "";
   const date = new Date(value);
@@ -58,7 +73,6 @@ export default function AppointmentsAdmin() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
 
-  const [detailsAppointment, setDetailsAppointment] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -87,6 +101,9 @@ export default function AppointmentsAdmin() {
         propertyName: appointment.propertyTitle ?? appointment.propertyName ?? "-",
         propertyId: appointment.propertyId ?? null,
         user: appointment.username ?? appointment.userEmail ?? "-",
+        fullName: [appointment.userFirstName, appointment.userLastName].filter(Boolean).join(" "),
+        email: appointment.userEmail || "",
+        phone: appointment.userPhoneNumber || "",
         date: appointment.date ?? "-",
         status: appointment.status ?? "PENDING",
         raw: appointment,
@@ -130,7 +147,7 @@ export default function AppointmentsAdmin() {
       if (!debouncedSearch) return true;
 
       const query = debouncedSearch.toLowerCase();
-      return [appointment.propertyName, appointment.user, appointment.date]
+      return [appointment.propertyName, appointment.user, appointment.fullName, appointment.email, appointment.phone, appointment.date]
         .some((value) => String(value).toLowerCase().includes(query));
     });
   }, [appointments, filterStatus, debouncedSearch]);
@@ -234,15 +251,12 @@ export default function AppointmentsAdmin() {
   };
 
   const actionButtons = (appointment) => (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <button onClick={() => updateStatus(appointment, "APPROVED")} className="rounded-lg bg-green-500/10 p-1.5 text-green-400 transition-colors hover:bg-green-500/20" title="Aprovo">
         <Check size={14} />
       </button>
       <button onClick={() => updateStatus(appointment, "REJECTED")} className="rounded-lg bg-red-500/10 p-1.5 text-red-400 transition-colors hover:bg-red-500/20" title="Refuzo">
         <X size={14} />
-      </button>
-      <button onClick={() => setDetailsAppointment(appointment)} className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white" title="Shiko">
-        <Eye size={14} />
       </button>
       <button onClick={() => openEditForm(appointment)} className="rounded-lg bg-[#EFD391]/10 p-1.5 text-[#EFD391] transition-colors hover:bg-[#EFD391]/20" title="Edito">
         <Edit3 size={14} />
@@ -250,6 +264,9 @@ export default function AppointmentsAdmin() {
       <button onClick={() => setDeleteTarget(appointment)} className="rounded-lg bg-red-500/10 p-1.5 text-red-400 transition-colors hover:bg-red-500/20" title="Fshij">
         <Trash2 size={14} />
       </button>
+      {appointment.propertyId && <Link to={paths.propertyDetail(appointment.propertyId)} className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
+        <Eye size={15} /> Shih detajet
+      </Link>}
     </div>
   );
 
@@ -331,7 +348,7 @@ export default function AppointmentsAdmin() {
                 <tr key={appointment.id} className="border-b border-white/5 transition-colors hover:bg-white/3">
                   <td className="px-4 py-3 font-mono text-xs text-white/40">{appointment.id}</td>
                   <td className="px-4 py-3 text-white">{appointment.propertyName}</td>
-                  <td className="px-4 py-3 text-white/60">{appointment.user}</td>
+                  <td className="px-4 py-3"><RequesterDetails appointment={appointment} /></td>
                   <td className="px-4 py-3 text-xs text-white/60">{formatDate(appointment.date)}</td>
                   <td className="px-4 py-3"><StatusBadge status={appointment.status} /></td>
                   <td className="px-4 py-3">{actionButtons(appointment)}</td>
@@ -348,7 +365,7 @@ export default function AppointmentsAdmin() {
                 <p className="text-sm font-medium text-white">{appointment.propertyName}</p>
                 <StatusBadge status={appointment.status} />
               </div>
-              <p className="mb-1 text-xs text-white/50">{appointment.user}</p>
+              <div className="mb-3"><RequesterDetails appointment={appointment} /></div>
               <p className="mb-4 text-xs text-white/40">{formatDate(appointment.date)}</p>
               <div className="border-t border-white/5 pt-3">{actionButtons(appointment)}</div>
             </div>
@@ -429,32 +446,6 @@ export default function AppointmentsAdmin() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {detailsAppointment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#123E35] p-6 shadow-2xl">
-            <h3 className="mb-4 text-lg font-semibold text-white">Detajet e Takimit</h3>
-            {[
-              ["ID", detailsAppointment.id],
-              ["Prona", detailsAppointment.propertyName],
-              ["Përdoruesi", detailsAppointment.user],
-              ["Data", formatDate(detailsAppointment.date)],
-            ].map(([label, value]) => (
-              <div key={label} className="mb-2 flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="shrink-0 text-sm text-white/40 sm:w-24">{label}:</span>
-                <span className="break-words text-sm text-white">{value}</span>
-              </div>
-            ))}
-            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:gap-2">
-              <span className="shrink-0 text-sm text-white/40 sm:w-24">Statusi:</span>
-              <StatusBadge status={detailsAppointment.status} />
-            </div>
-            <div className="flex justify-end">
-              <button onClick={() => setDetailsAppointment(null)} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:text-white">Mbyll</button>
-            </div>
           </div>
         </div>
       )}

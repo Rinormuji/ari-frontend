@@ -1,24 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { CheckCircle2, XCircle } from "lucide-react";
 import api from "../services/api";
+import { paths } from "../routes/paths";
 
 const Verify = () => {
+  const navigate = useNavigate();
+  const requestRef = useRef(null);
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     const token = searchParams.get("token");
+    let active = true;
+    let redirectTimer;
     if (token) {
-      api.get(`/auth/verify?token=${token}`)
-        .then((res) => { setMessage(res.data); setStatus("success"); })
-        .catch((err) => { setMessage(err.response?.data?.message || "Lidhja e verifikimit është e pavlefshme ose është përdorur më parë."); setStatus("error"); });
+      // Reuse the request during StrictMode's effect replay: tokens are single-use.
+      if (requestRef.current?.token !== token) {
+        requestRef.current = { token, promise: api.get("/auth/verify", { params: { token } }) };
+      }
+      requestRef.current.promise
+        .then((res) => {
+          if (!active) return;
+          setMessage(res.data);
+          setStatus("success");
+          redirectTimer = setTimeout(() => navigate(paths.login, { replace: true }), 2500);
+        })
+        .catch((err) => {
+          if (!active) return;
+          setMessage(err.response?.data?.message || "Lidhja e verifikimit ?sht? e pavlefshme ose ?sht? p?rdorur m? par?.");
+          setStatus("error");
+        });
     } else {
-      setMessage("Lidhja e verifikimit është e pavlefshme.");
+      setMessage("Lidhja e verifikimit ?sht? e pavlefshme.");
       setStatus("error");
     }
-  }, [searchParams]);
+    return () => {
+      active = false;
+      clearTimeout(redirectTimer);
+    };
+  }, [searchParams, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200 px-4">
@@ -34,7 +56,8 @@ const Verify = () => {
             <CheckCircle2 size={40} className="text-green-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-gray-900 mb-2">Email u verifikua!</h2>
             <p className="text-sm text-gray-500 mb-6">{message}</p>
-            <Link to="/login" className="inline-flex items-center justify-center w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold rounded-xl transition-colors text-sm">
+            <p className="text-sm text-gray-500 mb-4">Po ju ridrejtojm? te hyrja...</p>
+            <Link to={paths.login} className="inline-flex items-center justify-center w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold rounded-xl transition-colors text-sm">
               Kyqu tani
             </Link>
           </>

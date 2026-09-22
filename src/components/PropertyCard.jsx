@@ -69,11 +69,11 @@ const PropertyCard = ({ property }) => {
   return (
     <Link to={paths.propertyDetail(property.id)} className="group block h-full">
       <article className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div className="relative h-52 shrink-0 overflow-hidden bg-[#edf1ee]">
+        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#edf1ee]">
           <img
             src={images[currentIndex]}
             alt={property.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain"
           />
 
           {images.length > 1 && (

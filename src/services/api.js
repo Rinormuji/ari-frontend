@@ -59,6 +59,7 @@ api.interceptors.response.use(
 
 // Property API functions
 export const propertyAPI = {
+  getTotalViews: () => api.get('/properties/total-views'),
   // Get all properties with pagination and filters
   getProperties: (params = {}) => {
     return api.get('/properties', { params })
@@ -110,7 +111,7 @@ export const propertyAPI = {
     case 'TOKA': url = `/toka/${id}`; break;
     default: throw new Error('Lloji i pronës nuk është valid!');
   }
-  return api.put(url, propertyData);
+  return api.put(url, propertyData, { timeout: 60000 });
 }
 }
 
