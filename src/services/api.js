@@ -111,7 +111,7 @@ export const propertyAPI = {
     case 'TOKA': url = `/toka/${id}`; break;
     default: throw new Error('Lloji i pronës nuk është valid!');
   }
-  return api.put(url, propertyData);
+  return api.put(url, propertyData, { timeout: 60000 });
 }
 }
 

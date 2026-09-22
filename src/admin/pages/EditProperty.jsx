@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import { propertyAPI } from "../../services/api";
 import MapPicker from "../components/MapPicker";
-import { extractContactPhones } from "../../utils/propertyContact";
+import { extractContactPhones, withDefaultPropertyContacts } from "../../utils/propertyContact";
 import PropertyContactField from "../components/PropertyContactField";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
@@ -195,10 +195,13 @@ function EditProperty() {
     const payload = {
       ...form,
       location: fullLocation,
-      images: imagesChanged ? imagesBase64 : undefined,
+      contactInfo: withDefaultPropertyContacts(form.contactInfo),
       type,
       price: form.priceType === "NEGOTIABLE" ? null : form.price,
     };
+
+    if (imagesChanged) payload.images = imagesBase64;
+    else delete payload.images;
 
   await propertyAPI.updatePropertyByType(type, id, payload);
 

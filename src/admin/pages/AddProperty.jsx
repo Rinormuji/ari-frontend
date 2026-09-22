@@ -7,6 +7,9 @@ import MapPicker from "../components/MapPicker";
 import PropertyContactField from "../components/PropertyContactField";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
+import { DEFAULT_PROPERTY_CONTACTS, withDefaultPropertyContacts } from "../../utils/propertyContact";
+
+const defaultContactInfo = DEFAULT_PROPERTY_CONTACTS.join("\n");
 
 const inputCls =
   "w-full bg-[#123E35] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#EFD391]/60 transition-colors";
@@ -39,7 +42,7 @@ function AddProperty() {
     description: "",
     location: "",
     neighborhood: "",
-    contactInfo: "",
+    contactInfo: defaultContactInfo,
     priceType: "TOTAL",
     price: "",
     area: "",
@@ -150,6 +153,7 @@ const handleChange = (e) => {
       const payload = {
         ...form,
         type,
+        contactInfo: withDefaultPropertyContacts(form.contactInfo),
         images: imagesBase64,
         location: fullLocation,
         price: form.priceType === "NEGOTIABLE" ? null : form.price,
@@ -158,7 +162,7 @@ const handleChange = (e) => {
 
       toast.success("Pronë u shtua me sukses!");
       setForm({
-        id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: "",
+        id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: defaultContactInfo,
         priceType: "TOTAL", price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
         hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
         bathrooms: "", latitude: "", longitude: "", images: [], status: "",

@@ -4,7 +4,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 import AddProperty from "../admin/pages/AddProperty";
 import EditProperty from "../admin/pages/EditProperty";
 import Contact from "../pages/Contact";
-import { extractContactPhones } from "../utils/propertyContact";
+import { extractContactPhones, formatPropertyPhone } from "../utils/propertyContact";
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(), post: vi.fn(), getAll: vi.fn(), getProperty: vi.fn(), updatePropertyByType: vi.fn(),
@@ -15,6 +15,9 @@ vi.mock("../context/toastContextValue", () => ({ useToast: () => mocks.toast }))
 vi.mock("../admin/components/MapPicker", () => ({ default: () => null }));
 const profile = { phoneNumbers: ["+38345111222"] };
 const contacts = "+38345111222\n+38348333444\n+38349555666";
+const requiredContacts = "+38345465726\n+38348465726";
+const contactsWithDefaults = `${contacts}\n${requiredContacts}`;
+const profileWithDefaults = `${profile.phoneNumbers[0]}\n${requiredContacts}`;
 const showAdd = () => render(<MemoryRouter><AddProperty /></MemoryRouter>);
 const field = () => screen.getByRole("textbox", { name: "Numrat e kontaktit" });
 beforeEach(() => {
@@ -26,7 +29,7 @@ beforeEach(() => {
 });
 it("fills the creator's phone and submits manually entered multiple contacts", async () => {
   const { container } = showAdd();
-  await waitFor(() => expect(field()).toHaveValue(profile.phoneNumbers.join("\n")));
+  await waitFor(() => expect(field()).toHaveValue(profileWithDefaults));
   expect(mocks.get).toHaveBeenCalledWith("/admin/current-contact");
   fireEvent.change(field(), { target: { value: contacts } });
   fireEvent.change(screen.getByText("Zgjidh llojin...").closest("select"), { target: { value: "TOKA" } });
@@ -34,8 +37,8 @@ it("fills the creator's phone and submits manually entered multiple contacts", a
     fireEvent.change(container.querySelector(`[name="${name}"]`), { target: { value } });
   }
   fireEvent.submit(container.querySelector("form"));
-  await waitFor(() => expect(mocks.post).toHaveBeenCalledWith("/toka", expect.objectContaining({ contactInfo: contacts })));
-  await waitFor(() => expect(field()).toHaveValue(profile.phoneNumbers.join("\n")));
+  await waitFor(() => expect(mocks.post).toHaveBeenCalledWith("/toka", expect.objectContaining({ contactInfo: contactsWithDefaults })));
+  await waitFor(() => expect(field()).toHaveValue(profileWithDefaults));
 });
 it("does not overwrite manual edits when the profile arrives late", async () => {
   let resolve;
@@ -52,7 +55,7 @@ it("preserves existing contacts during editing and saves manual changes", async 
   expect(mocks.get).toHaveBeenCalledWith("/admin/current-contact");
   fireEvent.change(field(), { target: { value: contacts } });
   fireEvent.submit(container.querySelector("form"));
-  await waitFor(() => expect(mocks.updatePropertyByType).toHaveBeenCalledWith("TOKA", "101", expect.objectContaining({ contactInfo: contacts })));
+  await waitFor(() => expect(mocks.updatePropertyByType).toHaveBeenCalledWith("TOKA", "101", expect.objectContaining({ contactInfo: contactsWithDefaults })));
   expect(field()).toHaveAttribute("maxlength", "255");
   expect(screen.getByAltText("Foto ekzistuese 1")).toHaveAttribute("src", "https://example.com/one.jpg");
   expect(screen.getByAltText("Foto ekzistuese 2")).toBeInTheDocument();
@@ -80,4 +83,9 @@ it("autofills both super admin numbers without names", async () => {
 });
 it("extracts numbers from legacy named contacts", () => {
   expect(extractContactPhones("Arta Test ? +383 45 111 222\nBlerim ? +383 48 333 444")).toBe("+383 45 111 222\n+383 48 333 444");
+});
+
+it("formats Kosovo property contacts for display", () => {
+  expect(formatPropertyPhone("+38345465726")).toBe("+383 45 465 726");
+  expect(formatPropertyPhone("+38348465726")).toBe("+383 48 465 726");
 });

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useId, useRef, useState } from "react";
 import api from "../../services/api";
+import { withDefaultPropertyContacts } from "../../utils/propertyContact";
 
 const inputClass = "w-full rounded-lg border border-white/10 bg-[#123E35] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:border-[#EFD391]/60 focus:outline-none";
 
@@ -15,13 +16,21 @@ export default function PropertyContactField({ value, onChange, autoFillCurrent 
     let cancelled = false;
     api.get("/admin/current-contact").then(({ data }) => {
       if (cancelled) return;
-      const phones = data.phoneNumbers.join("\n");
+      const phones = withDefaultPropertyContacts(data.phoneNumbers.join("\n"));
       setDefaults(phones);
       setLoadError(false);
       if (!edited.current && (autoFillCurrent || !current.current.value)) {
         current.current.onChange({ target: { name: "contactInfo", value: phones } });
       }
-    }).catch(() => { if (!cancelled) setLoadError(true); });
+    }).catch(() => {
+      if (cancelled) return;
+      const phones = withDefaultPropertyContacts();
+      setDefaults(phones);
+      if (!edited.current && (autoFillCurrent || !current.current.value)) {
+        current.current.onChange({ target: { name: "contactInfo", value: phones } });
+      }
+      setLoadError(true);
+    });
     return () => { cancelled = true; };
   }, [autoFillCurrent, reload]);
   const update = (next) => {
