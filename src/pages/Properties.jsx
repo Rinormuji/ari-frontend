@@ -12,7 +12,7 @@ import {
 import "leaflet/dist/leaflet.css";
 
 import banner from "../assets/images/banner.jpg";
-import { propertyAPI } from '../services/api';
+import { cityAPI, propertyAPI } from '../services/api';
 import { paths } from '../routes/paths';
 import { propertyMapIcon } from '../utils/leafletIcons';
 import DataLoadError from '../components/DataLoadError';
@@ -52,6 +52,7 @@ const Properties = () => {
   const [loadError, setLoadError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [cityFilter, setCityFilter] = useState("");
+  const [cityOptions, setCityOptions] = useState([]);
   const [circleEnabled, setCircleEnabled] = useState(false);
   const [centerPoint, setCenterPoint] = useState(defaultCenter);
   const [radiusKm, setRadiusKm] = useState(10);
@@ -61,6 +62,10 @@ const Properties = () => {
     const parts = location.split(',', 2);
     return { city: parts[0].trim(), neighborhood: parts[1]?.trim() || '' };
   };
+
+  useEffect(() => {
+    cityAPI.getAll().then((res) => setCityOptions(Array.isArray(res.data) ? res.data : [])).catch(() => setCityOptions([]));
+  }, []);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -123,11 +128,6 @@ const Properties = () => {
     return list;
   }, [properties, cityFilter, circleEnabled, centerPoint, radiusKm]);
 
-  const cityOptions = useMemo(() => {
-    const s = new Set(properties.map((p) => p.city).filter(Boolean));
-    return Array.from(s);
-  }, [properties]);
-
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex flex-col items-center gap-3 text-gray-500">
@@ -157,7 +157,7 @@ const Properties = () => {
               onChange={(e) => setCityFilter(e.target.value)}
               className="min-w-0 flex-1 outline-none text-sm text-gray-700 bg-transparent sm:flex-none"
             >
-              <option value="">Të gjitha qytetet</option>
+              <option value="">Të gjitha komunat</option>
               {cityOptions.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}

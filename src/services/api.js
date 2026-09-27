@@ -34,7 +34,7 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV && !(error.response?.status === 401 && error.config?.url === '/auth/me')) {
       console.error(
         `API Error ✗ ${error.config?.url}`,
         error.response?.status
@@ -109,7 +109,7 @@ export const propertyAPI = {
     case 'SHTEPI': url = `/shtepi/${id}`; break;
     case 'LOKALE': url = `/lokale/${id}`; break;
     case 'TOKA': url = `/toka/${id}`; break;
-    default: throw new Error('Lloji i pronës nuk është valid!');
+    default: url = `/properties/${id}`;
   }
   return api.put(url, propertyData, { timeout: 60000 });
 }
@@ -148,7 +148,7 @@ export const adminAPI = {
 };
 
 export const cityAPI = {
-  getAll: () => api.get('/cities'),
+  getAll: () => api.get('/municipalities'),
 };
 
 // Shtepi API functions

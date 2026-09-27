@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useImageSwipe } from "../../hooks/useImageSwipe";
 
 const ImageGallery = ({
   images,
@@ -8,15 +9,20 @@ const ImageGallery = ({
   onSelect,
   onOpen,
   title,
-}) => (
+}) => {
+  const swipeHandlers = useImageSwipe({ enabled: images.length > 1, onNext, onPrevious });
+
+  return (
   <div>
     <div
-      className="relative aspect-square cursor-pointer overflow-hidden rounded-2xl bg-gray-200"
+      className="relative aspect-square cursor-pointer touch-pan-y overflow-hidden rounded-2xl bg-gray-200"
       onClick={onOpen}
+      {...swipeHandlers}
     >
       <img
         src={images[currentIndex]}
         alt={title || "Foto e pronës"}
+        draggable="false"
         className="h-full w-full object-contain"
       />
 
@@ -29,7 +35,7 @@ const ImageGallery = ({
               onPrevious();
             }}
             aria-label="Foto e mëparshme"
-            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
+            className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white shadow-md transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <ChevronLeft size={20} />
           </button>
@@ -40,7 +46,7 @@ const ImageGallery = ({
               onNext();
             }}
             aria-label="Foto tjetër"
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
+            className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white shadow-md transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <ChevronRight size={20} />
           </button>
@@ -70,6 +76,7 @@ const ImageGallery = ({
       </div>
     )}
   </div>
-);
+  );
+};
 
 export default ImageGallery;

@@ -3,10 +3,11 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Eye, LayoutGrid, Table2, Trash2, Pencil, Search, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
-import { propertyAPI, api } from "../../services/api";
+import { propertyAPI, cityAPI, api } from "../../services/api";
 import { useToast } from "../../context/toastContextValue";
 import { getPropertyViews } from "../../utils/propertyViews";
 import { formatPropertyPrice } from "../../utils/propertyPricing";
+import { propertyTypes } from "../../utils/propertyDetails";
 
 // const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
@@ -18,7 +19,7 @@ const typeBadge = {
   LOKALE: "bg-purple-500/15 text-purple-300",
   TOKA: "bg-amber-500/15 text-amber-300",
 };
-const typeLabel = { BANESA: "Banesa", SHTEPI: "Shtëpi", LOKALE: "Lokale", TOKA: "Tokë" };
+const typeLabel = propertyTypes;
 
 export default function PropertiesAdmin() {
   const navigate = useNavigate();
@@ -40,6 +41,11 @@ export default function PropertiesAdmin() {
   const [minArea, setMinArea] = useState("");
   const [maxArea, setMaxArea] = useState("");
   const [cityFilter, setCityFilter] = useState("");
+  const [cityOptions, setCityOptions] = useState([]);
+
+  useEffect(() => {
+    cityAPI.getAll().then((res) => setCityOptions(Array.isArray(res.data) ? res.data : [])).catch(() => setCityOptions([]));
+  }, []);
 
   const [error, setError] = useState(null);
 
@@ -185,12 +191,6 @@ const confirmDelete = async () => {
     navigate(`/admin/properties/edit/${id}`);
   };
 
-  // distinct city options for filters
-  const cityOptions = useMemo(() => {
-    const s = new Set(properties.map((p) => p.city).filter(Boolean));
-    return Array.from(s);
-  }, [properties]);
-
   return (
     <div>
       {/* Header */}
@@ -203,7 +203,7 @@ const confirmDelete = async () => {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Kërko titull, qytet..."
+              placeholder="Kërko titull, komunë..."
               className="bg-transparent text-white text-sm outline-none w-full placeholder-white/30"
             />
             {search && <button onClick={() => setSearch("")}><X size={13} className="text-white/40" /></button>}
@@ -221,7 +221,7 @@ const confirmDelete = async () => {
       {/* Filters */}
       <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap">
         {[
-          { value: typeFilter, onChange: setTypeFilter, options: [["", "Të gjitha llojet"], ["BANESA","Banesa"], ["SHTEPI","Shtëpi"], ["LOKALE","Lokale"], ["TOKA","Tokë"]] },
+          { value: typeFilter, onChange: setTypeFilter, options: [["", "Të gjitha llojet"], ...Object.entries(propertyTypes)] },
           { value: statusFilter, onChange: setStatusFilter, options: [["","Të gjitha statuset"],["FOR_SALE","Në shitje"],["FOR_RENT","Me qira"]] },
         ].map((f, i) => (
           <select key={i} value={f.value} onChange={(e) => f.onChange(e.target.value)}
@@ -231,7 +231,7 @@ const confirmDelete = async () => {
         ))}
         <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
           className="w-full bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40 lg:w-auto">
-          <option value="">Të gjitha qytetet</option>
+          <option value="">Të gjitha komunat</option>
           {cityOptions.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         <input placeholder="Min €" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} type="number"
@@ -260,7 +260,7 @@ const confirmDelete = async () => {
           <table className="w-full text-sm min-w-175">
             <thead>
               <tr className="border-b border-white/10">
-                {["ID", "Titulli", "Qyteti", "Lloji", "Statusi", "Çmimi", "m²", "Views", ""].map((h) => (
+                {["ID", "Titulli", "Komuna", "Lloji", "Statusi", "Çmimi", "m²", "Views", ""].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -322,7 +322,7 @@ const confirmDelete = async () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full ${typeBadge[p.type] || "bg-white/10 text-white/60"}`}>{typeLabel[p.type]}</span>
-                {p.rooms ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.rooms} dhoma</span> : null}
+                {p.rooms ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.rooms} dhoma gjumi</span> : null}
                 {p.area ? <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">{p.area} m²</span> : null}
                 <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/50">
                   <Eye size={12} className="text-[#EFD391]" />

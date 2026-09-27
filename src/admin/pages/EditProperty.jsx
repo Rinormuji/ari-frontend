@@ -6,6 +6,8 @@ import { propertyAPI } from "../../services/api";
 import MapPicker from "../components/MapPicker";
 import { extractContactPhones, withDefaultPropertyContacts } from "../../utils/propertyContact";
 import PropertyContactField from "../components/PropertyContactField";
+import PropertyDetailFields from "../components/PropertyDetailFields";
+import { propertyTypes } from "../../utils/propertyDetails";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { cityAPI } from "../../services/api";
@@ -65,17 +67,18 @@ function EditProperty() {
           contactInfo: extractContactPhones(found.contactInfo),
           location: city,
           neighborhood: neighborhood,
-          rooms: found.rooms || "",
+          rooms: Number(found.details?.bedrooms) > 0 ? found.details.bedrooms : (found.rooms ?? ""),
           priceType: found.priceType || "TOTAL",
           floor: found.floor || "",
           // floors: found.floors || "",
-          bathrooms: found.bathrooms || "",
+          bathrooms: Number(found.bathrooms) > 0 ? found.bathrooms : (found.details?.toilets ?? found.bathrooms ?? ""),
           hasElevator: found.hasElevator || false,
           hasBalcony: found.hasBalcony || false,
           hasGarden: found.hasGarden || false,
           hasGarage: found.hasGarage || false,
           hasParking: found.hasParking || false,
           hasInfrastructure: found.hasInfrastructure || false,
+          details: found.details || {},
           images: found.images || [],
         });
 
@@ -159,7 +162,7 @@ function EditProperty() {
     if (form.priceType !== "NEGOTIABLE" && (!form.price || form.price <= 0)) newErrors.price = "Çmimi duhet të jetë > 0";
     if (!form.area || form.area <= 0) newErrors.area = "Sipërfaqja duhet të jetë > 0";
 
-    if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave duhet të jetë > 0";
+    if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave të gjumit duhet të jetë > 0";
     if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) newErrors.floor = "Numri i kateve duhet të jetë > 0";
 
     if ((form.contactInfo ?? "").length > 255) newErrors.contactInfo = "Kontakti duhet të ketë deri në 255 karaktere.";
@@ -194,6 +197,7 @@ function EditProperty() {
 
     const payload = {
       ...form,
+      details: Object.fromEntries(Object.entries(form.details || {}).filter(([key]) => key !== "bedrooms" && key !== "toilets")),
       location: fullLocation,
       contactInfo: withDefaultPropertyContacts(form.contactInfo),
       type,
@@ -265,10 +269,7 @@ function EditProperty() {
           <div>
             <label className={labelCls}>Lloji</label>
             <select name="type" value={type} disabled className={`${inputCls} opacity-60 cursor-not-allowed`}>
-              <option value="BANESA">Banesa</option>
-              <option value="SHTEPI">Shtëpi</option>
-              <option value="LOKALE">Lokale</option>
-              <option value="TOKA">Tokë</option>
+              {Object.entries(propertyTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
           </div>
           <div>
@@ -293,9 +294,9 @@ function EditProperty() {
         {/* City + Neighborhood */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Qyteti</label>
+            <label className={labelCls}>Komuna</label>
             <select name="location" value={form.location} onChange={handleChange} className={inputCls}>
-              <option value="" disabled>Zgjidh qytetin</option>
+              <option value="" disabled>Zgjidh komunën</option>
               {Array.from(new Set([form.location, ...cities].filter(Boolean))).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
@@ -346,7 +347,7 @@ function EditProperty() {
             <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Banesës</p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <label className={labelCls}>Dhomat *</label>
+                <label className={labelCls}>Dhoma gjumi *</label>
                 <input type="number" name="rooms" value={form.rooms} onChange={handleChange} placeholder="0" className={inputCls} />
                 {errors.rooms && <p className={errorCls}>{errors.rooms}</p>}
               </div>
@@ -355,7 +356,7 @@ function EditProperty() {
                 <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>Banjot</label>
+                <label className={labelCls}>Banjo</label>
                 <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="0" className={inputCls} />
               </div>
             </div>
@@ -369,14 +370,18 @@ function EditProperty() {
         {type === "SHTEPI" && (
           <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-4">
             <p className="text-xs font-semibold text-[#EFD391] uppercase tracking-wider">Detajet e Shtëpisë</p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <label className={labelCls}>Katet *</label>
+                <label className={labelCls}>Dhoma gjumi</label>
+                <input type="number" name="rooms" value={form.rooms} onChange={handleChange} placeholder="0" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Kate *</label>
                 <input type="number" name="floor" value={form.floor} onChange={handleChange} placeholder="0" className={inputCls} />
                 {errors.floor && <p className={errorCls}>{errors.floor}</p>}
               </div>
               <div>
-                <label className={labelCls}>Banjot</label>
+                <label className={labelCls}>Banjo</label>
                 <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} placeholder="0" className={inputCls} />
               </div>
             </div>
@@ -406,6 +411,8 @@ function EditProperty() {
             <CheckField name="hasInfrastructure" checked={form.hasInfrastructure} onChange={handleChange} label="Infrastrukturë" />
           </div>
         )}
+
+        <PropertyDetailFields type={type} details={form.details} onChange={(details) => setForm((previous) => ({ ...previous, details }))} />
 
         {/* Status + Contact */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
