@@ -70,7 +70,7 @@ const ImageGallery = ({
             }`}
             aria-label={`Shfaq foton ${index + 1}`}
           >
-            <img src={image} alt="" className="h-full w-full object-contain" />
+            <img src={image} alt="" loading="lazy" className="h-full w-full object-contain" />
           </button>
         ))}
       </div>

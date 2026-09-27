@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import api, { cityAPI } from "../../services/api";
@@ -176,7 +176,12 @@ const handleChange = (e) => {
       setType("");
     } catch (err) {
       console.error(err);
-      toast.error("Shtimi i pronës dështoi");
+      const message = err.response?.data?.message;
+      if (err.response?.status === 409 && typeof message === "string") {
+        setErrors((current) => ({ ...current, id: message }));
+      } else {
+        toast.error(typeof message === "string" ? message : "Shtimi i pronës dështoi.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -200,7 +205,11 @@ const handleChange = (e) => {
           <div>
             <label className={labelCls}>ID *</label>
             <input type="text" name="id" placeholder="p.sh. B-101" value={form.id} onChange={handleChange} className={inputCls} />
-            {errors.id && <p className={errorCls}>{errors.id}</p>}
+            {errors.id && <div className={errorCls}>
+              <p>{errors.id}</p>
+              {errors.id.toLowerCase().includes("arkiv") && <Link to={`${paths.adminProperties}?archived=true`}
+                className="mt-1 inline-block font-semibold text-[#EFD391] underline">Hap pronat në Arkivë</Link>}
+            </div>}
           </div>
         </div>
 

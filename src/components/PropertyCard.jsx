@@ -80,6 +80,7 @@ const PropertyCard = ({ property }) => {
           <img
             src={images[currentIndex]}
             alt={property.title}
+            loading="lazy"
             draggable="false"
             className="h-full w-full object-contain"
           />

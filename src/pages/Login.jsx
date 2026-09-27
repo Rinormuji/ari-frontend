@@ -8,12 +8,13 @@ import { getSafeRedirect } from '../routes/paths'
 import BrandLogo from '../components/BrandLogo'
 
 const Login = () => {
+  const [searchParams] = useSearchParams()
   const [formData, setFormData] = useState({ username: '', password: '' })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(() => searchParams.get('error') === 'account_unavailable'
+    ? 'Llogaria nuk është aktive. Kontaktoni administratën nëse është arkivuar.' : '')
   const [showPw, setShowPw] = useState(false)
   const { login } = useAuth()
-  const [searchParams] = useSearchParams()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })

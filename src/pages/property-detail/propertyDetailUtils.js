@@ -32,6 +32,13 @@ export const getGoogleMapsUrl = (property) => {
   return url.toString();
 };
 
+const featureOrder = {
+  BANESA: ["Kompleksi", "Sipërfaqja", "Statusi", "Kati", "Dhoma gjumi", "Banjo", "Sallon", "Kuzhinë", "Mobilimi", "Ashensor", "Ballkon", "Depo", "Garazh", "Noter", "Avokat"],
+  SHTEPI: ["Sipërfaqja", "Statusi", "Kate", "Dhoma gjumi", "Banjo", "Sallon", "Kuzhinë", "Mobilimi", "Banimi", "Rrymë", "Ujë", "Kanalizim", "Kopsht", "Garazh", "Parking", "Depo", "Noter", "Avokat"],
+  LOKALE: ["Kompleksi", "Sipërfaqja", "Statusi", "Kati", "Rrymë", "Ujë", "Kanalizim", "Parking"],
+  TOKA: ["Sipërfaqja", "Statusi", "Rrymë", "Ujë", "Kanalizim", "Mal", "Tokë e rrafshët", "Tokë pjellore", "Infrastrukturë"],
+};
+
 export const buildPropertyFeatures = (property) => {
   if (!property) return [];
 
@@ -76,5 +83,11 @@ export const buildPropertyFeatures = (property) => {
     );
   }
 
-  return [...features, ...getVisibleDetails(property)];
+  const allFeatures = [...features, ...getVisibleDetails(property)];
+  const order = featureOrder[property.type] || ["Sipërfaqja", "Statusi"];
+  return allFeatures.sort((a, b) => {
+    const first = order.indexOf(a.label);
+    const second = order.indexOf(b.label);
+    return (first < 0 ? order.length : first) - (second < 0 ? order.length : second);
+  });
 };

@@ -28,4 +28,14 @@ describe("property details", () => {
     const legacyOnly = buildPropertyFeatures({ type: "BANESA", bathrooms: 0, details: { toilets: 2 } });
     expect(legacyOnly.filter(({ label }) => label === "Banjo")).toEqual([{ label: "Banjo", value: 2 }]);
   });
+
+  it("orders apartment details from location and size to rooms and amenities", () => {
+    const features = buildPropertyFeatures({
+      type: "BANESA", area: 80, status: "FOR_SALE", floor: 3, rooms: 2, bathrooms: 1,
+      details: { complex: "Fidanishtja", livingRooms: 1, furnishing: "E mobiluar" },
+    });
+    expect(features.map(({ label }) => label)).toEqual([
+      "Kompleksi", "Sipërfaqja", "Statusi", "Kati", "Dhoma gjumi", "Banjo", "Sallon", "Mobilimi",
+    ]);
+  });
 });

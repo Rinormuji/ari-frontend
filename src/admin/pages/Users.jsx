@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Ban, Eye, Pencil, Search, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import { Archive, Ban, Eye, Pencil, RotateCcw, Search, ShieldCheck, UserPlus } from "lucide-react";
 import { usersAPI } from "../../services/api";
 import { useAuth } from "../../context/authContextValue";
 import { useToast } from "../../context/toastContextValue";
@@ -29,6 +29,7 @@ export default function UsersAdmin() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
 
   const [modalType, setModalType] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -43,7 +44,7 @@ export default function UsersAdmin() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await usersAPI.getUsers({ page: page - 1, size: PAGE_SIZE, search });
+      const res = await usersAPI.getUsers({ page: page - 1, size: PAGE_SIZE, search, archived: showArchived });
       const data = res.data;
       const content = Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : [];
       setUsers(content);
@@ -55,7 +56,7 @@ export default function UsersAdmin() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, toast]);
+  }, [page, search, showArchived, toast]);
 
   useEffect(() => {
     fetchUsers();
@@ -167,12 +168,25 @@ export default function UsersAdmin() {
     if (!selectedUser) return;
     try {
       await usersAPI.deleteUser(selectedUser.id);
-      toast.success("Perdoruesi u fshi.");
+      toast.success("Përdoruesi u arkivua.");
       closeModal();
-      fetchUsers();
+      if (users.length === 1 && page > 1) setPage(page - 1);
+      else fetchUsers();
     } catch (err) {
       console.error(err);
-      toast.error("Perdoruesi nuk mund te fshihet.");
+      toast.error("Përdoruesi nuk mund të arkivohet.");
+    }
+  };
+
+  const handleRestoreUser = async (user) => {
+    try {
+      await usersAPI.restoreUser(user.id);
+      toast.success("Përdoruesi u rikthye.");
+      if (users.length === 1 && page > 1) setPage(page - 1);
+      else fetchUsers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Përdoruesi nuk mund të rikthehet.");
     }
   };
 
@@ -201,6 +215,12 @@ export default function UsersAdmin() {
       <div className="flex flex-col gap-4 mb-6 xl:flex-row xl:items-center xl:justify-between">
         <h1 className="text-xl font-bold text-white">Menaxhimi i Perdoruesve</h1>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex rounded-lg border border-white/10 bg-[#123E35] p-1">
+            {[[false, "Aktivë"], [true, "Arkiva"]].map(([archived, label]) => (
+              <button key={label} type="button" onClick={() => { setShowArchived(archived); setPage(1); }}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${showArchived === archived ? "bg-[#EFD391] text-[#123E35]" : "text-white/60 hover:text-white"}`}>{label}</button>
+            ))}
+          </div>
           {isAdmin && (
             <button
               onClick={() => openRegisterForm("USER")}
@@ -300,7 +320,12 @@ export default function UsersAdmin() {
               </p>
             )}
 
-            {regError && <p className="col-span-full text-xs text-red-400">{regError}</p>}
+            {regError && <div className="col-span-full text-xs text-red-400">
+              <p>{regError}</p>
+              {regError.toLowerCase().includes("arkiv") && <button type="button"
+                onClick={() => { setShowRegForm(false); setShowArchived(true); setPage(1); }}
+                className="mt-2 rounded-md border border-[#EFD391]/40 px-3 py-1.5 font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">Shih Arkivën</button>}
+            </div>}
             <button
               type="submit"
               disabled={regLoading}
@@ -352,9 +377,15 @@ export default function UsersAdmin() {
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <button onClick={() => openModal("view", user)} className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"><Eye size={14} /></button>
-                      <button onClick={() => openModal("edit", user)} className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-[#EFD391]/15 hover:text-[#EFD391]"><Pencil size={14} /></button>
-                      <button onClick={() => openModal("status", user)} className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-yellow-500/15 hover:text-yellow-400"><Ban size={14} /></button>
-                      <button onClick={() => openModal("delete", user)} className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-red-500/15 hover:text-red-400"><Trash2 size={14} /></button>
+                      {showArchived ? (
+                        <button onClick={() => handleRestoreUser(user)} title="Rikthe" className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-300 transition-colors hover:bg-emerald-500/20"><RotateCcw size={14} /></button>
+                      ) : (
+                        <>
+                          <button onClick={() => openModal("edit", user)} title="Edito" className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-[#EFD391]/15 hover:text-[#EFD391]"><Pencil size={14} /></button>
+                          <button onClick={() => openModal("status", user)} title="Ndrysho statusin" className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-yellow-500/15 hover:text-yellow-400"><Ban size={14} /></button>
+                          <button onClick={() => openModal("delete", user)} title="Arkivo" className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-red-500/15 hover:text-red-400"><Archive size={14} /></button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -456,11 +487,11 @@ export default function UsersAdmin() {
 
             {modalType === "delete" && (
               <>
-                <h3 className="mb-2 text-lg font-semibold text-white">Fshirje</h3>
-                <p className="mb-6 text-sm text-white/60">Ky veprim eshte i pakthyeshem. A deshiron te fshish <b className="text-white">{selectedUser.username}</b>?</p>
+                <h3 className="mb-2 text-lg font-semibold text-white">Arkivo përdoruesin</h3>
+                <p className="mb-6 text-sm text-white/60">Përdoruesi <b className="text-white">{selectedUser.username}</b> nuk do të mund të hyjë dhe do të hiqet nga lista aktive. Mund ta riktheni nga Arkiva.</p>
                 <div className="flex justify-end gap-3">
                   <button onClick={closeModal} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:text-white">Anulo</button>
-                  <button onClick={handleDeleteUser} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600">Fshij</button>
+                  <button onClick={handleDeleteUser} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600">Arkivo</button>
                 </div>
               </>
             )}

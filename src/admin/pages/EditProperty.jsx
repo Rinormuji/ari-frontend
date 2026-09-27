@@ -50,7 +50,7 @@ function EditProperty() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const res = await propertyAPI.getProperty(id);
+        const res = await propertyAPI.getProperty(id, { compact: false });
         const found = res.data;
 
         if (found) {

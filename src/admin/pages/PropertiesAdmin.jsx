@@ -1,9 +1,9 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { Eye, LayoutGrid, Table2, Trash2, Pencil, Search, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Archive, Eye, LayoutGrid, Table2, RotateCcw, Pencil, Search, X } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { paths } from "../../routes/paths";
-import { propertyAPI, cityAPI, api } from "../../services/api";
+import { propertyAPI, cityAPI } from "../../services/api";
 import { useToast } from "../../context/toastContextValue";
 import { getPropertyViews } from "../../utils/propertyViews";
 import { formatPropertyPrice } from "../../utils/propertyPricing";
@@ -23,6 +23,7 @@ const typeLabel = propertyTypes;
 
 export default function PropertiesAdmin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const toast = useToast();
 
   const [view, setView] = useState("table"); // "table" or "cards"
@@ -31,6 +32,8 @@ export default function PropertiesAdmin() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
+  const [showArchived, setShowArchived] = useState(() => searchParams.get("archived") === "true");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // filters
   const [search, setSearch] = useState("");
@@ -71,6 +74,7 @@ const [deleting, setDeleting] = useState(false);
          const res = await propertyAPI.getProperties({
         page: page - 1,
         size: pageSize,
+        archived: showArchived,
       });
         // const url = `${API_BASE}/api/properties?page=${Math.max(0, page - 1)}&size=${pageSize}`;
         // const res = await axios.get(url, { withCredentials: true });
@@ -133,7 +137,7 @@ const [deleting, setDeleting] = useState(false);
 
     fetchProperties();
     return () => { cancelled = true; };
-  }, [page, pageSize]);
+  }, [page, pageSize, showArchived, refreshKey]);
 
   // client-side filters
   const filtered = useMemo(() => {
@@ -168,7 +172,7 @@ const confirmDelete = async () => {
 
   try {
     setDeleting(true);
-    await api.delete(`/properties/${propertyToDelete}`);
+    await propertyAPI.deleteProperty(propertyToDelete);
 
     setProperties((prev) =>
       prev.filter((p) => p.id !== propertyToDelete)
@@ -176,14 +180,28 @@ const confirmDelete = async () => {
 
     setDeleteModalOpen(false);
     setPropertyToDelete(null);
-    toast.success("Prona u fshi me sukses.");
+    toast.success("Prona u arkivua.");
+    if (properties.length === 1 && page > 1) setPage(page - 1);
+    else setRefreshKey((key) => key + 1);
   } catch (e) {
     console.error("Delete error:", e);
-    toast.error("Fshirja dështoi.");
+    toast.error("Arkivimi dështoi.");
   } finally {
     setDeleting(false);
   }
 };
+
+  const handleRestore = async (id) => {
+    try {
+      await propertyAPI.restoreProperty(id);
+      toast.success("Prona u rikthye.");
+      if (properties.length === 1 && page > 1) setPage(page - 1);
+      else setRefreshKey((key) => key + 1);
+    } catch (error) {
+      console.error("Restore error:", error);
+      toast.error("Prona nuk mund të rikthehet.");
+    }
+  };
 
 
   // helper: navigate to edit - route should exist
@@ -197,6 +215,12 @@ const confirmDelete = async () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-xl font-bold text-white">Menaxhimi i Pronave</h1>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="flex rounded-lg border border-white/10 bg-[#123E35] p-1">
+            {[[false, "Aktive"], [true, "Arkiva"]].map(([archived, label]) => (
+              <button key={label} type="button" onClick={() => { setShowArchived(archived); setPage(1); }}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${showArchived === archived ? "bg-[#EFD391] text-[#123E35]" : "text-white/60 hover:text-white"}`}>{label}</button>
+            ))}
+          </div>
           {/* Search */}
           <div className="flex w-full items-center bg-[#123E35] border border-white/10 rounded-lg px-3 py-2 gap-2 sm:w-72">
             <Search size={14} className="text-white/40 shrink-0" />
@@ -291,15 +315,13 @@ const confirmDelete = async () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
-                        <Pencil size={14} />
-                      </button>
-                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
-                        <Trash2 size={14} />
-                      </button>
+                      {showArchived ? <button onClick={() => handleRestore(p.id)} title="Rikthe" className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"><RotateCcw size={14} /></button> : <>
+                      <button onClick={() => handleEdit(p.id)} title="Edito" className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors"><Pencil size={14} /></button>
+                      <button onClick={() => handleDelete(p.id)} title="Arkivo" className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors"><Archive size={14} /></button>
                       <Link to={paths.propertyDetail(p.id)} className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
                         <Eye size={15} /> Shih detajet
                       </Link>
+                      </>}
                     </div>
                   </td>
                 </tr>
@@ -332,17 +354,19 @@ const confirmDelete = async () => {
               <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
                 <span className="text-[#EFD391] font-semibold text-sm">{formatPropertyPrice(p)}</span>
                 <div className="flex gap-2">
+                  {showArchived ? <button onClick={() => handleRestore(p.id)} title="Rikthe" className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"><RotateCcw size={14} /></button> : <>
                   <button onClick={() => handleEdit(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-[#EFD391]/15 hover:text-[#EFD391] text-white/50 transition-colors">
                     <Pencil size={14} />
                   </button>
                   <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 hover:text-red-400 text-white/50 transition-colors">
-                    <Trash2 size={14} />
+                    <Archive size={14} />
                   </button>
+                  </>}
                 </div>
               </div>
-              <Link to={paths.propertyDetail(p.id)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
+              {!showArchived && <Link to={paths.propertyDetail(p.id)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
                 <Eye size={15} /> Shih detajet
-              </Link>
+              </Link>}
             </div>
           ))}
         </div>
@@ -369,8 +393,8 @@ const confirmDelete = async () => {
       {deleteModalOpen && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-[#123E35] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 className="text-white font-semibold text-lg mb-2">Konfirmo fshirjen</h3>
-            <p className="text-white/60 text-sm mb-6">A je i sigurt që dëshiron të fshish këtë pronë? Ky veprim nuk mund të kthehet mbrapsht.</p>
+            <h3 className="text-white font-semibold text-lg mb-2">Arkivo pronën</h3>
+            <p className="text-white/60 text-sm mb-6">Prona do të hiqet nga faqja publike. Mund ta riktheni nga Arkiva.</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => { setDeleteModalOpen(false); setPropertyToDelete(null); }} disabled={deleting}
                 className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-50">
@@ -378,7 +402,7 @@ const confirmDelete = async () => {
               </button>
               <button onClick={confirmDelete} disabled={deleting}
                 className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors disabled:opacity-50">
-                {deleting ? "Duke fshirë..." : "Fshij"}
+                {deleting ? "Duke arkivuar..." : "Arkivo"}
               </button>
             </div>
           </div>

@@ -48,7 +48,7 @@ const initialFilters = {
 };
 
 const sortOptions = [
-  { value: "id,desc", label: "Më të rejat" },
+  { value: "createdAt,desc", label: "Më të rejat" },
   { value: "price,asc", label: "Çmimi më i ulët" },
   { value: "price,desc", label: "Çmimi më i lartë" },
   { value: "area,desc", label: "Sipërfaqja më e madhe" },
@@ -180,7 +180,7 @@ const AllProperties = () => {
   const [properties, setProperties] = useState([]);
   const [draftFilters, setDraftFilters] = useState(initialFilters);
   const [filters, setFilters] = useState(initialFilters);
-  const [sort, setSort] = useState("id,desc");
+  const [sort, setSort] = useState("createdAt,desc");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);

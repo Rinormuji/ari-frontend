@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import {
   CalendarPlus,
+  Archive,
   Check,
   Edit3,
   Eye,
   LayoutGrid,
   Search,
   Table2,
-  Trash2,
+  RotateCcw,
   X,
 } from "lucide-react";
 import { appointmentAPI, propertyAPI, usersAPI } from "../../services/api";
@@ -72,6 +73,7 @@ export default function AppointmentsAdmin() {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
+  const [showArchived, setShowArchived] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -92,6 +94,7 @@ export default function AppointmentsAdmin() {
         page: Math.max(0, page - 1),
         size: PAGE_SIZE,
         search: debouncedSearch || undefined,
+        archived: showArchived,
       });
 
       const data = res.data;
@@ -115,7 +118,7 @@ export default function AppointmentsAdmin() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, page]);
+  }, [debouncedSearch, page, showArchived]);
 
   const fetchFormOptions = async () => {
     try {
@@ -243,15 +246,27 @@ export default function AppointmentsAdmin() {
       await appointmentAPI.delete(deleteTarget.id);
       setAppointments((current) => current.filter((item) => item.id !== deleteTarget.id));
       setDeleteTarget(null);
-      toast.success("Takimi u fshi.");
+      toast.success("Takimi u arkivua.");
     } catch (err) {
       console.error("Error deleting appointment:", err);
-      toast.error("Takimi nuk mund të fshihet.");
+      toast.error("Takimi nuk mund të arkivohet.");
+    }
+  };
+
+  const restoreAppointment = async (appointment) => {
+    try {
+      await appointmentAPI.restore(appointment.id);
+      setAppointments((current) => current.filter((item) => item.id !== appointment.id));
+      toast.success("Takimi u rikthye.");
+    } catch (err) {
+      console.error("Error restoring appointment:", err);
+      toast.error("Takimi nuk mund të rikthehet. Kontrolloni orarin e rezervuar.");
     }
   };
 
   const actionButtons = (appointment) => (
     <div className="flex flex-wrap items-center gap-2">
+      {showArchived ? <button onClick={() => restoreAppointment(appointment)} title="Rikthe" className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-300 transition-colors hover:bg-emerald-500/20"><RotateCcw size={14} /></button> : <>
       <button onClick={() => updateStatus(appointment, "APPROVED")} className="rounded-lg bg-green-500/10 p-1.5 text-green-400 transition-colors hover:bg-green-500/20" title="Aprovo">
         <Check size={14} />
       </button>
@@ -261,12 +276,13 @@ export default function AppointmentsAdmin() {
       <button onClick={() => openEditForm(appointment)} className="rounded-lg bg-[#EFD391]/10 p-1.5 text-[#EFD391] transition-colors hover:bg-[#EFD391]/20" title="Edito">
         <Edit3 size={14} />
       </button>
-      <button onClick={() => setDeleteTarget(appointment)} className="rounded-lg bg-red-500/10 p-1.5 text-red-400 transition-colors hover:bg-red-500/20" title="Fshij">
-        <Trash2 size={14} />
+      <button onClick={() => setDeleteTarget(appointment)} className="rounded-lg bg-red-500/10 p-1.5 text-red-400 transition-colors hover:bg-red-500/20" title="Arkivo">
+        <Archive size={14} />
       </button>
       {appointment.propertyId && <Link to={paths.propertyDetail(appointment.propertyId)} className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
         <Eye size={15} /> Shih detajet
       </Link>}
+      </>}
     </div>
   );
 
@@ -275,12 +291,18 @@ export default function AppointmentsAdmin() {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="text-xl font-bold text-white">Menaxhimi i Takimeve</h1>
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <div className="flex rounded-lg border border-white/10 bg-[#123E35] p-1">
+            {[[false, "Aktive"], [true, "Arkiva"]].map(([archived, label]) => (
+              <button key={label} type="button" onClick={() => { setShowArchived(archived); setPage(1); }}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${showArchived === archived ? "bg-[#EFD391] text-[#123E35]" : "text-white/60 hover:text-white"}`}>{label}</button>
+            ))}
+          </div>
+          {!showArchived && <button
             onClick={openCreateForm}
             className="inline-flex items-center gap-2 rounded-lg bg-[#EFD391] px-3 py-2 text-xs font-bold text-black transition-colors hover:bg-[#D9BF7B]"
           >
             <CalendarPlus size={15} /> Shto takim
-          </button>
+          </button>}
           <div className="flex flex-1 items-center gap-2 rounded-lg border border-white/10 bg-[#123E35] px-3 py-2 sm:w-72">
             <Search size={14} className="shrink-0 text-white/40" />
             <input
@@ -453,11 +475,11 @@ export default function AppointmentsAdmin() {
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#123E35] p-6 shadow-2xl">
-            <h3 className="mb-2 text-lg font-semibold text-white">Fshirje takimi</h3>
-            <p className="mb-6 text-sm text-white/60">A dëshironi të fshini takimin për <b className="text-white">{deleteTarget.propertyName}</b>?</p>
+            <h3 className="mb-2 text-lg font-semibold text-white">Arkivo takimin</h3>
+            <p className="mb-6 text-sm text-white/60">Takimi për <b className="text-white">{deleteTarget.propertyName}</b> do të ruhet në Arkivë dhe mund të rikthehet.</p>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
               <button onClick={() => setDeleteTarget(null)} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:text-white">Anulo</button>
-              <button onClick={deleteAppointment} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600">Fshij</button>
+              <button onClick={deleteAppointment} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600">Arkivo</button>
             </div>
           </div>
         </div>

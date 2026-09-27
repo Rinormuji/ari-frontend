@@ -116,20 +116,22 @@ const PropertyDetail = () => {
   const galleryRef = useRef(null);
   const detailsRef = useRef(null);
   const summaryRef = useRef(null);
+  const actionsRef = useRef(null);
 
   const images = useMemo(() => getPropertyImages(property), [property]);
   const features = useMemo(() => buildPropertyFeatures(property), [property]);
 
   useEffect(() => {
-    if (!property || !galleryRef.current || !detailsRef.current || !summaryRef.current) return undefined;
+    if (!property || !galleryRef.current || !detailsRef.current || !summaryRef.current || !actionsRef.current) return undefined;
 
     const updateDetailsHeight = () => {
       const gallery = galleryRef.current.getBoundingClientRect();
       const details = detailsRef.current.getBoundingClientRect();
       const desktop = window.matchMedia("(min-width: 1024px)").matches;
-      const availableHeight = desktop ? gallery.bottom - details.top : gallery.height;
+      const actionsHeight = actionsRef.current.getBoundingClientRect().height;
+      const availableHeight = desktop ? gallery.bottom - details.top - actionsHeight - 20 : gallery.height;
       setDetailsMaxHeight((previous) => {
-        const next = Math.max(0, Math.round(availableHeight));
+        const next = Math.max(desktop ? 160 : 0, Math.round(availableHeight));
         return previous === next ? previous : next;
       });
     };
@@ -137,6 +139,7 @@ const PropertyDetail = () => {
     const observer = new ResizeObserver(updateDetailsHeight);
     observer.observe(galleryRef.current);
     observer.observe(summaryRef.current);
+    observer.observe(actionsRef.current);
     window.addEventListener("resize", updateDetailsHeight);
     updateDetailsHeight();
     return () => {
@@ -154,16 +157,18 @@ const PropertyDetail = () => {
 
       try {
         const res = await propertyAPI.getProperty(id);
-        let nextProperty = res.data;
+        if (!cancelled) setProperty(res.data);
 
-        try {
-          const viewRes = await propertyAPI.trackView(id);
-          nextProperty = viewRes.data || nextProperty;
-        } catch {
-          // View tracking should not block the property page.
-        }
-
-        if (!cancelled) setProperty(nextProperty);
+        // A view count write should not hold up the property page.
+        propertyAPI.trackView(id)
+          .then((viewRes) => {
+            if (!cancelled) {
+              setProperty((current) => current?.id === res.data.id
+                ? { ...current, views: viewRes.data.views }
+                : current);
+            }
+          })
+          .catch(() => {});
       } catch {
         if (!cancelled) {
           setProperty(null);
@@ -354,17 +359,16 @@ const PropertyDetail = () => {
               </div>
             )}
 
-          </div>
-
-          <div className="grid grid-cols-1 items-center gap-4 lg:col-span-2 lg:grid-cols-[minmax(0,2fr)_minmax(240px,1fr)]">
-            <ContactCard contactInfo={extractContactPhones(property.contactInfo)} />
-            <button
-              type="button"
-              onClick={openAppointmentModal}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#EFD391] px-4 py-3.5 font-bold text-black shadow-sm transition-colors hover:bg-[#D9BF7B]"
-            >
-              <CalendarCheck size={18} /> Kërko një takim
-            </button>
+            <div ref={actionsRef} className="flex flex-col gap-4">
+              <ContactCard contactInfo={extractContactPhones(property.contactInfo)} />
+              <button
+                type="button"
+                onClick={openAppointmentModal}
+                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#EFD391] px-4 py-3.5 font-bold text-black shadow-sm transition-colors hover:bg-[#D9BF7B]"
+              >
+                <CalendarCheck size={18} /> Kërko një takim
+              </button>
+            </div>
           </div>
         </section>
 
