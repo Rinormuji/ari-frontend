@@ -17,15 +17,11 @@ import {
 import { propertyAPI } from "../services/api";
 import PropertyCard from "../components/PropertyCard";
 import DataLoadError from "../components/DataLoadError";
+import { propertyTypes } from "../utils/propertyDetails";
 
 const PAGE_SIZE = 12;
 
-const typeLabels = {
-  BANESA: "Banesë",
-  SHTEPI: "Shtëpi",
-  LOKALE: "Lokal",
-  TOKA: "Tokë",
-};
+const typeLabels = propertyTypes;
 
 const statusLabels = {
   FOR_SALE: "Në shitje",
@@ -52,7 +48,7 @@ const initialFilters = {
 };
 
 const sortOptions = [
-  { value: "id,desc", label: "Më të rejat" },
+  { value: "createdAt,desc", label: "Më të rejat" },
   { value: "price,asc", label: "Çmimi më i ulët" },
   { value: "price,desc", label: "Çmimi më i lartë" },
   { value: "area,desc", label: "Sipërfaqja më e madhe" },
@@ -80,7 +76,7 @@ const numericFields = [
   { key: "maxPrice", label: "Çmimi max.", icon: Euro, suffix: "€" },
   { key: "minArea", label: "Sipërfaqe min.", icon: Ruler, suffix: "m²" },
   { key: "maxArea", label: "Sipërfaqe max.", icon: Ruler, suffix: "m²" },
-  { key: "minRooms", label: "Dhoma min.", icon: Bed },
+  { key: "minRooms", label: "Dhoma gjumi min.", icon: Bed },
   { key: "minBathrooms", label: "Banjo min.", icon: Bath },
 ];
 
@@ -92,7 +88,7 @@ const filterValueLabel = (key, value) => {
   if (key === "maxPrice") return `Max ${Number(value).toLocaleString()} €`;
   if (key === "minArea") return `Min ${value} m²`;
   if (key === "maxArea") return `Max ${value} m²`;
-  if (key === "minRooms") return `${value}+ dhoma`;
+  if (key === "minRooms") return `${value}+ dhoma gjumi`;
   if (key === "minBathrooms") return `${value}+ banjo`;
   return value;
 };
@@ -184,7 +180,7 @@ const AllProperties = () => {
   const [properties, setProperties] = useState([]);
   const [draftFilters, setDraftFilters] = useState(initialFilters);
   const [filters, setFilters] = useState(initialFilters);
-  const [sort, setSort] = useState("id,desc");
+  const [sort, setSort] = useState("createdAt,desc");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
@@ -195,7 +191,7 @@ const AllProperties = () => {
   const [filterOptions, setFilterOptions] = useState(defaultFilterOptions);
 
   const locationOptions = useMemo(() => toOptions(filterOptions.locations), [filterOptions.locations]);
-  const typeOptions = useMemo(() => toOptions(filterOptions.types, typeLabels), [filterOptions.types]);
+  const typeOptions = useMemo(() => toOptions(Object.keys(propertyTypes), typeLabels), []);
   const statusOptions = useMemo(() => toOptions(filterOptions.statuses, statusLabels), [filterOptions.statuses]);
 
   const visibleBooleanFilters = useMemo(() => {
@@ -324,7 +320,7 @@ const AllProperties = () => {
               <input
                 value={draftFilters.q}
                 onChange={(event) => updateDraft("q", event.target.value)}
-                placeholder="Kërko titull, lagje, qytet..."
+                placeholder="Kërko titull, lagje, komunë..."
                 className="w-full bg-transparent text-[#0F4638] outline-none placeholder:text-[#0F4638]/35"
               />
             </label>
@@ -333,7 +329,7 @@ const AllProperties = () => {
               icon={MapPin}
               value={draftFilters.location}
               options={locationOptions}
-              placeholder="Qyteti"
+              placeholder="Komuna"
               onChange={(value) => updateDraft("location", value)}
             />
 

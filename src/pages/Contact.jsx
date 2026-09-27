@@ -46,10 +46,18 @@ const Contact = () => {
               </div>
               <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
               {(links ?? [{ value, href }]).map((link) => (
-                <a key={link.href} href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="break-words text-sm text-gray-500 transition-colors hover:text-[#A98836]">{link.value}</a>
+                <div key={link.href} className="flex flex-col items-center">
+                  {link.label && <span className="text-xs font-semibold text-[#0F4638]">{link.label}</span>}
+                  <a href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="break-words text-sm text-gray-500 transition-colors hover:text-[#A98836]">{link.value}</a>
+                </div>
               ))}
             </div>
           ))}
+        </div>
+
+        <div className="mb-10 rounded-2xl border border-[#EFD391]/40 bg-white p-6 text-center shadow-sm">
+          <h2 className="text-xl font-bold text-[#0F4638]">{contactInfo.name}</h2>
+          <p className="mt-1 text-sm font-semibold tracking-wide text-[#A98836]">{contactInfo.role}</p>
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">

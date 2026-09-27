@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   MapPin,
   Home,
@@ -7,6 +7,8 @@ import {
   Bed,
   Square,
 } from 'lucide-react'
+import { propertyTypes } from '../utils/propertyDetails'
+import { cityAPI } from '../services/api'
 
 const PropertyFilters = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
@@ -18,6 +20,11 @@ const PropertyFilters = ({ onFilterChange }) => {
     floor: '',
     minArea: '',
   })
+  const [cities, setCities] = useState([])
+
+  useEffect(() => {
+    cityAPI.getAll().then((res) => setCities(Array.isArray(res.data) ? res.data : [])).catch(() => setCities([]))
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -51,14 +58,8 @@ const PropertyFilters = ({ onFilterChange }) => {
         <div className={filterItem}>
           <MapPin className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="city" value={filters.city} onChange={handleChange} className={selectClass}>
-            <option value="">Vendi</option>
-            <option value="Prishtinë">Prishtinë</option>
-            <option value="Pejë">Pejë</option>
-            <option value="Prizren">Prizren</option>
-            <option value="Ferizaj">Ferizaj</option>
-            <option value="Mitrovicë">Mitrovicë</option>
-            <option value="Gjilan">Gjilan</option>
-            <option value="Gjakovë">Gjakovë</option>
+            <option value="">Komuna</option>
+            {cities.map((city) => <option key={city} value={city}>{city}</option>)}
           </select>
         </div>
 
@@ -80,10 +81,7 @@ const PropertyFilters = ({ onFilterChange }) => {
           <Home className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="type" value={filters.type} onChange={handleChange} className={selectClass}>
             <option value="">Lloji</option>
-            <option value="BANESA">Banesa</option>
-            <option value="SHTEPI">Shtëpi</option>
-            <option value="TOKA">Tokë</option>
-            <option value="LOKALE">Lokale</option>
+            {Object.entries(propertyTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </div>
 
@@ -101,7 +99,7 @@ const PropertyFilters = ({ onFilterChange }) => {
         <div className={filterItem}>
           <Bed className="w-4 h-4 text-[#EFD391] shrink-0" />
           <select name="rooms" value={filters.rooms} onChange={handleChange} className={selectClass}>
-            <option value="">Dhoma</option>
+            <option value="">Dhoma gjumi</option>
             {[1, 2, 3, 4, 5].map((r) => (
               <option key={r} value={r}>{`${r}+`}</option>
             ))}

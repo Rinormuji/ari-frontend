@@ -28,13 +28,9 @@ import {
 import { adminAPI, appointmentAPI, propertyAPI } from "../../services/api";
 import { paths } from "../../routes/paths";
 import StatsCard from "../components/StatsCard";
+import { propertyTypes } from "../../utils/propertyDetails";
 
-const typeLabels = {
-  BANESA: "Banesa",
-  SHTEPI: "Shtëpi",
-  LOKALE: "Lokale",
-  TOKA: "Toka",
-};
+const typeLabels = propertyTypes;
 
 const statusLabels = {
   FOR_SALE: "Në shitje",

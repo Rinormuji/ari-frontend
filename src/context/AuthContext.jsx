@@ -16,7 +16,9 @@ export const AuthProvider = ({ children }) => {
     const initializeUser = async () => {
       try {
         const response = await authAPI.me()
-        setAuthState({ user: response.data, isAuthenticated: true })
+        setAuthState(response.status === 204 || !response.data
+          ? { user: null, isAuthenticated: false }
+          : { user: response.data, isAuthenticated: true })
       } catch {
         // 401 means no valid cookie — not an error, just not logged in
         setAuthState({ user: null, isAuthenticated: false })

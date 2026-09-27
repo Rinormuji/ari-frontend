@@ -4,6 +4,22 @@ import { paths } from '../routes/paths'
 
 const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "")
 const API_BASE_URL = `${API_ORIGIN}/api`
+
+const resolvePropertyImages = (payload) => {
+  const resolve = (property) => {
+    if (Array.isArray(property?.images)) {
+      property.images = property.images.map((image) =>
+        typeof image === 'string' && image.startsWith('/api/properties/')
+          ? `${API_ORIGIN}${image}`
+          : image
+      )
+    }
+  }
+
+  if (Array.isArray(payload?.content)) payload.content.forEach(resolve)
+  else if (Array.isArray(payload)) payload.forEach(resolve)
+  else resolve(payload)
+}
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -28,13 +44,14 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
+    if (response.config.url?.startsWith('/properties')) resolvePropertyImages(response.data)
     if (import.meta.env.DEV) {
       console.log(`API Response ✓ ${response.config.url}`)
     }
     return response
   },
   (error) => {
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV && !(error.response?.status === 401 && error.config?.url === '/auth/me')) {
       console.error(
         `API Error ✗ ${error.config?.url}`,
         error.response?.status
@@ -62,7 +79,7 @@ export const propertyAPI = {
   getTotalViews: () => api.get('/properties/total-views'),
   // Get all properties with pagination and filters
   getProperties: (params = {}) => {
-    return api.get('/properties', { params })
+    return api.get('/properties', { params: { compact: true, ...params } })
   },
 
   // Get available filter options from existing properties
@@ -71,19 +88,19 @@ export const propertyAPI = {
   },
 
   // Get single property by ID
-  getProperty: (id) => {
-    return api.get(`/properties/${id}`)
+  getProperty: (id, params = {}) => {
+    return api.get(`/properties/${id}`, { params: { compact: true, ...params } })
   },
 
   // Track a public property detail view
   trackView: (id) => {
-    return api.post(`/properties/${id}/views`)
+    return api.post(`/properties/${id}/views`, null, { params: { compact: true } })
   },
 
   // Get property recommendations
   getRecommendations: (id, radiusKm = 5.0) => {
     return api.get(`/properties/${id}/nearby`, {
-      params: { radiusKm }
+      params: { radiusKm, compact: true }
     })
   },
 
@@ -101,6 +118,8 @@ export const propertyAPI = {
   deleteProperty: (id) => {
     return api.delete(`/properties/${id}`)
   },
+
+  restoreProperty: (id) => api.put(`/properties/${id}/restore`),
     
   updatePropertyByType: (type, id, propertyData) => {
   let url = '';
@@ -109,7 +128,7 @@ export const propertyAPI = {
     case 'SHTEPI': url = `/shtepi/${id}`; break;
     case 'LOKALE': url = `/lokale/${id}`; break;
     case 'TOKA': url = `/toka/${id}`; break;
-    default: throw new Error('Lloji i pronës nuk është valid!');
+    default: url = `/properties/${id}`;
   }
   return api.put(url, propertyData, { timeout: 60000 });
 }
@@ -148,7 +167,7 @@ export const adminAPI = {
 };
 
 export const cityAPI = {
-  getAll: () => api.get('/cities'),
+  getAll: () => api.get('/municipalities'),
 };
 
 // Shtepi API functions
@@ -198,6 +217,8 @@ export const usersAPI = {
 
   // DELETE /api/users/:id
   deleteUser: (id) => api.delete(`/users/${id}`),
+
+  restoreUser: (id) => api.put(`/users/${id}/restore`),
 
   // POST /api/users/register-admin (SuperAdmin only)
   registerAdmin: (data) => api.post('/users/register-admin', data),
@@ -259,6 +280,8 @@ export const appointmentAPI = {
 
   // Admin: delete appointment
   delete: (id) => api.delete(`/appointments/${id}`),
+
+  restore: (id) => api.put(`/appointments/${id}/restore`),
 
   // Admin: approve
   approve: (id) => api.put(`/appointments/${id}/approve`),

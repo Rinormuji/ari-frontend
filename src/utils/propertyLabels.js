@@ -1,9 +1,6 @@
-export const typeLabels = {
-  BANESA: "Banesë",
-  SHTEPI: "Shtëpi",
-  LOKALE: "Lokal",
-  TOKA: "Tokë",
-};
+import { propertyTypes } from "./propertyDetails";
+
+export const typeLabels = propertyTypes;
 
 export const statusLabels = {
   FOR_SALE: "Në shitje",

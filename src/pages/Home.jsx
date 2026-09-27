@@ -32,7 +32,7 @@ const Home = () => {
       const params = {
         page: 0,
         size: PAGE_SIZE,
-        sort: 'id,desc',
+        sort: 'createdAt,desc',
       }
 
       const res = await propertyAPI.getProperties(params)

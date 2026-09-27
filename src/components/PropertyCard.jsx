@@ -15,6 +15,7 @@ import {
   Warehouse,
 } from "lucide-react";
 import { useAuth } from "../context/authContextValue";
+import { useImageSwipe } from "../hooks/useImageSwipe";
 import { paths } from "../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyPrice } from "../utils/propertyPricing";
@@ -32,17 +33,17 @@ const PropertyCard = ({ property }) => {
   const { isAuthenticated } = useAuth();
 
   const features = [
-    (property.type === "BANESA" || property.type === "SHTEPI") && property.rooms
-      ? { icon: Bed, label: `${property.rooms} dhoma` }
+    (property.type === "BANESA" || property.type === "SHTEPI") && (property.details?.bedrooms || property.rooms)
+      ? { icon: Bed, label: `${property.details?.bedrooms || property.rooms} dhoma gjumi` }
       : null,
-    (property.type === "BANESA" || property.type === "LOKALE") && property.floor !== null && property.floor !== undefined && Number(property.floor) > 0
+    (property.type === "BANESA" || property.type === "LOKALE") && property.floor !== null && property.floor !== undefined && property.floor !== ""
       ? { icon: Layers, label: `Kati ${property.floor}` }
       : null,
     property.type === "SHTEPI" && property.floor
       ? { icon: Layers, label: `${property.floor} kate` }
       : null,
-    property.hasParking ? { icon: Car, label: "Parking" } : null,
-    property.hasGarage ? { icon: Warehouse, label: "Garazh" } : null,
+    (property.hasParking || property.details?.hasParking) ? { icon: Car, label: "Parking" } : null,
+    (property.hasGarage || property.details?.hasGarage) ? { icon: Warehouse, label: "Garazh" } : null,
     property.hasGarden ? { icon: Trees, label: "Oborr" } : null,
   ].filter(Boolean).slice(0, 3);
 
@@ -66,13 +67,21 @@ const PropertyCard = ({ property }) => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const swipeHandlers = useImageSwipe({
+    enabled: images.length > 1,
+    onNext: () => setCurrentIndex((prev) => (prev + 1) % images.length),
+    onPrevious: () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length),
+  });
+
   return (
     <Link to={paths.propertyDetail(property.id)} className="group block h-full">
       <article className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#edf1ee]">
+        <div className="relative aspect-square w-full shrink-0 touch-pan-y overflow-hidden bg-[#edf1ee]" {...swipeHandlers}>
           <img
             src={images[currentIndex]}
             alt={property.title}
+            loading="lazy"
+            draggable="false"
             className="h-full w-full object-contain"
           />
 
@@ -82,7 +91,7 @@ const PropertyCard = ({ property }) => {
                 type="button"
                 onClick={prevImage}
                 aria-label="Foto e mëparshme"
-                className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 p-1.5 text-white transition hover:bg-black/70"
+                className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white shadow-sm transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -90,7 +99,7 @@ const PropertyCard = ({ property }) => {
                 type="button"
                 onClick={nextImage}
                 aria-label="Foto tjetër"
-                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 p-1.5 text-white transition hover:bg-black/70"
+                className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white shadow-sm transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 <ChevronRight size={18} />
               </button>

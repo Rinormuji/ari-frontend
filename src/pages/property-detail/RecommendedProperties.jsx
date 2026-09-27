@@ -19,6 +19,7 @@ const RecommendedProperties = ({ properties }) => {
             <div className="aspect-square overflow-hidden bg-[#edf1ee]">
               <img
                 src={property.images?.[0] || placeholderImage}
+                loading="lazy"
                 alt={property.title || ""}
                 className="h-full w-full object-contain"
               />

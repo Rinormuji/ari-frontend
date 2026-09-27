@@ -40,12 +40,13 @@ export default function Footer() {
 
         <div className="flex flex-col gap-3">
           <h4 className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#EFD391]">Kontakti</h4>
+          <p className="text-sm font-semibold text-white">{contactInfo.name} · {contactInfo.role}</p>
           <a href={`mailto:${contactInfo.email}`} className="flex items-center gap-2 break-words text-sm transition-colors hover:text-[#EFD391]">
             <Mail size={14} /> {contactInfo.email}
           </a>
-          {contactInfo.phones.map(({ value, href }) => (
+          {contactInfo.phones.map(({ value, href, label }) => (
             <a key={href} href={href} className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
-              <Phone size={14} /> {value}
+              <Phone size={14} /> {label}: {value}
             </a>
           ))}
           <a href={contactInfo.addressHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm transition-colors hover:text-[#EFD391]">
