@@ -24,6 +24,7 @@ import { formatCalculatedTotal, formatPropertyPrice } from "../utils/propertyPri
 import { extractContactPhones, formatPropertyPhone } from "../utils/propertyContact";
 import { contactInfo as agencyContactInfo } from "../utils/contactInfo";
 import ImageGallery from "./property-detail/ImageGallery";
+import FavoriteButton from "../components/FavoriteButton";
 import RecommendedProperties from "./property-detail/RecommendedProperties";
 import {
   buildPropertyFeatures,
@@ -189,6 +190,7 @@ const PropertyDetail = () => {
     let cancelled = false;
 
     const fetchRecommended = async () => {
+      setRecommended([]);
       try {
         const res = await propertyAPI.getRecommendations(id, 10);
         const filtered = (res.data || []).filter((item) => String(item.id) !== String(id));
@@ -332,6 +334,7 @@ const PropertyDetail = () => {
               </div>
 
               <h1 className="text-2xl font-bold text-[#071f1a] sm:text-3xl">{property.title}</h1>
+              <div className="mt-3"><FavoriteButton propertyId={property.id} /></div>
               <div className="mt-3 flex flex-wrap items-center gap-4">
                 <div className="flex flex-col">
                   <div className="text-2xl font-bold text-[#0F4638]">

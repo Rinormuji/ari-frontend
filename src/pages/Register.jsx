@@ -7,6 +7,8 @@ import "react-phone-input-2/lib/style.css";
 import { ArrowLeft, Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
 import { useToast } from "../context/toastContextValue";
 import BrandLogo from "../components/BrandLogo";
+import PreferenceFields from "../components/PreferenceFields";
+import { emptyPreferences, hasPreferenceCriteria } from "../utils/emptyPreferences";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [showCPw, setShowCPw] = useState(false);
+  const [preferences, setPreferences] = useState(emptyPreferences);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -44,6 +47,7 @@ const Register = () => {
     else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) e.password = "Përdorni së paku një shkronjë të madhe, një të vogël dhe një numër.";
     if (!formData.confirmPassword) e.confirmPassword = "Konfirmoni fjalëkalimin.";
     else if (formData.password !== formData.confirmPassword) e.confirmPassword = "Fjalëkalimet nuk përputhen.";
+    if (!hasPreferenceCriteria(preferences)) e.preferences = "Zgjidhni të paktën një kriter për pronën.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -58,6 +62,14 @@ const Register = () => {
         username: formData.username, email: formData.email,
         phoneNumber: formData.phone, password: formData.password,
         confirmPassword: formData.confirmPassword,
+        preferences: {
+          ...preferences,
+          locations: preferences.locations || [],
+          types: preferences.types || [],
+          status: preferences.status || null,
+          targetPrice: preferences.targetPrice || null,
+          targetArea: preferences.targetArea || null,
+        },
       });
       toast.success("Regjistrimi u krye me sukses. Kontrolloni emailin për verifikim.");
       setTimeout(() => navigate("/login"), 2000);
@@ -192,6 +204,9 @@ const Register = () => {
               </div>
               {err("confirmPassword")}
             </div>
+
+            <PreferenceFields value={preferences} onChange={setPreferences} dark />
+            {err("preferences")}
 
             <button
               type="submit"

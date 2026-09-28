@@ -190,6 +190,15 @@ export const propertySearchRequestAPI = {
   submit: (request) => api.post('/property-search-requests', request),
 };
 
+export const interestAPI = {
+  getPreferences: () => api.get('/my-property-interests/preferences'),
+  savePreferences: (data) => api.put('/my-property-interests/preferences', data),
+  getFavorites: () => api.get('/my-property-interests/favorites'),
+  getFavoriteProperties: (params = {}) => api.get('/my-property-interests/favorites/properties', { params }),
+  addFavorite: (id) => api.put(`/my-property-interests/favorites/${id}`),
+  removeFavorite: (id) => api.delete(`/my-property-interests/favorites/${id}`),
+};
+
 // Shtepi API functions
 export const shtepiAPI = {
   getAll: () => api.get('/shtepi'),

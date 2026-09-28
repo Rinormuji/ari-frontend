@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Phone, Key } from "lucide-react";
+import { Link } from "react-router-dom";
+import { paths } from "../routes/paths";
 import api from "../services/api";
+import { useAuth } from "../context/authContextValue";
 
 const API_PATH = "/profile";
 
 const Profile = () => {
+  const { user, refreshUser } = useAuth();
   const [profile, setProfile] = useState({
-    username: "",
+    username: user?.username || "",
     firstName: "",
     lastName: "",
     phoneNumber: "",
   });
   const [loading, setLoading] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -27,12 +33,28 @@ const Profile = () => {
   const [pwError, setPwError] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
 
-  // Merr profilin e user-it
   useEffect(() => {
+    let active = true;
     api
       .get(API_PATH)
-      .then((res) => setProfile(res.data))
-      .catch((err) => console.error(err));
+      .then(({ data }) => {
+        if (active) {
+          setProfile({
+            username: data.username || "",
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            phoneNumber: data.phoneNumber || "",
+          });
+          setProfileLoaded(true);
+        }
+      })
+      .catch(() => {
+        if (active) setError("Të dhënat e profilit nuk u ngarkuan. Rifreskoni faqen dhe provoni përsëri.");
+      })
+      .finally(() => {
+        if (active) setLoadingProfile(false);
+      });
+    return () => { active = false; };
   }, []);
 
   const handleChange = (e) => {
@@ -54,7 +76,14 @@ const Profile = () => {
     setError("");
 
     try {
-      await api.put(API_PATH, profile);
+      const { data } = await api.put(API_PATH, profile);
+      setProfile({
+        username: data.username || "",
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        phoneNumber: data.phoneNumber || "",
+      });
+      await refreshUser();
       setMessage("Profili u përditësua me sukses!");
       setTimeout(() => setMessage(""), 3000); // zhduket pas 3 sek
     } catch (err) {
@@ -101,30 +130,40 @@ const Profile = () => {
       >
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Profili juaj</h1>
+          <Link to={paths.preferences} className="mt-3 inline-block rounded-xl bg-[#0F4638] px-4 py-2 text-sm font-semibold text-white">Preferencat dhe njoftimet e pronave</Link>
           <p className="text-sm text-gray-500 mt-1">Shikoni ose përditësoni informacionin tuaj</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <form onSubmit={handleUpdateProfile} className="space-y-4">
-            {/* Username */}
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="username" placeholder="Username" value={profile.username} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+            {loadingProfile && <p role="status" className="text-sm text-[#0F4638]/65">Duke ngarkuar të dhënat e profilit...</p>}
+            <div>
+              <label htmlFor="profile-first-name" className="mb-1.5 block text-sm font-semibold text-[#0F4638]">Emri</label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input id="profile-first-name" type="text" name="firstName" autoComplete="given-name" placeholder="Emri" value={profile.firstName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+              </div>
             </div>
-            {/* First Name */}
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="firstName" placeholder="Emri" value={profile.firstName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+            <div>
+              <label htmlFor="profile-last-name" className="mb-1.5 block text-sm font-semibold text-[#0F4638]">Mbiemri</label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input id="profile-last-name" type="text" name="lastName" autoComplete="family-name" placeholder="Mbiemri" value={profile.lastName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+              </div>
             </div>
-            {/* Last Name */}
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="lastName" placeholder="Mbiemri" value={profile.lastName} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+            <div>
+              <label htmlFor="profile-username" className="mb-1.5 block text-sm font-semibold text-[#0F4638]">Username</label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input id="profile-username" type="text" name="username" autoComplete="username" placeholder="Username" value={profile.username} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+              </div>
             </div>
-            {/* Phone */}
-            <div className="relative">
-              <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input type="text" name="phoneNumber" placeholder="Numri i telefonit" value={profile.phoneNumber} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+            <div>
+              <label htmlFor="profile-phone" className="mb-1.5 block text-sm font-semibold text-[#0F4638]">Numri i telefonit</label>
+              <div className="relative">
+                <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input id="profile-phone" type="tel" name="phoneNumber" autoComplete="tel" placeholder="Numri i telefonit" value={profile.phoneNumber} onChange={handleChange} className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#EFD391]/40 focus:border-[#EFD391] outline-none transition" required />
+              </div>
             </div>
 
             {message && (
@@ -138,7 +177,7 @@ const Profile = () => {
               </motion.div>
             )}
 
-            <button type="submit" disabled={loading} className="w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
+            <button type="submit" disabled={loading || !profileLoaded} className="w-full py-3 bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-60 text-black font-semibold rounded-xl transition-colors text-sm">
               {loading ? "Duke përditësuar..." : "Përditëso Profilin"}
             </button>
           </form>

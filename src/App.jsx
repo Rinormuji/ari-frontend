@@ -9,6 +9,7 @@ import AdminRoute from "./routes/AdminRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
 import ErrorBoundary from "./components/ErrorBoundary";
+import FavoritesProvider from "./context/FavoritesProvider";
 
 const Home = lazy(() => import("./pages/Home"));
 const Properties = lazy(() => import("./pages/Properties"));
@@ -20,6 +21,8 @@ const OfferProperty = lazy(() => import("./pages/OfferProperty"));
 const Appointment = lazy(() => import("./pages/Appointment"));
 const MyAppointments = lazy(() => import("./pages/MyAppointments"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Preferences = lazy(() => import("./pages/Preferences"));
+const Favorites = lazy(() => import("./pages/Favorites"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const Verify = lazy(() => import("./pages/Verify"));
@@ -40,6 +43,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ToastProvider>
+        <FavoritesProvider>
         <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route element={<PublicLayout />}>
@@ -55,6 +59,8 @@ function App() {
               <Route path={paths.appointment} element={<Appointment />} />
               <Route path={paths.myAppointments} element={<MyAppointments />} />
               <Route path={paths.profile} element={<Profile />} />
+              <Route path={paths.preferences} element={<Preferences />} />
+              <Route path={paths.favorites} element={<Favorites />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
@@ -81,6 +87,7 @@ function App() {
           </Route>
         </Routes>
         </Suspense>
+        </FavoritesProvider>
       </ToastProvider>
     </ErrorBoundary>
   );

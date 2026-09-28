@@ -127,10 +127,12 @@ const handleChange = (e) => {
   const validate = () => {
     const e = {};
     if (!form.id) e.id = "ID është i detyrueshëm";
+    else if (!/^\d+$/.test(String(form.id)) || Number(form.id) <= 0) e.id = "ID duhet të jetë numër i plotë pozitiv.";
     if (!type) e.type = "Zgjidh llojin e pronës";
+    if (!form.status) e.status = "Zgjidh statusin e pronës";
     if (!form.title) e.title = "Titulli është i detyrueshëm";
     if (form.priceType !== "NEGOTIABLE" && (!form.price || form.price <= 0)) e.price = "Çmimi duhet të jetë > 0";
-    if (!form.area || form.area <= 0) e.area = "Sipërfaqja duhet të jetë > 0";
+    if ((type !== "INVENTAR" || form.priceType === "PER_M2") && (!form.area || form.area <= 0)) e.area = "Sipërfaqja duhet të jetë > 0";
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) e.rooms = "Numri i dhomave të gjumit duhet të jetë > 0";
     if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) e.floor = "Numri i kateve duhet të jetë > 0";
     if ((form.contactInfo ?? "").length > 255) e.contactInfo = "Kontakti duhet të ketë deri në 255 karaktere.";
@@ -185,8 +187,10 @@ const handleChange = (e) => {
     } catch (err) {
       console.error(err);
       const message = err.response?.data?.message;
-      if (err.response?.status === 409 && typeof message === "string") {
+      if (err.response?.status === 409 && typeof message === "string" && /\bID\b/i.test(message)) {
         setErrors((current) => ({ ...current, id: message }));
+      } else if (err.response?.status === 409) {
+        setSubmissionMessage(typeof message === "string" ? message : "Prona nuk u ruajt për shkak të një konflikti të të dhënave.");
       } else if (["ECONNABORTED", "ETIMEDOUT", "ERR_NETWORK"].includes(err.code)) {
         setSubmissionMessage("Lidhja u ndërpre ose përgjigjja u vonua. Prona mund të jetë ruajtur; kontrolloni listën e pronave para se ta dërgoni përsëri.");
       } else {
@@ -215,7 +219,7 @@ const handleChange = (e) => {
           </div>
           <div>
             <label className={labelCls}>ID *</label>
-            <input type="text" name="id" placeholder="p.sh. B-101" value={form.id} onChange={handleChange} className={inputCls} />
+            <input type="number" min="1" step="1" name="id" placeholder="p.sh. 101" value={form.id} onChange={handleChange} className={inputCls} />
             {errors.id && <div className={errorCls}>
               <p>{errors.id}</p>
               {errors.id.toLowerCase().includes("arkiv") && <Link to={`${paths.adminProperties}?archived=true`}
@@ -276,7 +280,7 @@ const handleChange = (e) => {
             {errors.price && <p className={errorCls}>{errors.price}</p>}
           </div>
           <div>
-            <label className={labelCls}>Sipërfaqja (m²) *</label>
+            <label className={labelCls}>Sipërfaqja (m²) {type !== "INVENTAR" || form.priceType === "PER_M2" ? "*" : ""}</label>
             <input type="number" name="area" placeholder="0" value={form.area} onChange={handleChange} className={inputCls} />
             {errors.area && <p className={errorCls}>{errors.area}</p>}
           </div>
@@ -369,6 +373,7 @@ const handleChange = (e) => {
               <option value="FOR_SALE">Në shitje</option>
               <option value="FOR_RENT">Me qira</option>
             </select>
+            {errors.status && <p className={errorCls}>{errors.status}</p>}
           </div>
           <div>
             <PropertyContactField key={contactReset} autoFillCurrent value={form.contactInfo} onChange={handleChange} />

@@ -20,6 +20,7 @@ import { paths } from "../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyPrice } from "../utils/propertyPricing";
 import { formatPropertyViews } from "../utils/propertyViews";
+import FavoriteButton from "./FavoriteButton";
 
 const firstLocation = (property) => {
   const location = property.location || property.city || "";
@@ -77,6 +78,7 @@ const PropertyCard = ({ property }) => {
     <Link to={paths.propertyDetail(property.id)} className="group block h-full">
       <article className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div className="relative aspect-square w-full shrink-0 touch-pan-y overflow-hidden bg-[#edf1ee]" {...swipeHandlers}>
+          <FavoriteButton propertyId={property.id} compact />
           <img
             src={images[currentIndex]}
             alt={property.title}

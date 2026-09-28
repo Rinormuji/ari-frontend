@@ -46,6 +46,40 @@ export const detailFieldsByType = {
     ...utilities,
     { key: "complex", label: "Kompleksi", kind: "text", placeholder: "Kompleksi ku gjendet" },
   ],
+  VILLE: [
+    ...utilities, ...residential,
+    { key: "bedrooms", label: "Dhoma gjumi", kind: "number" },
+    { key: "bathrooms", label: "Banjo", kind: "number" },
+    { key: "floors", label: "Kate", kind: "number" },
+    { key: "hasGarden", label: "Oborr", kind: "boolean" },
+    { key: "hasGarage", label: "Garazh", kind: "boolean" },
+    { key: "hasPool", label: "Pishinë", kind: "boolean" },
+  ],
+  ZYRE: [
+    ...utilities,
+    { key: "complex", label: "Kompleksi", kind: "text", placeholder: "Kompleksi ku gjendet" },
+    { key: "floor", label: "Kati", kind: "number" },
+    { key: "rooms", label: "Hapësira pune", kind: "number" },
+    { key: "hasElevator", label: "Ashensor", kind: "boolean" },
+    { key: "hasParking", label: "Parking", kind: "boolean" },
+  ],
+  OBJEKT: [
+    ...utilities,
+    { key: "use", label: "Përdorimi", kind: "text", placeholder: "p.sh. afarist ose banim" },
+    { key: "floors", label: "Kate", kind: "number" },
+    { key: "hasParking", label: "Parking", kind: "boolean" },
+  ],
+  DEPO: [
+    ...utilities,
+    { key: "floor", label: "Kati", kind: "number" },
+    { key: "hasVehicleAccess", label: "Qasje për automjete", kind: "boolean" },
+    { key: "hasParking", label: "Parking", kind: "boolean" },
+  ],
+  INVENTAR: [
+    { key: "contents", label: "Përmbajtja", kind: "text", placeholder: "Çfarë përfshihet" },
+    { key: "condition", label: "Gjendja", kind: "select", options: ["E re", "E përdorur"] },
+    { key: "quantity", label: "Sasia", kind: "number" },
+  ],
 };
 
 export const getDetailFields = (type) => detailFieldsByType[type] || [];

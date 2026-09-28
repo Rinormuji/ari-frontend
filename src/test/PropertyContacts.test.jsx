@@ -30,9 +30,10 @@ beforeEach(() => {
 it("fills the creator's phone and submits manually entered multiple contacts", async () => {
   const { container } = showAdd();
   await waitFor(() => expect(field()).toHaveValue(profileWithDefaults));
-  expect(mocks.get).toHaveBeenCalledWith("/admin/current-contact");
+  await waitFor(() => expect(mocks.get).toHaveBeenCalledWith("/admin/current-contact"));
   fireEvent.change(field(), { target: { value: contacts } });
   fireEvent.change(screen.getByText("Zgjidh llojin...").closest("select"), { target: { value: "TOKA" } });
+  fireEvent.change(container.querySelector('[name="status"]'), { target: { value: "FOR_SALE" } });
   for (const [name, value] of Object.entries({ id: "101", title: "Prona", price: "100", area: "200" })) {
     fireEvent.change(container.querySelector(`[name="${name}"]`), { target: { value } });
   }
@@ -52,7 +53,7 @@ it("preserves existing contacts during editing and saves manual changes", async 
   mocks.getProperty.mockResolvedValue({ data: { id: 101, type: "TOKA", title: "Prona", price: 100, area: 200, images: ["https://example.com/one.jpg", "https://example.com/two.jpg"], contactInfo: "+38344123456", status: "FOR_SALE" } });
   const { container } = render(<MemoryRouter initialEntries={["/admin/properties/edit/101"]}><Routes><Route path="/admin/properties/edit/:id" element={<EditProperty />} /></Routes></MemoryRouter>);
   await waitFor(() => expect(field()).toHaveValue("+38344123456"));
-  expect(mocks.get).toHaveBeenCalledWith("/admin/current-contact");
+  await waitFor(() => expect(mocks.get).toHaveBeenCalledWith("/admin/current-contact"));
   fireEvent.change(field(), { target: { value: contacts } });
   fireEvent.submit(container.querySelector("form"));
   await waitFor(() => expect(mocks.updatePropertyByType).toHaveBeenCalledWith("TOKA", "101", expect.objectContaining({ contactInfo: contactsWithDefaults })));

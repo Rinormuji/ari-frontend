@@ -4,6 +4,7 @@ import {
   CalendarDays,
   ChevronDown,
   Home,
+  Heart,
   Info,
   LayoutDashboard,
   LogOut,
@@ -150,6 +151,12 @@ const Navbar = () => {
                           <Link to={paths.profile} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
                             <User size={14} /> Profili
                           </Link>
+                          <Link to={paths.preferences} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
+                            <Search size={14} /> Preferencat
+                          </Link>
+                          <Link to={paths.favorites} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
+                            <Heart size={14} /> Favoritët
+                          </Link>
                           <Link to={paths.myAppointments} onClick={() => setDropdownOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/10">
                             <CalendarDays size={14} /> Takimet e Mia
                           </Link>
@@ -210,6 +217,9 @@ const Navbar = () => {
                 <Link to={paths.profile} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                   <User size={18} /> Profili - {user?.username}
                 </Link>
+                {!userIsAdmin && <Link to={paths.favorites} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
+                  <Heart size={18} /> Favoritët
+                </Link>}
                 {!userIsAdmin && (
                   <Link to={paths.myAppointments} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#EFD391] hover:bg-[#EFD391]/10">
                     <CalendarDays size={18} /> Takimet e Mia

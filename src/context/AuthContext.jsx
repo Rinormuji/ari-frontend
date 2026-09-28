@@ -52,6 +52,12 @@ export const AuthProvider = ({ children }) => {
     navigate('/login')
   }, [navigate])
 
+  const refreshUser = useCallback(async () => {
+    const response = await authAPI.me()
+    if (response.data) setAuthState({ user: response.data, isAuthenticated: true })
+    return response.data
+  }, [])
+
   const isAdmin = useCallback(() =>
     !!(authState.user?.roles?.includes('ADMIN') ||
     authState.user?.roles?.includes('SUPER_ADMIN')), [authState.user])
@@ -67,9 +73,10 @@ export const AuthProvider = ({ children }) => {
       loading,
       login,
       logout,
+      refreshUser,
       isAdmin,
       isSuperAdmin
-    }), [authState, isAdmin, isSuperAdmin, loading, login, logout])
+    }), [authState, isAdmin, isSuperAdmin, loading, login, logout, refreshUser])
 
   return (
     <AuthContext.Provider value={value}>

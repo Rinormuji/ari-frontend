@@ -18,6 +18,7 @@ import { propertyMapIcon } from '../utils/leafletIcons';
 import DataLoadError from '../components/DataLoadError';
 
 const propertyIcon = propertyMapIcon;
+const MAP_LIST_PAGE_SIZE = 12;
 
 /* Haversine distance */
 function haversineKm(lat1, lon1, lat2, lon2) {
@@ -57,6 +58,8 @@ const Properties = () => {
   const [circleEnabled, setCircleEnabled] = useState(false);
   const [centerPoint, setCenterPoint] = useState(defaultCenter);
   const [radiusKm, setRadiusKm] = useState(10);
+  const [listPage, setListPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const mapLocation = (location) => {
     if (!location) return { city: '', neighborhood: '' };
@@ -73,12 +76,13 @@ const Properties = () => {
     const fetchProperties = async () => {
       let loadedAny = false;
       setLoading(true);
+      setLoadingMore(false);
       setLoadIncomplete(false);
       setProperties([]);
       try {
         setLoadError(false);
         // Load the first screen quickly, then add the remaining map points in batches.
-        for (let page = 0; page < 10; page++) {
+        for (let page = 0; ; page++) {
           const res = await propertyAPI.getProperties({ page, size: 100 });
           if (cancelled) return;
           const content = res.data.content || [];
@@ -102,7 +106,10 @@ const Properties = () => {
           });
           setProperties((current) => [...current, ...mapped]);
           loadedAny = true;
-          if (page === 0) setLoading(false);
+          if (page === 0) {
+            setLoading(false);
+            if (page + 1 < (res.data.totalPages || 1)) setLoadingMore(true);
+          }
           if (page + 1 >= (res.data.totalPages || 1) || content.length === 0) break;
         }
       } catch {
@@ -111,7 +118,10 @@ const Properties = () => {
           else setLoadIncomplete(true);
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     };
 
@@ -141,6 +151,17 @@ const Properties = () => {
     return list;
   }, [properties, cityFilter, circleEnabled, centerPoint, radiusKm]);
 
+  const listTotalPages = Math.max(1, Math.ceil(filtered.length / MAP_LIST_PAGE_SIZE));
+  const visibleList = filtered.slice((listPage - 1) * MAP_LIST_PAGE_SIZE, listPage * MAP_LIST_PAGE_SIZE);
+
+  useEffect(() => {
+    setListPage(1);
+  }, [cityFilter, circleEnabled, centerPoint, radiusKm]);
+
+  useEffect(() => {
+    if (listPage > listTotalPages) setListPage(listTotalPages);
+  }, [listPage, listTotalPages]);
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex flex-col items-center gap-3 text-gray-500">
@@ -159,6 +180,7 @@ const Properties = () => {
   return (
     <div className="bg-gray-50 min-h-screen pb-10">
       {loadIncomplete && <div role="status" className="mx-auto max-w-6xl px-4 py-3 text-sm text-amber-800">Disa prona nuk u ngarkuan për shkak të lidhjes. <button type="button" onClick={() => setReloadKey((key) => key + 1)} className="underline">Provo përsëri</button></div>}
+      {loadingMore && <div role="status" className="mx-auto max-w-6xl px-4 py-2 text-sm text-[#0F4638]">Duke ngarkuar pronat e tjera në hartë...</div>}
 
       {/* Filter bar */}
       <div className="bg-white border-b border-gray-200 shadow-sm py-3 px-4">
@@ -243,7 +265,7 @@ const Properties = () => {
             )}
           </div>
           <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
-            {filtered.map((p) => (
+            {visibleList.map((p) => (
               <button key={p.id} onClick={() => navigate(paths.propertyDetail(p.id))} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
                 <img src={p.images?.[0] ?? banner} alt="" loading="lazy" className="w-14 h-14 object-contain bg-gray-100 rounded-xl shrink-0" />
                 <div className="overflow-hidden">
@@ -257,6 +279,13 @@ const Properties = () => {
               <div className="p-6 text-center text-sm text-gray-400">Nuk u gjet pronë.</div>
             )}
           </div>
+          {listTotalPages > 1 && (
+            <div className="flex items-center justify-between gap-2 border-t border-gray-100 p-3 text-sm text-gray-700">
+              <button type="button" onClick={() => setListPage((current) => Math.max(1, current - 1))} disabled={listPage === 1} className="rounded-lg border border-gray-200 px-3 py-2 disabled:opacity-40">Pas</button>
+              <span>Faqja {listPage} nga {listTotalPages}</span>
+              <button type="button" onClick={() => setListPage((current) => Math.min(listTotalPages, current + 1))} disabled={listPage === listTotalPages} className="rounded-lg border border-gray-200 px-3 py-2 disabled:opacity-40">Para</button>
+            </div>
+          )}
         </aside>
       </div>
     </div>

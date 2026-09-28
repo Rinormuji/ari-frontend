@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { propertyAPI } from "../services/api";
+import { useAuth } from "../context/authContextValue";
 import PropertyCard from "../components/PropertyCard";
 import DataLoadError from "../components/DataLoadError";
 import { propertyTypes } from "../utils/propertyDetails";
@@ -177,6 +178,7 @@ const ModernSelect = ({ icon: Icon, value, options, placeholder, onChange, class
 };
 
 const AllProperties = () => {
+  const { isAuthenticated, user } = useAuth();
   const [properties, setProperties] = useState([]);
   const [draftFilters, setDraftFilters] = useState(initialFilters);
   const [filters, setFilters] = useState(initialFilters);
@@ -186,9 +188,11 @@ const AllProperties = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [preferenceUnsupported, setPreferenceUnsupported] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState(defaultFilterOptions);
+  const [matchPreferences, setMatchPreferences] = useState(false);
 
   const locationOptions = useMemo(() => toOptions(filterOptions.locations), [filterOptions.locations]);
   const typeOptions = useMemo(() => toOptions(Object.keys(propertyTypes), typeLabels), []);
@@ -202,7 +206,7 @@ const AllProperties = () => {
   }, [draftFilters.type, filterOptions.amenities]);
 
   const activeFilters = useMemo(() => {
-    return Object.entries(filters)
+    const items = Object.entries(filters)
       .filter(([, value]) => (typeof value === "boolean" ? value : value !== ""))
       .map(([key, value]) => ({
         key,
@@ -210,7 +214,9 @@ const AllProperties = () => {
           ? booleanFilters.find((filter) => filter.key === key)?.label || key
           : filterValueLabel(key, value),
       }));
-  }, [filters]);
+    if (matchPreferences) items.push({ key: "matchPreferences", label: "Sipas preferencave të mia" });
+    return items;
+  }, [filters, matchPreferences]);
 
   const paginationItems = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -231,8 +237,16 @@ const AllProperties = () => {
     const fetchProperties = async () => {
       setLoading(true);
       setLoadError(false);
+      setPreferenceUnsupported(false);
       try {
-        const res = await propertyAPI.getProperties(buildParams(filters, page, sort));
+        const res = await propertyAPI.getProperties({
+          ...buildParams(filters, page, sort),
+          ...(matchPreferences && isAuthenticated ? { matchPreferences: true } : {}),
+        });
+        if (matchPreferences && res.headers["x-preferences-applied"] !== "true") {
+          if (!cancelled) setPreferenceUnsupported(true);
+          throw new Error("Preference filtering is not supported by this API deployment");
+        }
         const data = res.data;
 
         if (cancelled) return;
@@ -240,7 +254,8 @@ const AllProperties = () => {
         if (data?.content) {
           setProperties(data.content);
           setTotalPages(data.totalPages || 1);
-          setTotalElements(data.totalElements || data.content.length);
+          setTotalElements(data.totalElements ?? data.content.length);
+          if (page > Math.max(1, data.totalPages || 1)) setPage(Math.max(1, data.totalPages || 1));
         } else if (Array.isArray(data)) {
           setProperties(data);
           setTotalPages(1);
@@ -251,8 +266,8 @@ const AllProperties = () => {
           setTotalElements(0);
         }
       } catch {
-        setLoadError(true);
         if (!cancelled) {
+          setLoadError(true);
           setProperties([]);
           setTotalPages(1);
           setTotalElements(0);
@@ -266,7 +281,11 @@ const AllProperties = () => {
     return () => {
       cancelled = true;
     };
-  }, [filters, page, reloadKey, sort]);
+  }, [filters, page, reloadKey, sort, matchPreferences, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.preferencesCompleted) setMatchPreferences(false);
+  }, [isAuthenticated, user?.preferencesCompleted]);
 
   useEffect(() => {
     let cancelled = false;
@@ -299,10 +318,16 @@ const AllProperties = () => {
   const clearFilters = () => {
     setDraftFilters(initialFilters);
     setFilters(initialFilters);
+    setMatchPreferences(false);
     setPage(1);
   };
 
   const removeFilter = (key) => {
+    if (key === "matchPreferences") {
+      setMatchPreferences(false);
+      setPage(1);
+      return;
+    }
     const value = typeof filters[key] === "boolean" ? false : "";
     const next = { ...filters, [key]: value };
     setFilters(next);
@@ -360,6 +385,18 @@ const AllProperties = () => {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
+            {isAuthenticated && user?.preferencesCompleted && (
+              <button
+                type="button"
+                onClick={() => { setMatchPreferences((current) => !current); setPage(1); }}
+                aria-pressed={matchPreferences}
+                className={`h-11 rounded-lg border px-4 text-sm font-bold transition ${matchPreferences
+                  ? "border-[#EFD391] bg-[#0F4638] text-[#EFD391]"
+                  : "border-[#0F4638]/10 bg-white text-[#0F4638] hover:border-[#D9BF7B]"}`}
+              >
+                Sipas preferencave të mia
+              </button>
+            )}
             <div className="flex w-full rounded-lg border border-[#0F4638]/10 bg-[#f9faf8] p-1 sm:w-auto sm:min-w-80">
               {[{ value: "", label: "Të gjitha" }, ...statusOptions].map(({ value, label }) => (
                 <button
@@ -470,7 +507,9 @@ const AllProperties = () => {
         </div>
 
         {loadError ? (
-          <DataLoadError onRetry={() => setReloadKey((key) => key + 1)} />
+          preferenceUnsupported
+            ? <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center text-sm text-amber-900">Filtri sipas preferencave nuk është ende i disponueshëm në server. Përditësoni backend-in dhe provoni përsëri.</div>
+            : <DataLoadError onRetry={() => setReloadKey((key) => key + 1)} />
         ) : loading ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: PAGE_SIZE }).map((_, index) => (
@@ -529,7 +568,11 @@ const AllProperties = () => {
         ) : (
           <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#0F4638]/15 bg-white text-center">
             <Search size={34} className="text-[#0F4638]/25" />
-            <p className="text-base font-semibold text-[#0F4638]">Nuk u gjet asnjë pronë.</p>
+            <p className="text-base font-semibold text-[#0F4638]">{matchPreferences
+              ? Object.values(filters).some((value) => value !== "" && value !== false)
+                ? "Nuk ka prona në dispozicion sipas preferencave tuaja dhe filtrave të zgjedhur."
+                : "Nuk ka prona në dispozicion sipas preferencave tuaja."
+              : "Nuk u gjet asnjë pronë."}</p>
             <button type="button" onClick={clearFilters} className="text-sm font-semibold text-[#0F4638] underline">
               Pastro filtrat
             </button>

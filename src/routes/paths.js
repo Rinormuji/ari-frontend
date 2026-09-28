@@ -14,6 +14,8 @@ export const paths = {
   appointmentForProperty: (propertyId) => `/appointment?propertyId=${propertyId}`,
   myAppointments: "/my-appointments",
   profile: "/profile",
+  preferences: "/preferences",
+  favorites: "/favorites",
   login: "/login",
   loginWithRedirect: (redirectTo) => `/login?redirect=${encodeURIComponent(redirectTo)}`,
   register: "/register",

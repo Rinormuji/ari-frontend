@@ -164,7 +164,7 @@ function EditProperty() {
     const newErrors = {};
     if (!form.title) newErrors.title = "Titulli është i detyrueshëm";
     if (form.priceType !== "NEGOTIABLE" && (!form.price || form.price <= 0)) newErrors.price = "Çmimi duhet të jetë > 0";
-    if (!form.area || form.area <= 0) newErrors.area = "Sipërfaqja duhet të jetë > 0";
+    if ((type !== "INVENTAR" || form.priceType === "PER_M2") && (!form.area || form.area <= 0)) newErrors.area = "Sipërfaqja duhet të jetë > 0";
 
     if (type === "BANESA" && (!form.rooms || form.rooms <= 0)) newErrors.rooms = "Numri i dhomave të gjumit duhet të jetë > 0";
     if (type === "SHTEPI" && (!form.floor || form.floor <= 0)) newErrors.floor = "Numri i kateve duhet të jetë > 0";
@@ -344,7 +344,7 @@ function EditProperty() {
             {errors.price && <p className={errorCls}>{errors.price}</p>}
           </div>
           <div>
-            <label className={labelCls}>Sipërfaqja (m²) *</label>
+            <label className={labelCls}>Sipërfaqja (m²) {type !== "INVENTAR" || form.priceType === "PER_M2" ? "*" : ""}</label>
             <input type="number" name="area" value={form.area} onChange={handleChange} placeholder="Sipërfaqja" className={inputCls} />
             {errors.area && <p className={errorCls}>{errors.area}</p>}
           </div>
