@@ -62,14 +62,14 @@ Projekti konfigurohet nga `vercel.json`:
 - SPA fallback për React Router;
 - security headers dhe cache afatgjatë për asetet e versionuara.
 
-Deployment-i ndalet automatikisht nëse `VITE_API_BASE_URL` ose `VITE_SITE_URL` mungon në Vercel. Gjatë build-it, `VITE_SITE_URL` përdoret për `robots.txt` dhe `sitemap.xml`.
+Deployment-i ndalet automatikisht nëse `VITE_API_BASE_URL`, `VITE_SITE_URL` ose `VITE_TURNSTILE_SITE_KEY` mungon në Vercel. Gjatë build-it, `VITE_SITE_URL` përdoret për `robots.txt` dhe `sitemap.xml`.
 
 ### Production dhe domain
 
 Repo-ja nuk hardkodon domain. Përdorni `www` si domain kanonik dhe `api` si subdomain të backend-it, p.sh. `www.domaini-final.com` dhe `api.domaini-final.com`.
 
 1. Importoni repository-n në Vercel dhe lini framework-un `Vite`.
-2. Shtoni `VITE_API_BASE_URL` dhe `VITE_SITE_URL` në Production, Preview dhe Development. API URL duhet të jetë origjina HTTPS pa `/api`.
+2. Shtoni `VITE_API_BASE_URL`, `VITE_SITE_URL` dhe `VITE_TURNSTILE_SITE_KEY` në Production, Preview dhe Development. API URL duhet të jetë origjina HTTPS pa `/api`. Krijoni një widget Cloudflare Turnstile për domain-in e frontend-it; përdorni site key reale në production dhe secret key përkatëse në backend si `TURNSTILE_SECRET_KEY`. Çelësat testues janë vetëm për zhvillim lokal.
 3. Në Vercel, shtoni `www.domaini-final.com` si production domain dhe domain-in pa `www` si redirect domain.
 4. Te DNS provider-i, vendosni rekordet që Vercel shfaq në ekranin Domains. Mos kopjoni vlera DNS nga dokumente të vjetra; target-i mund të ndryshojë.
 5. Në backend vendosni `APP_FRONTEND_URL=https://www.domaini-final.com` dhe `APP_CORS_ALLOWED_ORIGINS=https://www.domaini-final.com`.

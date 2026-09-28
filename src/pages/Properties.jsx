@@ -50,6 +50,7 @@ const Properties = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [loadIncomplete, setLoadIncomplete] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [cityFilter, setCityFilter] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
@@ -68,14 +69,20 @@ const Properties = () => {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchProperties = async () => {
+      let loadedAny = false;
       setLoading(true);
+      setLoadIncomplete(false);
+      setProperties([]);
       try {
         setLoadError(false);
-        const res = await propertyAPI.getProperties({ page: 0, size: 1000 });
-        const content = res.data.content || [];
-
-        const mapped = content.map((p) => {
+        // Load the first screen quickly, then add the remaining map points in batches.
+        for (let page = 0; page < 10; page++) {
+          const res = await propertyAPI.getProperties({ page, size: 100 });
+          if (cancelled) return;
+          const content = res.data.content || [];
+          const mapped = content.map((p) => {
           const { city, neighborhood } = mapLocation(p.location);
           return {
             id: p.id,
@@ -92,18 +99,24 @@ const Properties = () => {
             lat: p.latitude ?? null,
             lng: p.longitude ?? null,
           };
-        });
-
-        setProperties(mapped);
+          });
+          setProperties((current) => [...current, ...mapped]);
+          loadedAny = true;
+          if (page === 0) setLoading(false);
+          if (page + 1 >= (res.data.totalPages || 1) || content.length === 0) break;
+        }
       } catch {
-        setLoadError(true);
-        setProperties([]);
+        if (!cancelled) {
+          if (!loadedAny) setLoadError(true);
+          else setLoadIncomplete(true);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchProperties();
+    return () => { cancelled = true; };
   }, [reloadKey]);
 
   const toggleCircle = () => {
@@ -145,6 +158,7 @@ const Properties = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-10">
+      {loadIncomplete && <div role="status" className="mx-auto max-w-6xl px-4 py-3 text-sm text-amber-800">Disa prona nuk u ngarkuan për shkak të lidhjes. <button type="button" onClick={() => setReloadKey((key) => key + 1)} className="underline">Provo përsëri</button></div>}
 
       {/* Filter bar */}
       <div className="bg-white border-b border-gray-200 shadow-sm py-3 px-4">

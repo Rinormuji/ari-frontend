@@ -1,6 +1,6 @@
 // src/admin/PropertiesAdmin.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { Archive, Eye, LayoutGrid, Table2, RotateCcw, Pencil, Search, X } from "lucide-react";
+import { Archive, Eye, LayoutGrid, Table2, RotateCcw, Pencil, Search, X, Trash2 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import { propertyAPI, cityAPI } from "../../services/api";
@@ -55,6 +55,8 @@ export default function PropertiesAdmin() {
 const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 const [propertyToDelete, setPropertyToDelete] = useState(null);
 const [deleting, setDeleting] = useState(false);
+const [permanentDelete, setPermanentDelete] = useState(false);
+const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
 
   // debounce search
@@ -164,15 +166,26 @@ const [deleting, setDeleting] = useState(false);
   // helper: delete property
   const handleDelete = (id) => {
   setPropertyToDelete(id);
+  setPermanentDelete(false);
+  setDeleteConfirmation("");
+  setDeleteModalOpen(true);
+};
+
+const handlePermanentDelete = (id) => {
+  setPropertyToDelete(id);
+  setPermanentDelete(true);
+  setDeleteConfirmation("");
   setDeleteModalOpen(true);
 };
 
 const confirmDelete = async () => {
-  if (!propertyToDelete) return;
+  if (!propertyToDelete || deleting) return;
+  if (permanentDelete && deleteConfirmation !== "FSHI") return;
 
   try {
     setDeleting(true);
-    await propertyAPI.deleteProperty(propertyToDelete);
+    if (permanentDelete) await propertyAPI.deletePropertyPermanently(propertyToDelete);
+    else await propertyAPI.deleteProperty(propertyToDelete);
 
     setProperties((prev) =>
       prev.filter((p) => p.id !== propertyToDelete)
@@ -180,12 +193,15 @@ const confirmDelete = async () => {
 
     setDeleteModalOpen(false);
     setPropertyToDelete(null);
-    toast.success("Prona u arkivua.");
+    toast.success(permanentDelete ? "Prona u fshi përfundimisht." : "Prona u arkivua.");
     if (properties.length === 1 && page > 1) setPage(page - 1);
     else setRefreshKey((key) => key + 1);
   } catch (e) {
     console.error("Delete error:", e);
-    toast.error("Arkivimi dështoi.");
+    const detail = e.response?.data?.message || e.response?.data;
+    toast.error(typeof detail === "string" && detail.trim()
+      ? detail
+      : permanentDelete ? "Fshirja përfundimtare dështoi." : "Arkivimi dështoi.");
   } finally {
     setDeleting(false);
   }
@@ -322,6 +338,7 @@ const confirmDelete = async () => {
                         <Eye size={15} /> Shih detajet
                       </Link>
                       </>}
+                      <button onClick={() => handlePermanentDelete(p.id)} title="Fshi përfundimisht" aria-label={`Fshi përfundimisht pronën ${p.title}`} className="p-1.5 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20"><Trash2 size={14} /></button>
                     </div>
                   </td>
                 </tr>
@@ -362,6 +379,7 @@ const confirmDelete = async () => {
                     <Archive size={14} />
                   </button>
                   </>}
+                  <button onClick={() => handlePermanentDelete(p.id)} title="Fshi përfundimisht" aria-label={`Fshi përfundimisht pronën ${p.title}`} className="p-1.5 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20"><Trash2 size={14} /></button>
                 </div>
               </div>
               {!showArchived && <Link to={paths.propertyDetail(p.id)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#EFD391]/30 bg-[#EFD391]/10 px-3 py-2 text-xs font-semibold text-[#EFD391] transition-colors hover:bg-[#EFD391]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EFD391]">
@@ -393,16 +411,17 @@ const confirmDelete = async () => {
       {deleteModalOpen && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-[#123E35] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 className="text-white font-semibold text-lg mb-2">Arkivo pronën</h3>
-            <p className="text-white/60 text-sm mb-6">Prona do të hiqet nga faqja publike. Mund ta riktheni nga Arkiva.</p>
+            <h3 className="text-white font-semibold text-lg mb-2">{permanentDelete ? "Fshi pronën përfundimisht" : "Arkivo pronën"}</h3>
+            <p className="text-white/60 text-sm mb-6">{permanentDelete ? "Prona dhe takimet e lidhura me të do të fshihen nga databaza. Ky veprim nuk mund të kthehet." : "Prona do të hiqet nga faqja publike. Mund ta riktheni nga Arkiva."}</p>
+            {permanentDelete && <label className="mb-5 block text-sm text-white/80">Shkruani FSHI për konfirmim<input value={deleteConfirmation} onChange={(e) => setDeleteConfirmation(e.target.value)} className="mt-2 w-full rounded-lg border border-white/20 bg-[#0F4638] px-3 py-2 text-white outline-none focus:border-red-400" autoComplete="off" /></label>}
             <div className="flex gap-3 justify-end">
               <button onClick={() => { setDeleteModalOpen(false); setPropertyToDelete(null); }} disabled={deleting}
                 className="px-4 py-2 text-sm rounded-lg border border-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-50">
                 Anulo
               </button>
-              <button onClick={confirmDelete} disabled={deleting}
+              <button onClick={confirmDelete} disabled={deleting || (permanentDelete && deleteConfirmation !== "FSHI")}
                 className="px-4 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors disabled:opacity-50">
-                {deleting ? "Duke arkivuar..." : "Arkivo"}
+                {deleting ? "Duke përpunuar..." : permanentDelete ? "Fshi përfundimisht" : "Arkivo"}
               </button>
             </div>
           </div>

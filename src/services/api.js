@@ -4,6 +4,7 @@ import { paths } from '../routes/paths'
 
 const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "")
 const API_BASE_URL = `${API_ORIGIN}/api`
+export const PROPERTY_SAVE_TIMEOUT_MS = 300000
 
 const resolvePropertyImages = (payload) => {
   const resolve = (property) => {
@@ -23,7 +24,7 @@ const resolvePropertyImages = (payload) => {
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 45000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -51,6 +52,16 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
+    const request = error.config
+    const isTransientReadFailure = !error.response &&
+      ['ECONNABORTED', 'ETIMEDOUT', 'ERR_NETWORK'].includes(error.code)
+    if (request?.method?.toLowerCase() === 'get' && !request._retriedAfterNetworkFailure &&
+        !request.url?.startsWith('/auth/verify') && isTransientReadFailure &&
+        !request.signal?.aborted && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+      request._retriedAfterNetworkFailure = true
+      request.timeout = 60000
+      return new Promise((resolve) => setTimeout(resolve, 600)).then(() => api(request))
+    }
     if (import.meta.env.DEV && !(error.response?.status === 401 && error.config?.url === '/auth/me')) {
       console.error(
         `API Error ✗ ${error.config?.url}`,
@@ -106,18 +117,19 @@ export const propertyAPI = {
 
   // Create property (Admin only)
   createProperty: (propertyData) => {
-    return api.post('/properties', propertyData)
+    return api.post('/properties', propertyData, { timeout: PROPERTY_SAVE_TIMEOUT_MS })
   },
 
   // Update property (Admin only)
   updateProperty: (id, propertyData) => {
-    return api.put(`/properties/${id}`, propertyData)
+    return api.put(`/properties/${id}`, propertyData, { timeout: PROPERTY_SAVE_TIMEOUT_MS })
   },
 
   // Delete property (Admin only)
   deleteProperty: (id) => {
     return api.delete(`/properties/${id}`)
   },
+  deletePropertyPermanently: (id) => api.delete(`/properties/${id}/permanent`),
 
   restoreProperty: (id) => api.put(`/properties/${id}/restore`),
     
@@ -130,7 +142,7 @@ export const propertyAPI = {
     case 'TOKA': url = `/toka/${id}`; break;
     default: url = `/properties/${id}`;
   }
-  return api.put(url, propertyData, { timeout: 60000 });
+  return api.put(url, propertyData, { timeout: PROPERTY_SAVE_TIMEOUT_MS });
 }
 }
 
@@ -148,12 +160,12 @@ export const banesaAPI = {
 
   // Create banesa (Admin only)
   create: (banesaData) => {
-    return api.post('/banesa', banesaData)
+    return api.post('/banesa', banesaData, { timeout: PROPERTY_SAVE_TIMEOUT_MS })
   },
 
   // Update banesa (Admin only)
   update: (id, banesaData) => {
-    return api.put(`/banesa/${id}`, banesaData)
+    return api.put(`/banesa/${id}`, banesaData, { timeout: PROPERTY_SAVE_TIMEOUT_MS })
   },
 
   // Delete banesa (Admin only)
@@ -170,12 +182,20 @@ export const cityAPI = {
   getAll: () => api.get('/municipalities'),
 };
 
+export const propertyOfferAPI = {
+  submit: (offer) => api.post('/property-offers', offer),
+};
+
+export const propertySearchRequestAPI = {
+  submit: (request) => api.post('/property-search-requests', request),
+};
+
 // Shtepi API functions
 export const shtepiAPI = {
   getAll: () => api.get('/shtepi'),
   getById: (id) => api.get(`/shtepi/${id}`),
-  create: (data) => api.post('/shtepi', data),
-  update: (id, data) => api.put(`/shtepi/${id}`, data),
+  create: (data) => api.post('/shtepi', data, { timeout: PROPERTY_SAVE_TIMEOUT_MS }),
+  update: (id, data) => api.put(`/shtepi/${id}`, data, { timeout: PROPERTY_SAVE_TIMEOUT_MS }),
   delete: (id) => api.delete(`/shtepi/${id}`)
 }
 
@@ -183,8 +203,8 @@ export const shtepiAPI = {
 export const lokaleAPI = {
   getAll: () => api.get('/lokale'),
   getById: (id) => api.get(`/lokale/${id}`),
-  create: (data) => api.post('/lokale', data),
-  update: (id, data) => api.put(`/lokale/${id}`, data),
+  create: (data) => api.post('/lokale', data, { timeout: PROPERTY_SAVE_TIMEOUT_MS }),
+  update: (id, data) => api.put(`/lokale/${id}`, data, { timeout: PROPERTY_SAVE_TIMEOUT_MS }),
   delete: (id) => api.delete(`/lokale/${id}`)
 }
 
@@ -192,8 +212,8 @@ export const lokaleAPI = {
 export const tokaAPI = {
   getAll: () => api.get('/toka'),
   getById: (id) => api.get(`/toka/${id}`),
-  create: (data) => api.post('/toka', data),
-  update: (id, data) => api.put(`/toka/${id}`, data),
+  create: (data) => api.post('/toka', data, { timeout: PROPERTY_SAVE_TIMEOUT_MS }),
+  update: (id, data) => api.put(`/toka/${id}`, data, { timeout: PROPERTY_SAVE_TIMEOUT_MS }),
   delete: (id) => api.delete(`/toka/${id}`)
 }
 export const usersAPI = {
@@ -217,6 +237,7 @@ export const usersAPI = {
 
   // DELETE /api/users/:id
   deleteUser: (id) => api.delete(`/users/${id}`),
+  deleteUserPermanently: (id) => api.delete(`/users/${id}/permanent`),
 
   restoreUser: (id) => api.put(`/users/${id}/restore`),
 

@@ -6,7 +6,7 @@ export default function DataLoadError({ onRetry }) {
       <AlertTriangle className="mx-auto mb-3 text-amber-600" size={34} />
       <h2 className="text-lg font-bold text-[#0F4638]">Të dhënat nuk mund të ngarkohen</h2>
       <p className="mt-2 text-sm text-gray-600">
-        Shërbimi është përkohësisht i padisponueshëm. Ju lutemi provoni përsëri.
+        Lidhja mund të jetë e ngadaltë ose shërbimi përkohësisht i padisponueshëm. Provoni përsëri.
       </p>
       {onRetry && (
         <button

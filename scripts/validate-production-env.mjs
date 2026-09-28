@@ -1,4 +1,4 @@
-const requiredVariables = ["VITE_SITE_URL", "VITE_API_BASE_URL"];
+const requiredVariables = ["VITE_SITE_URL", "VITE_API_BASE_URL", "VITE_TURNSTILE_SITE_KEY"];
 
 const missing = requiredVariables.filter((key) => !process.env[key]?.trim());
 if (missing.length > 0) {
@@ -54,6 +54,10 @@ const apiOrigin = parseProductionOrigin("VITE_API_BASE_URL");
 
 if (siteOrigin === apiOrigin) {
   throw new Error("Frontend and API production origins must be different.");
+}
+
+if (/^[123]x00000000000000000000(?:AA|AB|BB|FF)$/.test(process.env.VITE_TURNSTILE_SITE_KEY)) {
+  throw new Error("VITE_TURNSTILE_SITE_KEY must be a real production site key.");
 }
 
 console.log(`Production environment validated: ${siteOrigin} -> ${apiOrigin}`);

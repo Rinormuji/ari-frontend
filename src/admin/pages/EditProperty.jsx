@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
 import { propertyAPI } from "../../services/api";
@@ -11,6 +11,7 @@ import { propertyTypes } from "../../utils/propertyDetails";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { cityAPI } from "../../services/api";
+import { preparePropertyImages } from "../../utils/preparePropertyImages";
 
 const inputCls =
   "w-full bg-[#123E35] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#EFD391]/60 transition-colors";
@@ -43,6 +44,8 @@ function EditProperty() {
   const [imagesChanged, setImagesChanged] = useState(false);
   const [errors, setErrors] = useState({});
   const [cities, setCities] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const originalImageUrls = useRef([]);
   
   
 
@@ -50,10 +53,11 @@ function EditProperty() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const res = await propertyAPI.getProperty(id, { compact: false });
+        const res = await propertyAPI.getProperty(id, { compact: true });
         const found = res.data;
 
         if (found) {
+          originalImageUrls.current = found.images || [];
           setType(found.type.toUpperCase());
           let city = "";
         let neighborhood = "";
@@ -170,26 +174,26 @@ function EditProperty() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // CONVERT FILE TO BASE64
-  const fileToBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-
   // HANDLE SAVE (UPDATE)
   const handleSave = async (e) => {
   e.preventDefault();
-  if (!validate()) return;
+  if (saving || !validate()) return;
 
   try {
-    const imagesBase64 = await Promise.all(
-      form.images.map(item =>
-        item instanceof File ? fileToBase64(item) : item
-      )
-    );
+    setSaving(true);
+    let imagesBase64 = null;
+    if (imagesChanged) {
+      // Only fetch original image data when the image set is actually edited.
+      const original = await propertyAPI.getProperty(id, { compact: false });
+      const originals = original.data.images || [];
+      const selectedImages = form.images.map((image) => {
+        if (image instanceof File) return image;
+        const index = originalImageUrls.current.indexOf(image);
+        if (index < 0 || !originals[index]) throw new Error("Fotoja ekzistuese nuk u gjet.");
+        return originals[index];
+      });
+      imagesBase64 = await preparePropertyImages(selectedImages);
+    }
 
     const fullLocation = form.location
       ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}`
@@ -208,11 +212,21 @@ function EditProperty() {
     else delete payload.images;
 
   await propertyAPI.updatePropertyByType(type, id, payload);
+    if (imagesChanged) {
+      originalImageUrls.current = imagesBase64;
+      setForm((current) => ({ ...current, images: imagesBase64 }));
+      setPreviewImages(imagesBase64);
+      setImagesChanged(false);
+    }
 
     toast.success("Pronë u përditësua me sukses!");
   } catch (err) {
     console.error(err);
-    toast.error("Ndryshimi i pronës dështoi.");
+    toast.error(["ECONNABORTED", "ETIMEDOUT", "ERR_NETWORK"].includes(err.code)
+      ? "Përgjigjja u vonua. Kontrolloni pronën para se ta ruani përsëri."
+      : "Ndryshimi i pronës dështoi.");
+  } finally {
+    setSaving(false);
   }
 };
 
@@ -498,9 +512,10 @@ function EditProperty() {
           </button>
           <button
             type="submit"
-            className="w-full bg-[#EFD391] hover:bg-[#D9BF7B] text-black font-semibold py-3 rounded-lg transition-colors text-sm"
+            disabled={saving}
+            className="w-full bg-[#EFD391] hover:bg-[#D9BF7B] disabled:opacity-50 text-black font-semibold py-3 rounded-lg transition-colors text-sm"
           >
-            Ruaj Ndryshimet
+            {saving ? "Duke ruajtur..." : "Ruaj Ndryshimet"}
           </button>
         </div>
       </form>

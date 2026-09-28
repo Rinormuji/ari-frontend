@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Archive, Ban, Eye, Pencil, RotateCcw, Search, ShieldCheck, UserPlus } from "lucide-react";
+import { Archive, Ban, Eye, Pencil, RotateCcw, Search, ShieldCheck, UserPlus, Trash2 } from "lucide-react";
 import { usersAPI } from "../../services/api";
 import { useAuth } from "../../context/authContextValue";
 import { useToast } from "../../context/toastContextValue";
@@ -33,6 +33,8 @@ export default function UsersAdmin() {
 
   const [modalType, setModalType] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const [showRegForm, setShowRegForm] = useState(false);
   const [regForm, setRegForm] = useState(initialRegForm);
@@ -167,6 +169,7 @@ export default function UsersAdmin() {
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
     try {
+      setDeleting(true);
       await usersAPI.deleteUser(selectedUser.id);
       toast.success("Përdoruesi u arkivua.");
       closeModal();
@@ -175,6 +178,25 @@ export default function UsersAdmin() {
     } catch (err) {
       console.error(err);
       toast.error("Përdoruesi nuk mund të arkivohet.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handlePermanentDeleteUser = async () => {
+    if (!selectedUser || deleteConfirmation !== "FSHI") return;
+    try {
+      setDeleting(true);
+      await usersAPI.deleteUserPermanently(selectedUser.id);
+      toast.success("Përdoruesi u fshi përfundimisht.");
+      closeModal();
+      if (users.length === 1 && page > 1) setPage(page - 1);
+      else fetchUsers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Përdoruesi nuk mund të fshihet përfundimisht.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -193,11 +215,13 @@ export default function UsersAdmin() {
   const openModal = (type, user) => {
     setSelectedUser({ ...user });
     setModalType(type);
+    setDeleteConfirmation("");
   };
 
   const closeModal = () => {
     setSelectedUser(null);
     setModalType(null);
+    setDeleteConfirmation("");
   };
 
   const inputCls = "w-full bg-[#0f0f0f] border border-white/10 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/60";
@@ -386,6 +410,7 @@ export default function UsersAdmin() {
                           <button onClick={() => openModal("delete", user)} title="Arkivo" className="rounded-lg bg-white/5 p-1.5 text-white/50 transition-colors hover:bg-red-500/15 hover:text-red-400"><Archive size={14} /></button>
                         </>
                       )}
+                      <button onClick={() => openModal("permanentDelete", user)} title="Fshi përfundimisht" aria-label={`Fshi përfundimisht përdoruesin ${user.username}`} className="rounded-lg bg-red-500/10 p-1.5 text-red-300 transition-colors hover:bg-red-500/20"><Trash2 size={14} /></button>
                     </div>
                   </td>
                 </tr>
@@ -496,7 +521,19 @@ export default function UsersAdmin() {
               </>
             )}
 
-            {modalType !== "delete" && modalType !== "status" && modalType !== "edit" && (
+            {modalType === "permanentDelete" && (
+              <>
+                <h3 className="mb-2 text-lg font-semibold text-white">Fshi përdoruesin përfundimisht</h3>
+                <p className="mb-5 text-sm text-white/60">Përdoruesi <b className="text-white">{selectedUser.username}</b> dhe takimet e tij do të fshihen nga databaza. Ky veprim nuk mund të kthehet. Pronat e krijuara prej tij mbeten pa lidhjen me këtë përdorues.</p>
+                <label className="mb-5 block text-sm text-white/80">Shkruani FSHI për konfirmim<input value={deleteConfirmation} onChange={(e) => setDeleteConfirmation(e.target.value)} className={`${inputCls} mt-2`} autoComplete="off" /></label>
+                <div className="flex justify-end gap-3">
+                  <button onClick={closeModal} disabled={deleting} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 hover:text-white disabled:opacity-50">Anulo</button>
+                  <button onClick={handlePermanentDeleteUser} disabled={deleting || deleteConfirmation !== "FSHI"} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50">{deleting ? "Duke fshirë..." : "Fshi përfundimisht"}</button>
+                </div>
+              </>
+            )}
+
+            {modalType !== "delete" && modalType !== "permanentDelete" && modalType !== "status" && modalType !== "edit" && (
               <div className="mt-4 flex justify-end border-t border-white/10 pt-4">
                 <button onClick={closeModal} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:text-white">Mbyll</button>
               </div>

@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
 
   if (globalThis.process?.env?.VERCEL) {
-    const missing = ["VITE_API_BASE_URL", "VITE_SITE_URL"].filter(
+    const missing = ["VITE_API_BASE_URL", "VITE_SITE_URL", "VITE_TURNSTILE_SITE_KEY"].filter(
       (key) => !env[key],
     );
 
@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
       throw new Error(
         `${missing.join(", ")} must be configured in Vercel before deployment.`,
       );
+    }
+    if (/^[123]x00000000000000000000(?:AA|AB|BB|FF)$/.test(env.VITE_TURNSTILE_SITE_KEY)) {
+      throw new Error("VITE_TURNSTILE_SITE_KEY must use a real production key.");
     }
   }
 

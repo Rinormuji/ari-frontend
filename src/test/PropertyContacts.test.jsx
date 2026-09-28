@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   get: vi.fn(), post: vi.fn(), getAll: vi.fn(), getProperty: vi.fn(), updatePropertyByType: vi.fn(),
   toast: { error: vi.fn(), success: vi.fn() },
 }));
-vi.mock("../services/api", () => ({ default: mocks, cityAPI: mocks, propertyAPI: mocks }));
+vi.mock("../services/api", () => ({ default: mocks, cityAPI: mocks, propertyAPI: mocks, PROPERTY_SAVE_TIMEOUT_MS: 300000 }));
 vi.mock("../context/toastContextValue", () => ({ useToast: () => mocks.toast }));
 vi.mock("../admin/components/MapPicker", () => ({ default: () => null }));
 const profile = { phoneNumbers: ["+38345111222"] };
@@ -37,7 +37,7 @@ it("fills the creator's phone and submits manually entered multiple contacts", a
     fireEvent.change(container.querySelector(`[name="${name}"]`), { target: { value } });
   }
   fireEvent.submit(container.querySelector("form"));
-  await waitFor(() => expect(mocks.post).toHaveBeenCalledWith("/toka", expect.objectContaining({ contactInfo: contactsWithDefaults })));
+  await waitFor(() => expect(mocks.post).toHaveBeenCalledWith("/toka", expect.objectContaining({ contactInfo: contactsWithDefaults }), expect.objectContaining({ timeout: 300000 })));
   await waitFor(() => expect(field()).toHaveValue(profileWithDefaults));
 });
 it("does not overwrite manual edits when the profile arrives late", async () => {

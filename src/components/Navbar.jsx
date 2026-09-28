@@ -10,6 +10,7 @@ import {
   Map,
   Menu,
   Phone,
+  HousePlus,
   Search,
   Shield,
   User,
@@ -26,6 +27,7 @@ const navLinks = [
   { name: "Harta", path: paths.propertiesMap, icon: Map },
   { name: "Rreth Nesh", path: paths.about, icon: Info },
   { name: "Kontakt", path: paths.contact, icon: Phone },
+  { name: "Ofro pronën", path: paths.offerProperty, icon: HousePlus },
 ];
 
 const Navbar = () => {

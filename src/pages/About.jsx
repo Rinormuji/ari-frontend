@@ -1,6 +1,7 @@
-import React from "react";
-import { Search, MapPin, CalendarCheck, Zap } from "lucide-react";
+import { CalendarCheck, MapPin, Search, Target, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import PublicHero from "../components/PublicHero";
+import { paths } from "../routes/paths";
 
 const features = [
   { icon: Search, title: "Kërkim i Avancuar", text: "Filtrim sipas kategorisë, zonës, statusit dhe preferencave, në një UI modern dhe të lehtë për përdorim." },
@@ -9,50 +10,54 @@ const features = [
   { icon: Zap, title: "Teknologji Moderne", text: "Platforma ndërtuar me teknologjitë më të fundit për reklamimin e pronave." },
 ];
 
-const AboutAri = () => {
+export default function AboutAri() {
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-[#f7f8f5] text-[#173e34]">
+      <PublicHero
+        eyebrow="Rreth Nesh"
+        title="Ari Real Estate"
+        description="Një platformë moderne për menaxhimin, shitjen dhe dhënien me qera të pronave me teknologjitë më të fundit."
+      >
+        <Link to={paths.propertiesMap} className="inline-flex items-center justify-center rounded-xl bg-[#EFD391] px-6 py-3 text-sm font-semibold text-[#173e34] transition-colors hover:bg-[#D9BF7B]">
+          Shiko Pronat
+        </Link>
+      </PublicHero>
 
-      {/* Hero */}
-      <section className="relative bg-[#0F4638] text-white overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-black via-gray-900 to-black opacity-90" />
-        <div className="relative max-w-4xl mx-auto px-6 py-28 text-center">
-          <span className="inline-block text-[#EFD391] text-sm font-semibold tracking-widest uppercase mb-4">Rreth Nesh</span>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-5 leading-tight">Ari Real Estate</h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Një platformë moderne për menaxhimin, shitjen dhe dhënien me qera të pronave me teknologjitë më të fundit.
-          </p>
-          <Link to="/properties" className="inline-flex items-center gap-2 mt-8 px-6 py-3 bg-[#EFD391] text-black font-semibold rounded-xl hover:bg-[#D9BF7B] transition-colors text-sm">
-            Shiko Pronat
-          </Link>
+      <section className="relative z-10 mx-auto -mt-8 max-w-4xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-3xl border border-[#e4e9e3] bg-white shadow-[0_22px_60px_rgba(15,70,56,0.1)]">
+          <div aria-hidden="true" className="absolute right-0 top-0 h-32 w-32 translate-x-12 -translate-y-12 rounded-full border border-[#EFD391]/40" />
+          <div className="relative flex flex-col gap-6 p-7 sm:flex-row sm:items-center sm:gap-8 sm:p-10">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#EFD391]/50 bg-[#EFD391]/20 text-[#0F4638] sm:h-20 sm:w-20">
+              <Target size={32} strokeWidth={1.7} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Misioni Ynë</h2>
+              <p className="mt-3 text-base leading-relaxed text-gray-600">
+                Synojmë të krijojmë një rrjet të gjerë, të shpejtë dhe të sigurt ku përdoruesit mund të gjejnë pronën ideale të ëndrrave me besim dhe transparencë.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Mission */}
-      <section className="max-w-3xl mx-auto px-6 py-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Misioni Ynë</h2>
-        <p className="text-gray-600 leading-relaxed text-base">
-          Synojmë të krijojmë një rrjet të gjerë, të shpejtë dhe të sigurt ku përdoruesit mund të gjejnë pronën ideale të ëndrrave me besim dhe transparencë.
-        </p>
-      </section>
-
-      {/* Features */}
-      <section className="max-w-6xl mx-auto px-6 pb-20">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">Çfarë Ofrojmë</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="mx-auto max-w-6xl px-4 pb-20 pt-18 sm:px-6">
+        <div className="mb-10 text-center">
+          <div aria-hidden="true" className="mx-auto mb-5 h-1 w-12 rounded-full bg-[#EFD391]" />
+          <h2 className="text-2xl font-bold sm:text-3xl">Çfarë Ofrojmë</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {features.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-[#EFD391]/10 flex items-center justify-center">
-                <Icon size={20} className="text-[#EFD391]" />
+            <div key={title} className="group relative overflow-hidden rounded-2xl border border-[#e4e9e3] bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#EFD391]/70 hover:shadow-[0_14px_35px_rgba(15,70,56,0.09)]">
+              <div aria-hidden="true" className="absolute left-0 top-0 h-1 w-full bg-linear-to-r from-[#0F4638] to-[#EFD391]" />
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#EFD391]/20 text-[#0F4638] transition-colors group-hover:bg-[#0F4638] group-hover:text-[#EFD391]">
+                <Icon size={22} strokeWidth={1.8} aria-hidden="true" />
               </div>
-              <h3 className="font-semibold text-gray-900">{title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{text}</p>
+              <h3 className="font-semibold">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">{text}</p>
             </div>
           ))}
         </div>
       </section>
     </div>
   );
-};
-
-export default AboutAri;
+}

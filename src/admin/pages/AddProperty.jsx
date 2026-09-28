@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { GripVertical, X, ImagePlus } from "lucide-react";
-import api, { cityAPI } from "../../services/api";
+import api, { cityAPI, PROPERTY_SAVE_TIMEOUT_MS } from "../../services/api";
 import MapPicker from "../components/MapPicker";
 import PropertyContactField from "../components/PropertyContactField";
 import PropertyDetailFields from "../components/PropertyDetailFields";
@@ -10,6 +10,7 @@ import { propertyTypes } from "../../utils/propertyDetails";
 import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { DEFAULT_PROPERTY_CONTACTS, withDefaultPropertyContacts } from "../../utils/propertyContact";
+import { preparePropertyImages } from "../../utils/preparePropertyImages";
 
 const defaultContactInfo = DEFAULT_PROPERTY_CONTACTS.join("\n");
 
@@ -67,6 +68,9 @@ function AddProperty() {
   const [errors, setErrors] = useState({});
   const [previewImages, setPreviewImages] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [saveStage, setSaveStage] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [submissionMessage, setSubmissionMessage] = useState("");
   const [cities, setCities] = useState([]);
 
   useEffect(() => {
@@ -134,21 +138,15 @@ const handleChange = (e) => {
     return Object.keys(e).length === 0;
   };
 
-  const fileToBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-    });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (submitting || !validate()) return;
     setSubmitting(true);
+    setSubmissionMessage("");
+    setSaveStage("Duke përgatitur fotot...");
+    setUploadProgress(0);
     try {
-      const imagesBase64 =
-        form.images.length > 0 ? await Promise.all(form.images.map(fileToBase64)) : [];
+      const imagesBase64 = await preparePropertyImages(form.images);
       const fullLocation = form.location
         ? `${form.location}${form.neighborhood ? ", " + form.neighborhood : ""}`
         : form.neighborhood || "";
@@ -161,7 +159,17 @@ const handleChange = (e) => {
         location: fullLocation,
         price: form.priceType === "NEGOTIABLE" ? null : form.price,
       };
-      await api.post(endpoints[type] || "/properties", payload);
+      setSaveStage("Duke dërguar pronën...");
+      await api.post(endpoints[type] || "/properties", payload, {
+        timeout: PROPERTY_SAVE_TIMEOUT_MS,
+        onUploadProgress: (progress) => {
+          if (progress.total) {
+            const percent = Math.min(100, Math.round(progress.loaded * 100 / progress.total));
+            setUploadProgress(percent);
+            if (percent === 100) setSaveStage("Duke ruajtur pronën...");
+          }
+        },
+      });
 
       toast.success("Pronë u shtua me sukses!");
       setForm({
@@ -179,11 +187,14 @@ const handleChange = (e) => {
       const message = err.response?.data?.message;
       if (err.response?.status === 409 && typeof message === "string") {
         setErrors((current) => ({ ...current, id: message }));
+      } else if (["ECONNABORTED", "ETIMEDOUT", "ERR_NETWORK"].includes(err.code)) {
+        setSubmissionMessage("Lidhja u ndërpre ose përgjigjja u vonua. Prona mund të jetë ruajtur; kontrolloni listën e pronave para se ta dërgoni përsëri.");
       } else {
         toast.error(typeof message === "string" ? message : "Shtimi i pronës dështoi.");
       }
     } finally {
       setSubmitting(false);
+      setSaveStage("");
     }
   };
 
@@ -423,6 +434,8 @@ const handleChange = (e) => {
           <p className="text-xs text-white/30 mt-1">Tërhiq për të rirendosur • Kliko × për të fshirë</p>
         </div>
 
+        {submitting && <p role="status" aria-live="polite" className="text-sm text-[#EFD391]">{saveStage}{uploadProgress > 0 && uploadProgress < 100 ? ` ${uploadProgress}%` : ""} Mos e mbyllni këtë faqe.</p>}
+        {submissionMessage && <p role="alert" className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-200">{submissionMessage} <Link to={paths.adminProperties} className="underline">Shih pronat</Link></p>}
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <button
             type="button"

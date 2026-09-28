@@ -13,6 +13,7 @@ export default function Footer() {
     { label: "Harta", to: paths.propertiesMap },
     { label: "Rreth Nesh", to: paths.about },
     { label: "Kontakti", to: paths.contact },
+    { label: "Ofro pronën", to: paths.offerProperty },
   ];
 
   return (

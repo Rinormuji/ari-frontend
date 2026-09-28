@@ -9,6 +9,7 @@ export const paths = {
   propertyDetail: (id = ":id") => `/properties/${id}`,
   about: "/about",
   contact: "/contact",
+  offerProperty: "/ofro-pronen",
   appointment: "/appointment",
   appointmentForProperty: (propertyId) => `/appointment?propertyId=${propertyId}`,
   myAppointments: "/my-appointments",

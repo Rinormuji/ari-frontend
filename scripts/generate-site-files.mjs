@@ -26,7 +26,7 @@ if (!siteUrl) {
   process.exit(0);
 }
 
-const publicRoutes = ["/", "/properties", "/properties/all", "/about", "/contact"];
+const publicRoutes = ["/", "/properties", "/properties/all", "/about", "/contact", "/ofro-pronen"];
 const sitemapEntries = publicRoutes
   .map((route) => `  <url>\n    <loc>${siteUrl}${route}</loc>\n  </url>`)
   .join("\n");

@@ -16,6 +16,7 @@ const AllProperties = lazy(() => import("./pages/AllProperties"));
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
+const OfferProperty = lazy(() => import("./pages/OfferProperty"));
 const Appointment = lazy(() => import("./pages/Appointment"));
 const MyAppointments = lazy(() => import("./pages/MyAppointments"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -48,6 +49,7 @@ function App() {
             <Route path={paths.propertyDetail()} element={<PropertyDetail />} />
             <Route path={paths.about} element={<About />} />
             <Route path={paths.contact} element={<Contact />} />
+            <Route path={paths.offerProperty} element={<OfferProperty />} />
 
             <Route element={<ProtectedRoute />}>
               <Route path={paths.appointment} element={<Appointment />} />
