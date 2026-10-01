@@ -11,6 +11,7 @@ import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { DEFAULT_PROPERTY_CONTACTS, withDefaultPropertyContacts } from "../../utils/propertyContact";
 import { preparePropertyImages } from "../../utils/preparePropertyImages";
+import { buildPropertyLocation } from "../../utils/propertyLocation";
 
 const defaultContactInfo = DEFAULT_PROPERTY_CONTACTS.join("\n");
 
@@ -45,6 +46,7 @@ function AddProperty() {
     description: "",
     location: "",
     neighborhood: "",
+    areaType: "neighborhood",
     contactInfo: defaultContactInfo,
     priceType: "TOTAL",
     price: "",
@@ -149,9 +151,7 @@ const handleChange = (e) => {
     setUploadProgress(0);
     try {
       const imagesBase64 = await preparePropertyImages(form.images);
-      const fullLocation = form.location
-        ? `${form.location}${form.neighborhood ? ", " + form.neighborhood : ""}`
-        : form.neighborhood || "";
+      const fullLocation = buildPropertyLocation(form.location, form.neighborhood, form.areaType);
       const endpoints = { BANESA: "/banesa", SHTEPI: "/shtepi", LOKALE: "/lokale", TOKA: "/toka" };
       const payload = {
         ...form,
@@ -175,7 +175,7 @@ const handleChange = (e) => {
 
       toast.success("Pronë u shtua me sukses!");
       setForm({
-        id: "", title: "", description: "", location: "", neighborhood: "", contactInfo: defaultContactInfo,
+        id: "", title: "", description: "", location: "", neighborhood: "", areaType: "neighborhood", contactInfo: defaultContactInfo,
         priceType: "TOTAL", price: "", area: "", rooms: "", floor: "", hasElevator: false, hasBalcony: false,
         hasGarden: false, hasGarage: false, hasParking: false, hasInfrastructure: false,
         bathrooms: "", latitude: "", longitude: "", images: [], status: "", details: {},
@@ -241,8 +241,8 @@ const handleChange = (e) => {
           <textarea name="description" placeholder="Përshkrim i detajuar..." value={form.description} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
         </div>
 
-        {/* City + Neighborhood */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Municipality + neighborhood or village */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className={labelCls}>Komuna</label>
             <select name="location" value={form.location} onChange={handleChange} className={inputCls}>
@@ -251,8 +251,15 @@ const handleChange = (e) => {
             </select>
           </div>
           <div>
-            <label className={labelCls}>Lagjja</label>
-            <input type="text" name="neighborhood" placeholder="Lagjja" value={form.neighborhood} onChange={handleChange} className={inputCls} />
+            <label className={labelCls}>Lloji i zonës</label>
+            <select name="areaType" value={form.areaType} onChange={handleChange} className={inputCls}>
+              <option value="neighborhood">Lagje</option>
+              <option value="village">Fshat</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>{form.areaType === "village" ? "Fshati" : "Lagja"}</label>
+            <input type="text" name="neighborhood" placeholder={form.areaType === "village" ? "Emri i fshatit" : "Emri i lagjes"} value={form.neighborhood} onChange={handleChange} className={inputCls} />
           </div>
         </div>
 

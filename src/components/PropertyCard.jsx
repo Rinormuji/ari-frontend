@@ -20,12 +20,8 @@ import { paths } from "../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
 import { formatPropertyPrice } from "../utils/propertyPricing";
 import { formatPropertyViews } from "../utils/propertyViews";
+import { formatPropertyLocation } from "../utils/propertyLocation";
 import FavoriteButton from "./FavoriteButton";
-
-const firstLocation = (property) => {
-  const location = property.location || property.city || "";
-  return location.split(",")[0]?.trim() || "Kosovë";
-};
 
 const PropertyCard = ({ property }) => {
   const images = property.images?.length ? property.images : ["/placeholder.jpg"];
@@ -110,16 +106,16 @@ const PropertyCard = ({ property }) => {
         </div>
 
         <div className="flex flex-1 flex-col gap-3 p-4">
-          <div className="flex items-center justify-between gap-3 text-xs font-medium text-gray-500">
-            <span className="inline-flex min-w-0 items-center gap-1.5">
+          <div className="flex items-center gap-3 text-xs font-medium text-gray-500">
+            <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap">
               <Building2 className="h-3.5 w-3.5 shrink-0 text-[#D9BF7B]" />
-              <span className="truncate">
+              <span>
                 {getTypeLabel(property.type)}, {getStatusLabel(property.status)}
               </span>
             </span>
-            <span className="inline-flex min-w-0 items-center gap-1.5">
+            <span className="ml-auto inline-flex min-w-0 flex-1 items-center justify-end gap-1.5 text-[#0F4638]/75">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-[#D9BF7B]" />
-              <span className="truncate">{firstLocation(property)}</span>
+              <span className="truncate" title={formatPropertyLocation(property)}>{formatPropertyLocation(property)}</span>
             </span>
           </div>
 

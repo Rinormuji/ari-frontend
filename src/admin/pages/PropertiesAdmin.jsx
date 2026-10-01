@@ -8,6 +8,7 @@ import { useToast } from "../../context/toastContextValue";
 import { getPropertyViews } from "../../utils/propertyViews";
 import { formatPropertyPrice } from "../../utils/propertyPricing";
 import { propertyTypes } from "../../utils/propertyDetails";
+import { parsePropertyLocation } from "../../utils/propertyLocation";
 
 // const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
@@ -104,8 +105,8 @@ const [deleteConfirmation, setDeleteConfirmation] = useState("");
           id: p.id,
           title: p.title,
           location: p.location,
-          city: (p.location && p.location.split(",")[0]?.trim()) || "",
-          neighborhood: (p.location && p.location.split(",")[1]?.trim()) || "",
+          city: parsePropertyLocation(p).city,
+          neighborhood: parsePropertyLocation(p).area,
           type: p.type,
           status: p.status,
           area: (p.area !== undefined && p.area !== null) ? Number(p.area) : null,

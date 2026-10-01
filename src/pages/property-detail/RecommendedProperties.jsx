@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import { getStatusLabel, getTypeLabel } from "../../utils/propertyLabels";
 import { formatPropertyPrice } from "../../utils/propertyPricing";
+import { formatPropertyLocation } from "../../utils/propertyLocation";
 import { placeholderImage } from "./propertyDetailUtils";
 
 const RecommendedProperties = ({ properties }) => {
@@ -36,7 +37,7 @@ const RecommendedProperties = ({ properties }) => {
               <h3 className="line-clamp-2 min-h-12 text-sm font-bold leading-6 text-[#071f1a]">{property.title}</h3>
               <p className="mt-1 flex min-w-0 items-center gap-1 text-xs text-[#0F4638]/60">
                 <MapPin size={14} className="shrink-0 text-[#9b7a34]" aria-hidden="true" />
-                <span className="truncate">{property.city || property.location || "Lokacioni i papërcaktuar"}</span>
+                <span className="truncate" title={formatPropertyLocation(property)}>{formatPropertyLocation(property)}</span>
               </p>
               <div className="mt-auto flex items-end justify-between gap-2 border-t border-[#0F4638]/10 pt-4">
                 <span className="text-base font-bold text-[#0F4638]">{formatPropertyPrice(property)}</span>

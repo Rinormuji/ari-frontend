@@ -153,7 +153,7 @@ export default function OfferProperty() {
               <label className="block text-sm font-semibold">Lokacioni <span className="text-[#a98836]">*</span>
                 <span className="relative mt-2 block">
                   <MapPin size={17} className="pointer-events-none absolute left-3 top-3.5 text-[#b89b56]" />
-                  <input className={`${fieldClass} pl-10`} list="offer-cities" value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="Qyteti ose lagjja" maxLength={160} required />
+                  <input className={`${fieldClass} pl-10`} list="offer-cities" value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="Qyteti, lagja ose fshati" maxLength={160} required />
                   <datalist id="offer-cities">{cities.map((city) => <option key={city} value={city} />)}</datalist>
                 </span>
               </label>

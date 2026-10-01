@@ -12,6 +12,7 @@ import { useToast } from "../../context/toastContextValue";
 import { paths } from "../../routes/paths";
 import { cityAPI } from "../../services/api";
 import { preparePropertyImages } from "../../utils/preparePropertyImages";
+import { buildPropertyLocation, parsePropertyLocation } from "../../utils/propertyLocation";
 
 const inputCls =
   "w-full bg-[#123E35] border border-white/10 text-white placeholder-white/30 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#EFD391]/60 transition-colors";
@@ -59,18 +60,13 @@ function EditProperty() {
         if (found) {
           originalImageUrls.current = found.images || [];
           setType(found.type.toUpperCase());
-          let city = "";
-        let neighborhood = "";
-        if (found.location) {
-          const parts = found.location.split(",").map(p => p.trim());
-          city = parts[0] || "";
-          neighborhood = parts[1] || "";
-        }
+        const { city, area: neighborhood, areaType } = parsePropertyLocation(found);
         setForm({
           ...found,
           contactInfo: extractContactPhones(found.contactInfo),
           location: city,
           neighborhood: neighborhood,
+          areaType,
           rooms: Number(found.details?.bedrooms) > 0 ? found.details.bedrooms : (found.rooms ?? ""),
           priceType: found.priceType || "TOTAL",
           floor: found.floor || "",
@@ -195,9 +191,7 @@ function EditProperty() {
       imagesBase64 = await preparePropertyImages(selectedImages);
     }
 
-    const fullLocation = form.location
-      ? `${form.location}${form.neighborhood ? ', ' + form.neighborhood : ''}`
-      : form.neighborhood || '';
+    const fullLocation = buildPropertyLocation(form.location, form.neighborhood, form.areaType);
 
     const payload = {
       ...form,
@@ -305,8 +299,8 @@ function EditProperty() {
           <textarea name="description" value={form.description} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
         </div>
 
-        {/* City + Neighborhood */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Municipality + neighborhood or village */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className={labelCls}>Komuna</label>
             <select name="location" value={form.location} onChange={handleChange} className={inputCls}>
@@ -315,8 +309,15 @@ function EditProperty() {
             </select>
           </div>
           <div>
-            <label className={labelCls}>Lagjja</label>
-            <input type="text" name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="Lagjja" className={inputCls} />
+            <label className={labelCls}>Lloji i zonës</label>
+            <select name="areaType" value={form.areaType} onChange={handleChange} className={inputCls}>
+              <option value="neighborhood">Lagje</option>
+              <option value="village">Fshat</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>{form.areaType === "village" ? "Fshati" : "Lagja"}</label>
+            <input type="text" name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder={form.areaType === "village" ? "Emri i fshatit" : "Emri i lagjes"} className={inputCls} />
           </div>
         </div>
 
