@@ -26,15 +26,20 @@ const RecommendedProperties = ({ properties }) => {
         {properties.slice(0, 4).map((property) => (
           <Link key={property.id} to={paths.propertyDetail(property.id)}
             className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#0F4638]/10 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#D9BF7B] hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F4638]">
-            <div className="relative aspect-[4/3] overflow-hidden bg-[#edf1ee]">
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-[#edf1ee]">
               <img src={property.images?.[0] || placeholderImage} loading="lazy" alt={property.title || "Prona e rekomanduar"}
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                className="h-full w-full object-contain" />
               <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-[#0F4638] shadow-sm">
                 {getTypeLabel(property.type)} · {getStatusLabel(property.status)}
               </span>
             </div>
             <div className="flex flex-1 flex-col p-4">
-              <h3 className="line-clamp-2 min-h-12 text-sm font-bold leading-6 text-[#071f1a]">{property.title}</h3>
+              <div className="flex min-h-12 items-start gap-2">
+                <h3 className="min-w-0 flex-1 line-clamp-2 text-sm font-bold leading-6 text-[#071f1a]">{property.title}</h3>
+                <span className="shrink-0 rounded-md border border-[#0F4638]/10 bg-[#f5f8f5] px-2 py-0.5 text-[11px] font-semibold leading-5 text-[#0F4638]">
+                  ID: #{property.id}
+                </span>
+              </div>
               <p className="mt-1 flex min-w-0 items-center gap-1 text-xs text-[#0F4638]/60">
                 <MapPin size={14} className="shrink-0 text-[#9b7a34]" aria-hidden="true" />
                 <span className="truncate" title={formatPropertyLocation(property)}>{formatPropertyLocation(property)}</span>

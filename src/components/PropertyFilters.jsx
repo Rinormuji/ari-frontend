@@ -8,7 +8,7 @@ import {
   Square,
 } from 'lucide-react'
 import { propertyTypes } from '../utils/propertyDetails'
-import { cityAPI } from '../services/api'
+import { propertyAPI } from '../services/api'
 
 const PropertyFilters = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
@@ -23,7 +23,11 @@ const PropertyFilters = ({ onFilterChange }) => {
   const [cities, setCities] = useState([])
 
   useEffect(() => {
-    cityAPI.getAll().then((res) => setCities(Array.isArray(res.data) ? res.data : [])).catch(() => setCities([]))
+    let cancelled = false
+    propertyAPI.getFilterOptions().then(({ data }) => {
+      if (!cancelled) setCities(Array.isArray(data.locations) ? data.locations : [])
+    }).catch(() => { if (!cancelled) setCities([]) })
+    return () => { cancelled = true }
   }, [])
 
   const handleChange = (e) => {

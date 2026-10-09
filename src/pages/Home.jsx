@@ -15,6 +15,7 @@ const Home = () => {
   const [totalElements, setTotalElements] = useState(0)
   const [loadError, setLoadError] = useState(false)
   const [totalViews, setTotalViews] = useState(null)
+  const [totalCities, setTotalCities] = useState(null)
 
   const fetchTotalViews = async () => {
     try {
@@ -57,6 +58,18 @@ const Home = () => {
     fetchTotalViews()
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+    propertyAPI.getFilterOptions()
+      .then(({ data }) => {
+        if (!cancelled && Array.isArray(data.locations)) setTotalCities(data.locations.length)
+      })
+      .catch(() => {
+        if (!cancelled) setTotalCities(null)
+      })
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <div className="bg-gray-50 min-h-screen">
 
@@ -91,7 +104,7 @@ const Home = () => {
           <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-14 pt-10 border-t border-white/10">
             {[
               { icon: Building2, label: "Prona aktive", value: `${totalElements || ''}+` },
-              { icon: MapPin, label: "Qytete", value: "3+" },
+              { icon: MapPin, label: "Qytete", value: totalCities == null ? '—' : totalCities.toLocaleString('sq-AL') },
               { icon: Eye, label: "Shikime gjithsej", value: totalViews == null ? '—' : totalViews.toLocaleString('sq-AL') },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex flex-col items-center gap-1">

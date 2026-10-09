@@ -1,5 +1,113 @@
 @import "tailwindcss";
 
+.ari-map.leaflet-container {
+  font-family: inherit;
+  background: #edf1ee;
+  z-index: 0;
+}
+
+.ari-map .leaflet-control-zoom {
+  overflow: hidden;
+  border: 1px solid rgba(15, 70, 56, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(7, 31, 26, 0.15);
+}
+
+.ari-map .leaflet-control-zoom a {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  color: #0f4638;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.ari-map .leaflet-control-zoom a:hover {
+  background: #fff9ea;
+}
+
+.ari-map .leaflet-control-attribution {
+  max-width: calc(100% - 64px);
+  padding: 3px 7px;
+  border-radius: 6px 0 0 0;
+  background: rgba(255, 255, 255, 0.9);
+  color: #42564d;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.ari-map .leaflet-control-attribution a {
+  color: #0f4638;
+}
+
+.ari-property-marker {
+  border: 0;
+  background: transparent;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+}
+
+.ari-map .leaflet-tooltip {
+  padding: 10px;
+  border: 1px solid rgba(15, 70, 56, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(7, 31, 26, 0.15);
+}
+
+.ari-kosovo-control button {
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid rgba(15, 70, 56, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f4638;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba(7, 31, 26, 0.15);
+}
+
+.ari-kosovo-control button:focus-visible {
+  outline: 2px solid #efd391;
+  outline-offset: 2px;
+}
+
+.ari-place-label {
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.ari-place-name {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.ari-place-name-satellite {
+  color: #fff;
+  text-shadow: -1px -1px 2px #071f1a, 1px -1px 2px #071f1a, -1px 1px 2px #071f1a, 1px 1px 2px #071f1a, 0 1px 4px #071f1a;
+}
+
+.ari-place-name-street {
+  color: #0f4638;
+  text-shadow: -1px -1px 2px #fff, 1px -1px 2px #fff, -1px 1px 2px #fff, 1px 1px 2px #fff;
+}
+
+.ari-country-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.ari-capital-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
 /* Custom styles */
 body {
   margin: 0;

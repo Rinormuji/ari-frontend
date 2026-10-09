@@ -12,12 +12,10 @@ export function configureLeafletIcons() {
   });
 }
 
-export const propertyMapIcon = new L.Icon({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+export const propertyMapIcon = L.divIcon({
+  className: "ari-property-marker",
+  html: '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 36 46" aria-hidden="true"><path d="M18 44S2 27 2 18a16 16 0 1 1 32 0c0 9-16 26-16 26Z" fill="#0F4638" stroke="#EFD391" stroke-width="2"/><circle cx="18" cy="18" r="9" fill="#EFD391"/><path d="m12 18 6-5 6 5m-10-1v7h8v-7m-6 7v-4h4v4" fill="none" stroke="#0F4638" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  iconSize: [36, 46],
+  iconAnchor: [18, 44],
+  popupAnchor: [0, -40],
 });

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import { Marker, Popup } from "react-leaflet";
 import {
   Building2,
   CalendarCheck,
@@ -29,6 +28,8 @@ import { contactInfo as agencyContactInfo } from "../utils/contactInfo";
 import ImageGallery from "./property-detail/ImageGallery";
 import FavoriteButton from "../components/FavoriteButton";
 import RecommendedProperties from "./property-detail/RecommendedProperties";
+import PropertyMap from "../components/PropertyMap";
+import { propertyMapIcon } from "../utils/leafletIcons";
 import {
   buildPropertyFeatures,
   configureLeafletIcons,
@@ -312,6 +313,9 @@ const PropertyDetail = () => {
           <div className="flex min-w-0 flex-col gap-5 lg:col-start-2 lg:row-start-1">
             <div ref={summaryRef}>
               <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-[#0F4638]/55">
+                <span className="max-w-full break-words rounded-lg border border-[#0F4638]/10 bg-white px-2.5 py-1 text-xs font-semibold text-[#0F4638]">
+                  ID: #{property.id}
+                </span>
                 <span className="rounded-full bg-[#EFD391]/25 px-2.5 py-1 text-xs font-bold text-[#7A621F]">
                   {getTypeLabel(property.type)} · {getStatusLabel(property.status)}
                 </span>
@@ -413,19 +417,16 @@ const PropertyDetail = () => {
         {hasMapPosition(property) && (
           <section className="z-20 mb-10 rounded-2xl border border-[#0F4638]/10 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-bold text-[#071f1a]">Harta e pronës</h2>
-            <div className="z-20 h-72 overflow-hidden rounded-xl">
-              <MapContainer
+              <PropertyMap
+                className="z-20 h-80 sm:h-96"
                 center={[Number(property.latitude), Number(property.longitude)]}
                 zoom={15}
                 scrollWheelZoom={false}
-                style={{ height: "100%", width: "100%", zIndex: 20 }}
               >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" />
-                <Marker position={[Number(property.latitude), Number(property.longitude)]}>
+                <Marker position={[Number(property.latitude), Number(property.longitude)]} icon={propertyMapIcon}>
                   <Popup>{property.title}</Popup>
                 </Marker>
-              </MapContainer>
-            </div>
+              </PropertyMap>
             <div className="mt-4 flex flex-col gap-4 rounded-xl border border-[#EFD391]/45 bg-[#fff9ea] p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0F4638] text-[#EFD391]">

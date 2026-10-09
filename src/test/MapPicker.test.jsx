@@ -6,11 +6,14 @@ const mock = vi.hoisted(() => ({ panTo: vi.fn(), events: {} }));
 vi.mock('react-leaflet', () => ({
   MapContainer: ({ children }) => <div>{children}</div>,
   TileLayer: () => null,
+  ZoomControl: () => null,
   Marker: ({ position }) => <output data-testid="marker">{position.join(',')}</output>,
   useMap: () => mock,
   useMapEvents: (events) => { mock.events = events; },
 }));
-vi.mock('../utils/leafletIcons', () => ({ configureLeafletIcons: vi.fn() }));
+vi.mock('../utils/leafletIcons', () => ({ configureLeafletIcons: vi.fn(), propertyMapIcon: {} }));
+vi.mock('../components/KosovoMapContext', () => ({ default: () => null }));
+vi.mock('../components/KosovoStreetLayer', () => ({ default: () => null }));
 function Picker({ initial = ['', ''] }) {
   const [position, setPosition] = useState(initial);
   return <form data-testid="form"><MapPicker lat={position[0]} lng={position[1]} onSelect={(lat, lng) => setPosition([lat, lng])} /><button type="button" onClick={() => mock.events.click({ latlng: { lat: 42.5, lng: 21.2 } })}>Map click</button></form>;

@@ -1,7 +1,7 @@
 ﻿import { useEffect, useId } from "react";
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { configureLeafletIcons } from "../../utils/leafletIcons";
+import { Marker, useMap, useMapEvents } from "react-leaflet";
+import { configureLeafletIcons, propertyMapIcon } from "../../utils/leafletIcons";
+import PropertyMap from "../../components/PropertyMap";
 
 configureLeafletIcons();
 
@@ -38,18 +38,16 @@ export default function MapPicker({ lat, lng, onSelect }) {
   return (
     <div className="space-y-3">
       <p className="text-xs text-white/50">Kliko në hartë ose shkruaj koordinatat më poshtë për të zgjedhur vendndodhjen.</p>
-      <MapContainer
+      <PropertyMap
+        overview={!hasPosition}
+        label="Zgjidh vendndodhjen e pronës"
+        className="h-[340px]"
         center={position}
         zoom={hasPosition ? 14 : 9}
-        style={{ height: "340px", width: "100%", borderRadius: "12px", zIndex: 0 }}
       >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-        />
         <MapSelection lat={latitude} lng={longitude} onSelect={onSelect} />
-        {hasPosition && <Marker position={position} />}
-      </MapContainer>
+        {hasPosition && <Marker position={position} icon={propertyMapIcon} />}
+      </PropertyMap>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>

@@ -2,20 +2,18 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Circle as CircleIcon } from "lucide-react";
 import {
-  MapContainer,
-  TileLayer,
   Marker,
   Tooltip,
   Circle,
   useMapEvents,
 } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 
 import banner from "../assets/images/banner.jpg";
-import { cityAPI, propertyAPI } from '../services/api';
+import { propertyAPI } from '../services/api';
 import { paths } from '../routes/paths';
 import { propertyMapIcon } from '../utils/leafletIcons';
 import DataLoadError from '../components/DataLoadError';
+import PropertyMap from '../components/PropertyMap';
 
 const propertyIcon = propertyMapIcon;
 const MAP_LIST_PAGE_SIZE = 12;
@@ -68,7 +66,11 @@ const Properties = () => {
   };
 
   useEffect(() => {
-    cityAPI.getAll().then((res) => setCityOptions(Array.isArray(res.data) ? res.data : [])).catch(() => setCityOptions([]));
+    let cancelled = false;
+    propertyAPI.getFilterOptions().then(({ data }) => {
+      if (!cancelled) setCityOptions(Array.isArray(data.locations) ? data.locations : []);
+    }).catch(() => { if (!cancelled) setCityOptions([]); });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -226,13 +228,13 @@ const Properties = () => {
       {/* Map + Side list */}
       <div className="max-w-6xl mx-auto px-4 pt-4 grid grid-cols-1 lg:grid-cols-3 gap-4 z-30">
         {/* Map */}
-        <div className="z-30 h-[55vh] min-h-[360px] overflow-hidden rounded-2xl border border-gray-200 shadow-sm lg:col-span-2 lg:h-[70vh]">
-          <MapContainer
+          <PropertyMap
+            overview
+            label="Harta e pronave"
+            className="z-30 h-[55vh] min-h-[360px] lg:col-span-2 lg:h-[70vh]"
             center={[centerPoint.lat ?? defaultCenter.lat, centerPoint.lng ?? defaultCenter.lng]}
             zoom={10}
-            style={{ height: "100%", width: "100%" }}
           >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <MapClickHandler circleEnabled={circleEnabled} onSetCenter={setCenterPoint} />
             {circleEnabled && centerPoint && (
               <Circle center={[centerPoint.lat, centerPoint.lng]} radius={Number(radiusKm) * 1000} pathOptions={{ color: "#EFD391", fillOpacity: 0.08 }} />
@@ -245,14 +247,13 @@ const Properties = () => {
                     <div className="overflow-hidden">
                       <p className="font-semibold text-xs leading-snug line-clamp-2">{p.title}</p>
                       <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
-                      <p className="text-[#EFD391] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} €</p>
+                      <p className="text-[#0F4638] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} €</p>
                     </div>
                   </div>
                 </Tooltip>
               </Marker>
             ))}
-          </MapContainer>
-        </div>
+          </PropertyMap>
 
         {/* Side list */}
         <aside className="flex max-h-[70vh] min-h-[360px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-1 lg:h-[70vh] lg:max-h-none">
@@ -270,7 +271,7 @@ const Properties = () => {
                 <img src={p.images?.[0] ?? banner} alt="" loading="lazy" className="w-14 h-14 object-contain bg-gray-100 rounded-xl shrink-0" />
                 <div className="overflow-hidden">
                   <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.title}</p>
-                  <p className="text-[#EFD391] font-bold text-sm">{p.price?.toLocaleString()} €</p>
+                  <p className="text-[#0F4638] font-bold text-sm">{p.price?.toLocaleString()} €</p>
                   <p className="text-xs text-gray-400">{p.city} · {p.area} m²</p>
                 </div>
               </button>

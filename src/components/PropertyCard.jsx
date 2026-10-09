@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Hash,
   Layers,
   MapPin,
   Ruler,
@@ -124,16 +125,18 @@ const PropertyCard = ({ property }) => {
           </h3>
 
           <div className="min-h-8">
-            {features.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {features.map(({ icon: Icon, label }) => (
-                  <span key={label} className="inline-flex items-center gap-1 rounded-full border border-[#0F4638]/10 bg-[#f5f6f3] px-2 py-1 text-xs font-medium text-[#0F4638]/75">
-                    <Icon className="h-3 w-3 text-[#D9BF7B]" />
-                    {label}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-wrap gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#0F4638]/10 bg-[#f5f6f3] px-2 py-1 text-xs font-medium text-[#0F4638]/75">
+                <Hash className="h-3 w-3 text-[#D9BF7B]" aria-hidden="true" />
+                ID: {property.id}
+              </span>
+              {features.map(({ icon: Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-1 rounded-full border border-[#0F4638]/10 bg-[#f5f6f3] px-2 py-1 text-xs font-medium text-[#0F4638]/75">
+                  <Icon className="h-3 w-3 text-[#D9BF7B]" />
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
