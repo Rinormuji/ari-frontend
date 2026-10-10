@@ -231,6 +231,13 @@ const AllProperties = () => {
     return items;
   }, [page, totalPages]);
 
+  const changePage = (nextPage) => {
+    if (nextPage === page) return;
+    // Scroll before loading changes the list height and the browser clamps its position.
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    setPage(nextPage);
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -528,7 +535,7 @@ const AllProperties = () => {
               <div className="mt-10 flex items-center justify-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  onClick={() => changePage(Math.max(1, page - 1))}
                   disabled={page === 1}
                   className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#0F4638]/10 bg-white px-3 text-sm font-semibold text-[#0F4638] disabled:opacity-40"
                 >
@@ -542,7 +549,7 @@ const AllProperties = () => {
                     <button
                       key={item}
                       type="button"
-                      onClick={() => setPage(item)}
+                      onClick={() => changePage(item)}
                       className={`h-10 min-w-10 rounded-lg text-sm font-semibold transition ${
                         page === item
                           ? "bg-[#0F4638] text-[#EFD391]"
@@ -556,7 +563,7 @@ const AllProperties = () => {
 
                 <button
                   type="button"
-                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  onClick={() => changePage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
                   className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#0F4638]/10 bg-white px-3 text-sm font-semibold text-[#0F4638] disabled:opacity-40"
                 >
