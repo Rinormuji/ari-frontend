@@ -437,6 +437,8 @@ function EditProperty() {
               <option value="" disabled>Zgjidh statusin</option>
               <option value="FOR_SALE">Në shitje</option>
               <option value="FOR_RENT">Me qira</option>
+              <option value="SOLD">E shitur</option>
+              <option value="RENTED">E lëshuar me qera</option>
             </select>
           </div>
           <div>

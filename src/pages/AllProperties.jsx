@@ -27,6 +27,8 @@ const typeLabels = propertyTypes;
 const statusLabels = {
   FOR_SALE: "Në shitje",
   FOR_RENT: "Me qira",
+  SOLD: "E shitur",
+  RENTED: "E lëshuar me qera",
 };
 
 const initialFilters = {

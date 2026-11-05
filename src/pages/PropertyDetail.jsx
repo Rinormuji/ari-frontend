@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { Marker, Popup } from "react-leaflet";
 import {
   Building2,
@@ -19,7 +19,7 @@ import { useAuth } from "../context/authContextValue";
 import { useToast } from "../context/toastContextValue";
 import { useImageSwipe } from "../hooks/useImageSwipe";
 import { paths } from "../routes/paths";
-import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
+import { getStatusLabel, getTypeLabel, isPropertyUnavailable } from "../utils/propertyLabels";
 import { formatPropertyViews } from "../utils/propertyViews";
 import { formatCalculatedTotal, formatPropertyPrice } from "../utils/propertyPricing";
 import { extractContactPhones, formatPropertyPhone } from "../utils/propertyContact";
@@ -151,6 +151,7 @@ const PropertyDetail = () => {
       try {
         const res = await propertyAPI.getProperty(id);
         if (!cancelled) setProperty(res.data);
+        if (isPropertyUnavailable(res.data)) return;
 
         // A view count write should not hold up the property page.
         propertyAPI.trackView(id)
@@ -288,6 +289,7 @@ const PropertyDetail = () => {
 
   if (loadingProperty) return <LoadingState />;
   if (!property) return <EmptyState />;
+  if (isPropertyUnavailable(property)) return <Navigate to={paths.properties} replace />;
   const { city, area, areaType } = parsePropertyLocation(property);
 
   return (

@@ -14,6 +14,8 @@ import { paths } from '../routes/paths';
 import { propertyMapIcon } from '../utils/leafletIcons';
 import DataLoadError from '../components/DataLoadError';
 import PropertyMap from '../components/PropertyMap';
+import SoldStamp from '../components/SoldStamp';
+import { getStatusLabel, isPropertyUnavailable } from '../utils/propertyLabels';
 
 const propertyIcon = propertyMapIcon;
 const MAP_LIST_PAGE_SIZE = 12;
@@ -240,13 +242,13 @@ const Properties = () => {
               <Circle center={[centerPoint.lat, centerPoint.lng]} radius={Number(radiusKm) * 1000} pathOptions={{ color: "#EFD391", fillOpacity: 0.08 }} />
             )}
             {filtered.filter((p) => p.lat != null && p.lng != null).map((p) => (
-              <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => navigate(paths.propertyDetail(p.id)) }}>
+              <Marker key={p.id} position={[p.lat, p.lng]} icon={propertyIcon} eventHandlers={{ click: () => { if (!isPropertyUnavailable(p)) navigate(paths.propertyDetail(p.id)); } }}>
                 <Tooltip direction="top" offset={[0, -12]} opacity={1} interactive>
                   <div className="flex gap-2 items-start w-52">
                     <img src={p.images?.[0] ?? banner} alt={p.title} loading="lazy" className="w-14 h-14 object-contain bg-gray-100 rounded-lg shrink-0" />
                     <div className="overflow-hidden">
                       <p className="font-semibold text-xs leading-snug line-clamp-2">{p.title}</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {p.status === "FOR_SALE" ? "Shitje" : "Qira"}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">{p.city} · {p.type} · {getStatusLabel(p.status)}</p>
                       <p className="text-[#0F4638] font-bold text-xs mt-0.5">{p.price?.toLocaleString()} €</p>
                     </div>
                   </div>
@@ -267,8 +269,11 @@ const Properties = () => {
           </div>
           <div className="overflow-y-auto flex-1 divide-y divide-gray-50">
             {visibleList.map((p) => (
-              <button key={p.id} onClick={() => navigate(paths.propertyDetail(p.id))} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
-                <img src={p.images?.[0] ?? banner} alt="" loading="lazy" className="w-14 h-14 object-contain bg-gray-100 rounded-xl shrink-0" />
+              <button key={p.id} disabled={isPropertyUnavailable(p)} onClick={() => navigate(paths.propertyDetail(p.id))} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left">
+                <div className="relative shrink-0">
+                  <img src={p.images?.[0] ?? banner} alt="" loading="lazy" className={`w-14 h-14 object-contain bg-gray-100 rounded-xl ${isPropertyUnavailable(p) ? "blur-[1px]" : ""}`} />
+                  {isPropertyUnavailable(p) && <span className="absolute inset-0 flex items-center justify-center"><SoldStamp compact rented={p.status === "RENTED"} /></span>}
+                </div>
                 <div className="overflow-hidden">
                   <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.title}</p>
                   <p className="text-[#0F4638] font-bold text-sm">{p.price?.toLocaleString()} €</p>

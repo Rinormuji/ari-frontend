@@ -263,7 +263,7 @@ const confirmDelete = async () => {
       <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap">
         {[
           { value: typeFilter, onChange: setTypeFilter, options: [["", "Të gjitha llojet"], ...Object.entries(propertyTypes)] },
-          { value: statusFilter, onChange: setStatusFilter, options: [["","Të gjitha statuset"],["FOR_SALE","Në shitje"],["FOR_RENT","Me qira"]] },
+          { value: statusFilter, onChange: setStatusFilter, options: [["","Të gjitha statuset"],["FOR_SALE","Në shitje"],["FOR_RENT","Me qira"],["SOLD","E shitur"],["RENTED","E lëshuar me qera"]] },
         ].map((f, i) => (
           <select key={i} value={f.value} onChange={(e) => f.onChange(e.target.value)}
             className="w-full bg-[#123E35] border border-white/10 text-white/70 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EFD391]/40 lg:w-auto">
@@ -318,8 +318,8 @@ const confirmDelete = async () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.status === "FOR_SALE" ? "bg-green-500/15 text-green-300" : "bg-blue-500/15 text-blue-300"}`}>
-                      {p.status === "FOR_SALE" ? "Shitje" : "Qira"}
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.status === "SOLD" ? "bg-red-500/15 text-red-300" : p.status === "FOR_SALE" ? "bg-green-500/15 text-green-300" : "bg-blue-500/15 text-blue-300"}`}>
+                      {p.status === "RENTED" ? "E lëshuar me qera" : p.status === "SOLD" ? "E shitur" : p.status === "FOR_SALE" ? "Shitje" : "Qira"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-white/80">{formatPropertyPrice(p)}</td>
@@ -356,8 +356,8 @@ const confirmDelete = async () => {
                   <p className="text-white font-medium text-sm leading-snug">{p.title}</p>
                   <p className="text-xs text-white/40 mt-0.5">{p.city}{p.neighborhood ? ` · ${p.neighborhood}` : ""}</p>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${p.status === "FOR_SALE" ? "bg-green-500/15 text-green-300" : "bg-blue-500/15 text-blue-300"}`}>
-                  {p.status === "FOR_SALE" ? "Shitje" : "Qira"}
+                <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${p.status === "SOLD" ? "bg-red-500/15 text-red-300" : p.status === "FOR_SALE" ? "bg-green-500/15 text-green-300" : "bg-blue-500/15 text-blue-300"}`}>
+                  {p.status === "RENTED" ? "E lëshuar me qera" : p.status === "SOLD" ? "E shitur" : p.status === "FOR_SALE" ? "Shitje" : "Qira"}
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">

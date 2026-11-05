@@ -18,13 +18,16 @@ import {
 import { useAuth } from "../context/authContextValue";
 import { useImageSwipe } from "../hooks/useImageSwipe";
 import { paths } from "../routes/paths";
-import { getStatusLabel, getTypeLabel } from "../utils/propertyLabels";
+import { getStatusLabel, getTypeLabel, isPropertyUnavailable } from "../utils/propertyLabels";
 import { formatPropertyPrice } from "../utils/propertyPricing";
 import { formatPropertyViews } from "../utils/propertyViews";
 import { formatPropertyLocation } from "../utils/propertyLocation";
 import FavoriteButton from "./FavoriteButton";
+import SoldStamp from "./SoldStamp";
 
 const PropertyCard = ({ property }) => {
+  const isUnavailable = isPropertyUnavailable(property);
+  const CardWrapper = isUnavailable ? "div" : Link;
   const images = property.images?.length ? property.images : ["/placeholder.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
@@ -49,6 +52,7 @@ const PropertyCard = ({ property }) => {
     event.preventDefault();
     event.stopPropagation();
 
+    if (isUnavailable) return;
     const redirect = paths.appointmentForProperty(property.id);
     navigate(isAuthenticated ? redirect : paths.loginWithRedirect(redirect));
   };
@@ -66,25 +70,31 @@ const PropertyCard = ({ property }) => {
   };
 
   const swipeHandlers = useImageSwipe({
-    enabled: images.length > 1,
+    enabled: !isUnavailable && images.length > 1,
     onNext: () => setCurrentIndex((prev) => (prev + 1) % images.length),
     onPrevious: () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length),
   });
 
   return (
-    <Link to={paths.propertyDetail(property.id)} className="group block h-full">
-      <article className="flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <CardWrapper {...(isUnavailable ? {} : { to: paths.propertyDetail(property.id) })} className="group block h-full">
+      <article className={`flex h-full min-h-[430px] flex-col overflow-hidden rounded-xl border border-black/5 bg-white shadow-md transition duration-300 ${isUnavailable ? "" : "hover:-translate-y-1 hover:shadow-xl"}`}>
         <div className="relative aspect-square w-full shrink-0 touch-pan-y overflow-hidden bg-[#edf1ee]" {...swipeHandlers}>
-          <FavoriteButton propertyId={property.id} compact />
+          {!isUnavailable && <FavoriteButton propertyId={property.id} compact />}
           <img
             src={images[currentIndex]}
             alt={property.title}
             loading="lazy"
             draggable="false"
-            className="h-full w-full object-contain"
+            className={`h-full w-full object-contain ${isUnavailable ? "blur-[1.5px]" : ""}`}
           />
 
-          {images.length > 1 && (
+          {isUnavailable && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/15">
+              <SoldStamp rented={property.status === "RENTED"} />
+            </div>
+          )}
+
+          {!isUnavailable && images.length > 1 && (
             <>
               <button
                 type="button"
@@ -156,13 +166,14 @@ const PropertyCard = ({ property }) => {
           <button
             type="button"
             onClick={handleBook}
-            className="mt-1 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#EFD391] text-sm font-bold text-black transition hover:bg-[#D9BF7B]"
+            disabled={isUnavailable}
+            className="mt-1 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#EFD391] text-sm font-bold text-black transition hover:bg-[#D9BF7B] disabled:cursor-default disabled:bg-gray-100 disabled:text-gray-500"
           >
-            <CalendarDays size={15} /> Rezervo Takim
+            <CalendarDays size={15} /> {isUnavailable ? getStatusLabel(property.status) : "Rezervo Takim"}
           </button>
         </div>
       </article>
-    </Link>
+    </CardWrapper>
   );
 };
 
